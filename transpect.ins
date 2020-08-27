@@ -1,0 +1,38 @@
+% -----------------------------------------------------------------
+% File:       transpect.ins
+% Author:     le-tex publishing services
+% Maintainer: le-tex publishing services
+%
+% This file is part of the transpect package for the rendering of
+% transpect conversion documents.
+%
+%       Copyright (C) 2020 le-tex publishing services
+%
+% -----------------------------------------------------------------
+% This file will generate fast loadable files and documentation
+% driver files from the doc files in this package when run through
+% LaTeX or TeX.
+% -----------------------------------------------------------------
+
+\input docstrip.tex
+\keepsilent
+\askforoverwritefalse
+
+\generate{%
+  \file{transpect.cls}{%
+    \from{transpect.dtx}{class}}
+  \file{transpect-helpers.sty}{%
+    \from{transpect.dtx}{helpers}}
+  \file{transpect-endnotes.sty}{%
+    \from{transpect.dtx}{endnotes}}
+  \file{transpect-headings.sty}{%
+    \from{transpect.dtx}{headings}}
+  \file{transpect-script.sty}{%
+    \from{transpect.dtx}{script}}
+  \file{transpect-title.sty}{%
+    \from{transpect.dtx}{title}}
+  \file{transpect-floats.sty}{%
+    \from{transpect.dtx}{floats}}
+}
+
+\endbatchfile

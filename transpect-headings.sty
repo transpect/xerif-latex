@@ -1,0 +1,340 @@
+%%
+%% This is file `transpect-headings.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% transpect.dtx  (with options: `headings')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from transpect-headings.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file transpect.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+\def\fileversion{0.90}%
+\def\filedate{2020-04-22}%
+%%
+%% module for le-tex transpect.cls that extends heading objects.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive >= 2019
+%%
+\NeedsTeXFormat{LaTeX2e}[2019/01/01]
+\ProvidesPackage{transpect-headings}
+    [2020/18/05 0.90 le-tex transpect headings module]
+\def\tpDeclareBlock#1#2{%
+  \tpDeclareHook{Before#1#2}%
+  \tpDeclareHook{#1Format#2}%
+  \tpDeclareHook{After#1#2}%
+}
+\def\tpUseHeadingBlock#1#2{%
+  \expandafter\ifx\csname heading@#1\endcsname\relax\else
+    \tpUseHook{Before#1#2}%
+    {\tpUseHook{#1Format#2}\csname heading@#1\endcsname}%
+    \tpUseHook{After#1#2}%
+  \fi}
+\def\tpDeclareHeading#1#2#3{%
+  \expandafter\def\csname heading@#2@name\endcsname{#2}%
+  \def\tpHeadingProperty##1##2{\tpAddToHook{##1#2}{##2}}%
+  \tpDeclareBlock{Author}{#2}%
+  \tpDeclareBlock{Subtitle}{#2}%
+  \tpDeclareBlock{Quote}{#2}%
+  \tpDeclareBlock{Number}{#2}%
+  \tpDeclareHook{BlockFormat#2}%
+  \tpDeclareHook{BeforeHeading#2}%
+  \tpDeclareHook{AfterHeading#2}%
+  \tpDeclareHook{AfterSkip#2}%
+  \tpDeclareHook{TitleFormat#2}%
+  \def\tpAuthorAfter{\expandafter\global\expandafter\let\csname tp@author@fter@#2\endcsname\@empty}%
+  \def\tpHangNumber{\expandafter\global\expandafter\let\csname tp@hang@number@#2\endcsname\@empty}%
+  \def\tpHangFixed##1{\expandafter\gdef\csname tp@hang@fixed@#2\endcsname{##1}}%
+  \tpHangFixed{\z@}%
+  \tp@init@l@{#2}%
+  #3
+  \expandafter\def\csname tpUseHeading#2\endcsname{%
+    \xdef\heading@level{#1}%
+    \edef\Hy@toclevel{\csname toclevel@#1\endcsname}%
+    \if@noskipsec \leavevmode \fi
+    \par\tpUseHook{BeforeHeading#2}%
+    \@afterindenttrue
+    \everypar{}%
+    \def\@svsec{%
+      \bgroup
+        \parindent\z@ \parskip\z@
+        \tpUseHook{BlockFormat#2}%
+        \expandafter\ifx\csname tp@author@fter@#2\endcsname\relax
+          \tpUseHeadingBlock{Author}{#2}%
+        \fi
+        \expandafter\ifx\csname tp@hang@number@#2\endcsname\@empty
+          \expandafter\@tempdimb\dimexpr\csname tp@hang@fixed@#2\endcsname\relax
+          \ifdim\@tempdimb>\z@\relax\else
+            \setbox\z@\hbox{\tpUseHook{TitleFormat#2}\tpUseHeadingBlock{Number}{#2}\strut}%
+            \@tempdimb\wd\z@
+          \fi
+          \expandafter\@tempdima\dimexpr\hsize-\@tempdimb\relax
+          \hskip\@tempdimb\vbox\bgroup
+            \hsize\@tempdima\relax
+            \hskip-\@tempdimb
+        \fi
+        {\tpUseHook{TitleFormat#2}%
+         \tpUseHeadingBlock{Number}{#2}%
+         \heading@Title}%
+        \tpUseHeadingBlock{Subtitle}{#2}%
+        \expandafter\ifx\csname tp@author@fter@#2\endcsname\relax\else
+          \tpUseHeadingBlock{Author}{#2}%
+        \fi
+        \expandafter\ifx\csname tp@hang@number@#2\endcsname\@empty
+          \vss\egroup
+        \fi
+        \tpUseHeadingBlock{Quote}{#2}%
+        \ifx\heading@Number\relax
+          \expandafter\global\expandafter\let\csname the#2\endcsname\@empty%
+        \else
+          \expandafter\xdef\csname the#2\endcsname{\heading@Number}%
+        \fi
+      \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
+        \Hy@MakeCurrentHrefAuto{#2}%
+        \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
+      \fi
+      \ifx\tp@label\relax\else
+        \ifx\heading@Number\relax
+        \else
+          \let\@currentlabel\heading@Number
+          \let\@currentlabelname\heading@Title
+          \expandafter\ltx@label\expandafter{\tp@label}%
+        \fi
+      \fi
+      \global\let\label\ltx@label
+        \expandafter\ifnum\heading@level<\c@tocdepth\relax
+          \ifx\heading@Toctitle\relax
+            \ifx\heading@Number\relax
+              \addcontentsline{toc}{#2}{\heading@Title}\relax
+            \else
+              \addcontentsline{toc}{#2}{\protect\numberline{\heading@Number}\heading@Title}\relax
+            \fi
+          \else
+            \addcontentsline{toc}{#2}{\heading@Toctitle}\relax
+          \fi
+        \fi
+        \ifx\heading@Runtitle\relax
+          \ifx\heading@Number\relax
+            \csname #2mark\endcsname{\heading@Title}%
+          \else
+            \csname #2mark\endcsname{\numberline{\heading@Number}\heading@Title}%
+          \fi
+        \else
+          \csname #2mark\endcsname{\heading@Runtitle}%
+        \fi
+      \egroup
+      \tpUseHook{AfterHeading#2}%
+    }%
+    \expandafter\ifx\csname tp@hook@AfterSkip#2\endcsname\@empty
+      \global\@tempskipa=1sp\relax
+    \else
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\@tempskipa\expandafter=\csname tp@hook@AfterSkip#2\endcsname\relax%
+    \fi
+    \ifdim\@tempskipa <\z@\relax
+      \global\@afterindentfalse
+      \expandafter\gdef\expandafter\@svsechd\expandafter{\@svsec}%
+      \@nobreakfalse
+      \global\@noskipsectrue
+      \global\everypar{%
+        \if@noskipsec
+          \global\@noskipsecfalse
+          {\setbox\z@\lastbox}%
+          \clubpenalty\@M
+          \begingroup \@svsechd \endgroup
+          \unskip
+          \hskip -\@tempskipa
+        \else
+          \clubpenalty \@clubpenalty
+          \everypar{}%
+        \fi}%
+      \ignorespaces
+    \else
+      \@svsec
+      \par \nobreak
+      \vskip \@tempskipa
+      \global\@afterindentfalse
+      \aftergroup\@afterheading%
+    \fi}}
+
+\def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
+
+\def\@heading[#1]#2{%
+  \global\let\heading@Author\relax
+  \global\let\heading@Title\relax
+  \global\let\heading@Number\relax
+  \global\let\heading@Subtitle\relax
+  \global\let\heading@Toctitle\relax
+  \global\let\heading@Runtitle\relax
+  \global\let\heading@Quote\relax
+  \global\let\@optarg\relax
+  \global\let\ltx@label\label
+  \global\let\tp@label\relax
+  \bgroup
+    \xdef\@optarg{#1}%
+    \xdef\heading@name{#2}%
+    \def\label##1{\gdef\tp@label{##1}}%
+    \def\author##1{\gdef\heading@Author{##1}}%
+    \def\title##1{\gdef\heading@Title{##1}}%
+    \def\subtitle##1{\gdef\heading@Subtitle{##1}}%
+    \def\toctitle##1{\gdef\heading@Toctitle{##1}}%
+    \def\runtitle##1{\gdef\heading@Runtitle{##1}}%
+    \def\number##1{\gdef\heading@Number{##1}}%
+    \long\def\quote##1{\long\gdef\heading@Quote{##1}}%
+}
+\def\endheading{%
+  \egroup
+  \expandafter\ifx\csname tpUseHeading\heading@name\endcsname\relax
+    \PackageError{transpect.cls}{Heading level \heading@name\space unknown!}{A Heading with level \heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
+  \fi
+  \csname tpUseHeading\heading@name\endcsname}
+\def\tp@init@l@#1{%
+  \def\tpToCProperty##1##2{\tpAddToHook{##1#1}{##2}}%
+  \def\tpToCBefore##1{\expandafter\gdef\csname tp@toc@before@#1\endcsname{##1}}%\vskip 1.0em \@plus\p@
+  \def\tpToCAfter##1{\expandafter\def\csname tp@toc@after@#1\endcsname{##1}}%
+  \def\tpToCHangNumber{\expandafter\global\expandafter\let\csname tp@toc@hangnum@#1\endcsname\@empty}%
+  \def\tpToCHangFixed##1{\expandafter\xdef\csname tp@toc@hangfixed@#1\endcsname{\dimexpr##1\relax}}%
+  \expandafter\let\csname tp@toc@hangfixed@#1\endcsname\z@
+  \def\tpToCNumSep##1{\expandafter\gdef\csname tp@toc@numsep@#1\endcsname{##1}}%\enskip
+  \def\tpToCPageSep##1{\expandafter\gdef\csname tp@toc@pagesep@#1\endcsname{##1}}%\dotfill
+  \def\tpToCPageFormat##1{\expandafter\gdef\csname tp@toc@pageformat@#1\endcsname{##1}}%
+  \def\tpToCFormat##1{\expandafter\def\csname tp@toc@format@#1\endcsname{##1}}%\bfseries
+  \expandafter\def\csname l@#1\endcsname##1##2{%
+    \addpenalty{-\@highpenalty}%
+    \csname tp@toc@before@#1\endcsname
+    \expandafter\ifx\csname tp@toc@hangnum@#1\endcsname\@empty
+      \expandafter\@tempdima\csname tp@toc@hangfixed@#1\endcsname
+    \else
+      \def\numberline####1{%
+        \setbox\@tempboxa\hbox{####1\csname tp@toc@numsep@#1\endcsname}}%
+      \sbox\z@{##1}%
+      \expandafter\@tempdima\wd\@tempboxa%
+    \fi
+    \def\numberline####1{####1\csname tp@toc@numsep@#1\endcsname}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode
+      \csname tp@toc@format@#1\endcsname
+      \advance\leftskip\@tempdima
+      \hskip -\@tempdima
+      ##1\nobreak
+      \csname tp@toc@pagesep@#1\endcsname
+      \nobreak\hb@xt@\@pnumwidth{\hss\csname tp@toc@pageformat@#1\endcsname ##2%
+        \kern-\p@\kern\p@}\par
+      \penalty\@highpenalty
+      \csname tp@toc@after@#1\endcsname
+    \endgroup
+  }%
+}
+\def\partmark#1{}%
+\tpDeclareHeading{-1}{part}{%
+  \tpHeadingProperty{BlockFormat}{\centering
+    \markboth{}{}%
+    \thispagestyle{empty}%
+  }%
+  \tpHeadingProperty{BeforeHeading}{\cleardoublepage\null\vskip10mm}%
+  \tpHeadingProperty{AfterHeading}{\vfill}%
+  \tpHeadingProperty{AuthorFormat}{\itshape}%
+  \tpHeadingProperty{AfterAuthor}{\@@par\vskip2\baselineskip}%
+  \tpHeadingProperty{TitleFormat}{\Huge}%
+  \tpHeadingProperty{BeforeSubtitle}{\@@par\vskip\baselineskip}%
+  \tpHeadingProperty{SubtitleFormat}{\leavevmode\vskip\baselineskip\large\bfseries}%
+  \tpHeadingProperty{AfterNumber}{:\@@par}%
+  \tpToCBefore{\vskip2\baselineskip}%
+  \tpToCFormat{\bfseries}%
+  \tpToCPageSep{\hfill}%
+}
+
+\tpDeclareHeading{0}{chapter}{%
+  \tpHeadingProperty{BlockFormat}{\centering
+    \markboth{}{}%
+    \thispagestyle{empty}%
+  }%
+  \tpHeadingProperty{BeforeHeading}{\cleardoublepage\null\vskip10mm}%
+  \tpHeadingProperty{AfterSkip}{3\baselineskip}%
+  \tpHeadingProperty{AuthorFormat}{\itshape}%
+  \tpHeadingProperty{AfterAuthor}{\@@par\vskip\baselineskip}%
+  \tpHeadingProperty{TitleFormat}{\LARGE}%
+  \tpHeadingProperty{SubtitleFormat}{\leavevmode\vskip\baselineskip\Large\bfseries}%
+  \tpHeadingProperty{BeforeSubtitle}{\@@par\vskip.5\baselineskip}%
+  \tpHeadingProperty{BeforeQuote}{\strut\@@par\vskip\baselineskip\hfil\hbox\bgroup\centering\vbox\bgroup\hsize.5\textwidth\centering}%
+  \tpHeadingProperty{AfterQuote}{\egroup\egroup}%
+  \tpHeadingProperty{AfterNumber}{:\enskip}%
+  \tpToCBefore{\vskip1\baselineskip}%
+  \tpToCFormat{\bfseries}%
+  \tpToCPageSep{\bfseries\dotfill}%
+  %%
+  \tpHeadingProperty{AfterNumber}{:\enskip}%
+}
+
+\tpDeclareHeading{1}{section}{%
+  \tpAuthorAfter
+  \tpHangNumber
+  %\tpHangFixed{12mm}%
+  \tpHeadingProperty{BeforeHeading}{\vskip2\baselineskip}%
+  \tpHeadingProperty{AfterSkip}{1\baselineskip}%
+  \tpHeadingProperty{BeforeSubtitle}{ -- }%
+  \tpHeadingProperty{BeforeAuthor}{\@@par}%
+  \tpHeadingProperty{AuthorFormat}{\itshape}%
+  \tpHeadingProperty{AfterAuthor}{\@@par}%
+  \tpHeadingProperty{TitleFormat}{\Large}%
+  \tpHeadingProperty{SubtitleFormat}{\Large}%
+  \tpHeadingProperty{BeforeQuote}{\@@par\vskip.5\baselineskip}%
+  \tpHeadingProperty{AfterNumber}{:\enskip}%
+  % \tpHeadingProperty{AfterQuote}{\@@par\vskip.5\baselineskip}%
+}
+
+\tpDeclareHeading{2}{subsection}{%
+  \tpHeadingProperty{BeforeHeading}{\vskip1.5\baselineskip}%
+  \tpHeadingProperty{AfterSkip}{0.5\baselineskip}%
+  \tpHeadingProperty{BeforeSubtitle}{ -- }%
+  \tpHeadingProperty{AfterAuthor}{\@@par}%
+  \tpHeadingProperty{TitleFormat}{\large}%
+  \tpHeadingProperty{SubtitleFormat}{}%
+  \tpHeadingProperty{BeforeQuote}{\@@par\vskip.5\baselineskip}%
+  \tpHeadingProperty{AfterNumber}{:\enskip}%
+}
+
+\tpDeclareHeading{3}{subsubsection}{}
+
+\tpDeclareHeading{4}{paragraph}{%
+  \tpHeadingProperty{BeforeHeading}{\vskip1\baselineskip \@minus5bp}%
+  \tpHeadingProperty{AfterSkip}{-.5em}%
+  \tpHeadingProperty{BeforeSubtitle}{ -- }%
+  \tpHeadingProperty{AfterAuthor}{\@@par}%
+  \tpHeadingProperty{TitleFormat}{\normalsize\bfseries}%
+  \tpHeadingProperty{SubtitleFormat}{}%
+  \tpHeadingProperty{AfterNumber}{:\enskip}%
+}
+
+\let\ltx@ps@headings\ps@headings
+\def\ps@headings{%
+  \ltx@ps@headings
+  \def\chaptermark##1{%
+    \def\numberline####1{####1\enskip}%
+    \markboth{%
+      ##1
+    }{}}%
+  \def\sectionmark##1{%
+    \def\numberline####1{####1\enskip}%
+    \markright{##1}}%
+}
+
+
+
+\endinput
+%%
+%% End of file `transpect-headings.sty'.
