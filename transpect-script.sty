@@ -57,13 +57,13 @@
 [BoldFont = NotoSans-Bold.ttf,%
  ItalicFont = NotoSans-Italic.ttf,%
  BoldItalicFont = NotoSans-BoldItalic.ttf,%
- Path = fonts/Noto/,%
+ Path = ./fonts/Noto/,%
  WordSpace = 1.25]
 \DeclareTextFontCommand\textfallback{\fallbackfont}
 
 \ifx\use@script@armenian\relax
   \message{^^J  [transpect-script Loaded Script: Armenian]^^J}
-  \def\NotoArmenianPath{fonts/Noto/Armenian/}
+  \def\NotoArmenianPath{./fonts/Noto/Armenian/}
   \babelfont{armenian}%
     [BoldFont = NotoSansArmenian-Bold.ttf,%
      Path = \NotoArmenianPath,%
@@ -71,7 +71,7 @@
   \DeclareTextFontCommand\armenian{\fallbackfont@armenian}
 \fi
 \ifx\use@script@chinese\relax
-  \def\NotoCJKPath{fonts/Noto/Chinese/}
+  \def\NotoCJKPath{./fonts/Noto/Chinese/}
   \message{^^J  [transpect-script Loaded Script: Chinese]^^J}
   \babelprovide{chinese}
   \babelfont[chinese]{rm}[%
@@ -82,7 +82,7 @@
 \fi
 \ifx\use@script@hebrew\relax
   \message{^^J  [transpect-script Loaded Script: Hebrew]^^J}
-  \def\NotoHebrewPath{fonts/Noto/Hebrew/}
+  \def\NotoHebrewPath{./fonts/Noto/Hebrew/}
   \babelfont[hebrew]{rm}[%
     Scale=MatchUppercase,%
     Ligatures=TeX,%
