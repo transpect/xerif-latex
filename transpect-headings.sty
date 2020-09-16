@@ -37,48 +37,65 @@
   \tpDeclareHook{#1Format#2}%
   \tpDeclareHook{After#1#2}%
 }
-\def\tpUseHeadingBlock#1#2{%
+\def\tp@use@heading@block#1#2{%
   \expandafter\ifx\csname heading@#1\endcsname\relax\else
     \tpUseHook{Before#1#2}%
     {\tpUseHook{#1Format#2}\csname heading@#1\endcsname}%
     \tpUseHook{After#1#2}%
   \fi}
-\def\tpDeclareHeading#1#2#3{%
-  \expandafter\def\csname heading@#2@name\endcsname{#2}%
-  \def\tpHeadingProperty##1##2{\tpAddToHook{##1#2}{##2}}%
-  \tpDeclareBlock{Author}{#2}%
-  \tpDeclareBlock{Subtitle}{#2}%
-  \tpDeclareBlock{Quote}{#2}%
-  \tpDeclareBlock{Number}{#2}%
-  \tpDeclareHook{BlockFormat#2}%
-  \tpDeclareHook{BeforeHeading#2}%
-  \tpDeclareHook{AfterHeading#2}%
-  \tpDeclareHook{AfterSkip#2}%
-  \tpDeclareHook{TitleFormat#2}%
-  \def\tpAuthorAfter{\expandafter\global\expandafter\let\csname tp@author@fter@#2\endcsname\@empty}%
-  \def\tpHangNumber{\expandafter\global\expandafter\let\csname tp@hang@number@#2\endcsname\@empty}%
-  \def\tpHangFixed##1{\expandafter\gdef\csname tp@hang@fixed@#2\endcsname{##1}}%
+\def\tpDeclareHeading{\@ifnextchar[{\@tpDeclareHeading}{\@tpDeclareHeading[]}}%]
+\def\@tpDeclareHeading[#1]#2#3#4{%
+  \expandafter\gdef\csname tp@decl@#3\endcsname{#4}%
+  \global\let\tp@inherit\relax
+  \if!#1!\else
+    \xdef\tp@inherit{#1}%
+    \expandafter\xdef\csname tp@inherit@#3\expandafter\endcsname{#1}%
+  \fi
+  \expandafter\def\csname heading@#3@name\endcsname{#3}%
+  \def\tpHeadingProperty##1##2{%
+    \ifx\tp@inherit\relax\else\tpDeclareHook{##1#3}\fi
+    \tpAddToHook{##1#3}{##2}%
+  }%
+  \tpDeclareBlock{Author}{#3}%
+  \tpDeclareBlock{Subtitle}{#3}%
+  \tpDeclareBlock{Quote}{#3}%
+  \tpDeclareBlock{Number}{#3}%
+  \tpDeclareHook{BlockFormat#3}%
+  \tpDeclareHook{BeforeHeading#3}%
+  \tpDeclareHook{AfterHeading#3}%
+  \tpDeclareHook{AfterSkip#3}%
+  \tpDeclareHook{TitleFormat#3}%
+  \def\tpAuthorAfter{\expandafter\global\expandafter\let\csname tp@author@fter@#3\endcsname\@empty}%
+  \def\tpHideAuthor{\expandafter\global\expandafter\let\csname tp@hide@uthor@#3\endcsname\@empty}%
+  \def\tpHangNumber{\expandafter\global\expandafter\let\csname tp@hang@number@#3\endcsname\@empty}%
+  \def\tpHangFixed##1{\expandafter\gdef\csname tp@hang@fixed@#3\endcsname{##1}}%
   \tpHangFixed{\z@}%
-  \tp@init@l@{#2}%
-  #3
-  \expandafter\def\csname tpUseHeading#2\endcsname{%
-    \xdef\heading@level{#1}%
-    \edef\Hy@toclevel{\csname toclevel@#1\endcsname}%
+  \tp@init@l@{#3}%
+  \ifx\tp@inherit\relax\else
+    \csname tp@decl@\tp@inherit\endcsname
+  \fi
+  \csname tp@decl@#3\endcsname
+  \expandafter\def\csname tpUseHeading#3\endcsname{%
+    \expandafter\let\expandafter\tp@inherit@name\csname tp@inherit@#3\endcsname
+    \xdef\heading@level{#2}%
+    \edef\Hy@toclevel{\csname toclevel@#2\endcsname}%
     \if@noskipsec \leavevmode \fi
     \par\@afterindenttrue
-    \tpUseHook{BeforeHeading#2}%
+    \tpUseHook{BeforeHeading#3}%
     \everypar{}%
     \def\@svsec{%
       \bgroup
         \parindent\z@ \parskip\z@
-        \tpUseHook{BlockFormat#2}%
-        \expandafter\ifx\csname tp@author@fter@#2\endcsname\relax
-          \tpUseHeadingBlock{Author}{#2}%
+        \tpUseHook{BlockFormat#3}%
+        \expandafter\ifx\csname tp@hide@uthor@#3\endcsname\relax
+          \expandafter\ifx\csname tp@author@fter@#3\endcsname\relax
+            \tp@use@heading@block{Author}{#3}%
+          \fi
         \fi
-        \expandafter\ifx\csname tp@hang@number@#2\endcsname\@empty
-          \expandafter\@tempdimb\dimexpr\csname tp@hang@fixed@#2\endcsname\relax
+        \expandafter\ifx\csname tp@hang@number@#3\endcsname\@empty
+          \expandafter\@tempdimb\dimexpr\csname tp@hang@fixed@#3\endcsname\relax
           \ifdim\@tempdimb>\z@\relax\else
-            \setbox\z@\hbox{\tpUseHook{TitleFormat#2}\tpUseHeadingBlock{Number}{#2}\strut}%
+            \setbox\z@\hbox{\tpUseHook{TitleFormat#3}\tp@use@heading@block{Number}{#3}\strut}%
             \@tempdimb\wd\z@
           \fi
           \expandafter\@tempdima\dimexpr\hsize-\@tempdimb\relax
@@ -86,62 +103,78 @@
             \hsize\@tempdima\relax
             \hskip-\@tempdimb
         \fi
-        {\tpUseHook{TitleFormat#2}%
-         \tpUseHeadingBlock{Number}{#2}%
+        {\tpUseHook{TitleFormat#3}%
+         \tp@use@heading@block{Number}{#3}%
          \heading@Title}%
-        \tpUseHeadingBlock{Subtitle}{#2}%
-        \expandafter\ifx\csname tp@author@fter@#2\endcsname\relax\else
-          \tpUseHeadingBlock{Author}{#2}%
+        \tp@use@heading@block{Subtitle}{#3}%
+        \expandafter\ifx\csname tp@hide@uthor@#3\endcsname\relax
+          \expandafter\ifx\csname tp@author@fter@#3\endcsname\relax\else
+            \tp@use@heading@block{Author}{#3}%
+          \fi
         \fi
-        \expandafter\ifx\csname tp@hang@number@#2\endcsname\@empty
+        \expandafter\ifx\csname tp@hang@number@#3\endcsname\@empty
           \vss\egroup
         \fi
-        \tpUseHeadingBlock{Quote}{#2}%
+        \tp@use@heading@block{Quote}{#3}%
         \ifx\heading@Number\relax
-          \expandafter\global\expandafter\let\csname the#2\endcsname\@empty%
+          \expandafter\global\expandafter\let\csname the#3\endcsname\@empty%
         \else
-          \expandafter\xdef\csname the#2\endcsname{\heading@Number}%
+          \expandafter\xdef\csname the#3\endcsname{\heading@Number}%
         \fi
-      \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
-        \Hy@MakeCurrentHrefAuto{#2}%
-        \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
-      \fi
-      \ifx\tp@label\relax\else
-        \ifx\heading@Number\relax
+        \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
+          \Hy@MakeCurrentHrefAuto{#3}%
+          \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
+        \fi
+        \ifx\tp@label\relax\else
+          \ifx\heading@Number\relax
+          \else
+            \let\@currentlabel\heading@Number
+            \let\@currentlabelname\heading@Title
+            \expandafter\ltx@label\expandafter{\tp@label}%
+          \fi
+        \fi
+        \global\let\label\ltx@label
+        \expandafter\ifx\tp@notoc\relax
+          \global\let\tp@notoc\@empty
         \else
-          \let\@currentlabel\heading@Number
-          \let\@currentlabelname\heading@Title
-          \expandafter\ltx@label\expandafter{\tp@label}%
-        \fi
-      \fi
-      \global\let\label\ltx@label
-        \expandafter\ifnum\heading@level<\c@tocdepth\relax
-          \ifx\heading@Toctitle\relax
-            \ifx\heading@Number\relax
-              \addcontentsline{toc}{#2}{\heading@Title}\relax
+          \ifx\tp@notocnumber\relax
+            \let\numberline\@gobble
+            \global\let\tp@notocnumber\@empty
+          \fi
+          \expandafter\ifnum\heading@level<\c@tocdepth\relax
+            \ifx\heading@Toctitle\relax
+              \ifx\heading@Number\relax
+                \addcontentsline{toc}{#3}{\heading@Title}\relax
+              \else
+                \addcontentsline{toc}{#3}{\protect\numberline{\heading@Number}\heading@Title}\relax
+              \fi
             \else
-              \addcontentsline{toc}{#2}{\protect\numberline{\heading@Number}\heading@Title}\relax
+              \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
+            \fi
+          \fi
+        \fi
+        \expandafter\let\expandafter\tp@mark@name\csname #3mark\endcsname%
+        \ifx\tp@mark@name\relax
+          \expandafter\let\expandafter\tp@mark@name\csname \tp@inherit@name mark\endcsname
+        \fi
+        \ifx\tp@mark@name\relax\else
+          \ifx\heading@Runtitle\relax
+            \ifx\heading@Number\relax
+              \tp@mark@name{\heading@Title}%
+            \else
+              \tp@mark@name{\numberline{\heading@Number}\heading@Title}%
             \fi
           \else
-            \addcontentsline{toc}{#2}{\heading@Toctitle}\relax
+            \tp@mark@name{\heading@Runtitle}%
           \fi
-        \fi
-        \ifx\heading@Runtitle\relax
-          \ifx\heading@Number\relax
-            \csname #2mark\endcsname{\heading@Title}%
-          \else
-            \csname #2mark\endcsname{\numberline{\heading@Number}\heading@Title}%
-          \fi
-        \else
-          \csname #2mark\endcsname{\heading@Runtitle}%
         \fi
       \egroup
-      \tpUseHook{AfterHeading#2}%
+      \tpUseHook{AfterHeading#3}%
     }%
-    \expandafter\ifx\csname tp@hook@AfterSkip#2\endcsname\@empty
+    \expandafter\ifx\csname tp@hook@AfterSkip#3\endcsname\@empty
       \global\@tempskipa=1sp\relax
     \else
-      \expandafter\expandafter\expandafter\global\expandafter\expandafter\@tempskipa\expandafter=\csname tp@hook@AfterSkip#2\endcsname\relax%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\@tempskipa\expandafter=\csname tp@hook@AfterSkip#3\endcsname\relax%
     \fi
     \ifdim\@tempskipa <\z@\relax
       \global\@afterindentfalse
@@ -173,6 +206,15 @@
 
 \DeclareRobustCommand{\TitleBreak}{\hfill\break}
 
+\def\tp@parse@opt#1{\@tp@parse@opt#1,,\@nil}
+\def\@tp@parse@opt#1,#2,\@nil{%
+  \expandafter\ifx\csname tp@#1\endcsname\@empty
+    \expandafter\global\expandafter\let\csname tp@#1\endcsname\relax
+  \fi
+  \if!#2!\else
+    \@tp@parse@opt#2,\@nil
+  \fi}
+
 \def\@heading[#1]#2{%
   \bgroup
     \let\\\TitleBreak
@@ -183,11 +225,12 @@
     \global\let\heading@Toctitle\relax
     \global\let\heading@Runtitle\relax
     \global\let\heading@Quote\relax
-    \global\let\@optarg\relax
     \global\let\ltx@label\label
     \global\let\tp@label\relax
+    \global\let\tp@notoc\@empty
+    \global\let\tp@notocnumber\@empty
+    \tp@parse@opt{#1}%
     \bgroup
-      \xdef\@optarg{#1}%
       \xdef\heading@name{#2}%
       \def\label##1{\gdef\tp@label{##1}}%
       \def\author##1{\gdef\heading@Author{##1}}%
