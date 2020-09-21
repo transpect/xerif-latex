@@ -68,6 +68,7 @@
   \def\tpAuthorAfter{\expandafter\global\expandafter\let\csname tp@author@fter@#3\endcsname\@empty}%
   \def\tpHideAuthor{\expandafter\global\expandafter\let\csname tp@hide@uthor@#3\endcsname\@empty}%
   \def\tpHangNumber{\expandafter\global\expandafter\let\csname tp@hang@number@#3\endcsname\@empty}%
+  \def\tpNoToc{\expandafter\global\expandafter\let\csname tp@no@toc@#3\endcsname\@empty}%
   \def\tpHangFixed##1{\expandafter\gdef\csname tp@hang@fixed@#3\endcsname{##1}}%
   \tpHangFixed{\z@}%
   \tp@init@l@{#3}%
@@ -134,28 +135,32 @@
           \fi
         \fi
         \global\let\label\ltx@label
-        \expandafter\ifx\tp@notoc\relax
-          \global\let\tp@notoc\@empty
-        \else
-          \ifx\tp@notocnumber\relax
-            \let\numberline\@gobble
-            \global\let\tp@notocnumber\@empty
-          \fi
-          \expandafter\ifnum\heading@level<\c@tocdepth\relax
-            \ifx\heading@Toctitle\relax
-              \ifx\heading@Number\relax
-                \addcontentsline{toc}{#3}{\heading@Title}\relax
+        \expandafter\ifx\csname tp@no@toc@#3\endcsname\@empty\else
+          \expandafter\ifx\tp@notoc\relax
+            \global\let\tp@notoc\@empty
+          \else
+            \ifx\tp@notocnumber\relax
+              \let\numberline\@gobble
+              \global\let\tp@notocnumber\@empty
+            \fi
+            \expandafter\ifnum\heading@level<\c@tocdepth\relax
+              \ifx\heading@Toctitle\relax
+                \ifx\heading@Number\relax
+                  \addcontentsline{toc}{#3}{\heading@Title}\relax
+                \else
+                  \addcontentsline{toc}{#3}{\protect\numberline{\heading@Number}\heading@Title}\relax
+                \fi
               \else
-                \addcontentsline{toc}{#3}{\protect\numberline{\heading@Number}\heading@Title}\relax
+                \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
               \fi
-            \else
-              \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
             \fi
           \fi
         \fi
         \expandafter\let\expandafter\tp@mark@name\csname #3mark\endcsname%
         \ifx\tp@mark@name\relax
-          \expandafter\let\expandafter\tp@mark@name\csname \tp@inherit@name mark\endcsname
+          \ifx\tp@inherit@name\relax\else
+            \expandafter\let\expandafter\tp@mark@name\csname \tp@inherit@name mark\endcsname
+          \fi
         \fi
         \ifx\tp@mark@name\relax\else
           \ifx\heading@Runtitle\relax
