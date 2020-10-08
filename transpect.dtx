@@ -412,6 +412,10 @@
 %    \begin{macrocode}[lastline=1]
   \tpDeclareBlock{Quote}{#3}%
 %    \end{macrocode}
+% Formatting and upper/lower boundaries of quote sources
+%    \begin{macrocode}[lastline=1]
+  \tpDeclareBlock{QuoteSource}{#3}%
+%    \end{macrocode}
 % Formatting and upper/lower boundaries of heading counters. Thise are formatted as the actual title, bzt can be overridden with \lstinline{\NumberFormat}.
 %    \begin{macrocode}[lastline=1]
   \tpDeclareBlock{Number}{#3}%
@@ -439,6 +443,16 @@
 % format of the actual heading title
 %    \begin{macrocode}[lastline=1]
   \tpDeclareHook{TitleFormat#3}%
+%    \end{macrocode}
+% The following hooks allow the whole heading to be placed inside a
+% box, e.g., when the heading area should have a fixed overall height.
+%    \begin{macrocode}[lastline=2]
+  \tpDeclareHook{BeforeBox#3}%
+  \tpDeclareHook{AfterBox#3}%
+%    \end{macrocode}
+% This switch enables parindents immediately after the heading.
+%    \begin{macrocode}[lastline=1]
+  \def\tpAfterIndent{\expandafter\global\expandafter\let\csname tp@fter@indent@#3\endcsname\@empty}%
 %    \end{macrocode}
 % This switch provides a way to put the author's name(s) after the
 % heading. Default is that the author's are put on top of the heading.
@@ -480,7 +494,7 @@
 % to output the headings. This code largely resembles \LaTeX's
 % \lstinline{\@startsection} mechanism, albeit with some tweaks.
 % \subsection{Providing the actual heading macro}
-%    \begin{macrocode}[lastline=41]
+%    \begin{macrocode}[lastline=43]
   \expandafter\def\csname tpUseHeading#3\endcsname{%
     \expandafter\let\expandafter\tp@inherit@name\csname tp@inherit@#3\endcsname
     \xdef\heading@level{#2}%
@@ -490,6 +504,7 @@
     \tpUseHook{BeforeHeading#3}%
     \everypar{}%
     \def\@svsec{%
+      \tpUseHook{BeforeBox#3}%
       \bgroup
         \parindent\z@ \parskip\z@
         \tpUseHook{BlockFormat#3}%
@@ -522,6 +537,7 @@
           \vss\egroup
         \fi
         \tp@use@heading@block{Quote}{#3}%
+        \tp@use@heading@block{QuoteSource}{#3}%
 %    \end{macrocode}
 % Since all counters are taken from Word input, we can safely override \lstinline{\the<name>}:
 %    \begin{macrocode}[lastline=5]
@@ -588,27 +604,32 @@
 % note that \lstinline{\chaptermark} and \lstinline{\sectionmark} need
 % to be dealt with in your page style definitions or you might get
 % faulty \lstinline{\thechapter} and \lstinline{\thesection} readings!
-%    \begin{macrocode}[lastline=9]
+%    \begin{macrocode}[lastline=10]
               \tp@mark@name{\numberline{\heading@Number}\heading@Title}%
             \fi
           \else
             \tp@mark@name{\heading@Runtitle}%
           \fi
         \fi
+        \tpUseHook{AfterBox#3}%
       \egroup
       \tpUseHook{AfterHeading#3}%
     }%
 %    \end{macrocode}
 % Skip after the heading, taken partially from the definition of
 % \LaTeX's \lstinline{\@xsect} macro:
-%    \begin{macrocode}[lastline=31]
+%    \begin{macrocode}[lastline=39]
     \expandafter\ifx\csname tp@hook@AfterSkip#3\endcsname\@empty
       \global\@tempskipa=1sp\relax
     \else
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\@tempskipa\expandafter=\csname tp@hook@AfterSkip#3\endcsname\relax%
     \fi
     \ifdim\@tempskipa <\z@\relax
-      \global\@afterindentfalse
+      \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
+        \global\@afterindentfalse
+      \else
+        \global\@afterindenttrue
+      \fi
       \expandafter\gdef\expandafter\@svsechd\expandafter{\@svsec}%
       \@nobreakfalse
       \global\@noskipsectrue
@@ -629,7 +650,11 @@
       \@svsec
       \par \nobreak
       \vskip \@tempskipa
-      \global\@afterindentfalse
+      \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
+        \global\@afterindentfalse
+      \else
+        \global\@afterindenttrue
+      \fi
       \aftergroup\@afterheading%
     \fi}}
 
@@ -637,7 +662,7 @@
 %
 % \section{The headings environment}
 %
-%    \begin{macrocode}[lastline=25]
+%    \begin{macrocode}[lastline=26]
 \def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
 
 \DeclareRobustCommand{\TitleBreak}{\hfill\break}
@@ -661,6 +686,7 @@
     \global\let\heading@Toctitle\relax
     \global\let\heading@Runtitle\relax
     \global\let\heading@Quote\relax
+    \global\let\heading@QuoteSource\relax
     \global\let\ltx@label\label
     \global\let\tp@label\relax
 %    \end{macrocode}
@@ -674,7 +700,7 @@
 % The mandatory argument contains the section level, this corresponds
 % to \LaTeX's way of counting where part is -1, chapter is 0, section
 % is 1, etc.
-%    \begin{macrocode}[lastline=10]
+%    \begin{macrocode}[lastline=11]
       \xdef\heading@name{#2}%
       \def\label##1{\gdef\tp@label{##1}}%
       \def\author##1{\gdef\heading@Author{##1}}%
@@ -684,17 +710,19 @@
       \def\runtitle##1{\gdef\heading@Runtitle{##1}}%
       \def\number##1{\gdef\heading@Number{##1}}%
       \long\def\quote##1{\long\gdef\heading@Quote{##1}}%
+      \long\def\quotesource##1{\long\gdef\heading@QuoteSource{##1}}%
 }
 %    \end{macrocode}
 % The ending part of the heading environment.
-%    \begin{macrocode}[lastline=8]
+%    \begin{macrocode}[lastline=9]
 \def\endheading{%
     \egroup
     \expandafter\ifx\csname tpUseHeading\heading@name\endcsname\relax
       \PackageError{transpect.cls}{Heading level \heading@name\space unknown!}{A Heading with level \heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
     \fi
-    \csname tpUseHeading\heading@name\endcsname
+    \expandafter\aftergroup\csname tpUseHeading\heading@name\endcsname
   \egroup
+  \nopagebreak
 }
 %    \end{macrocode}
 %

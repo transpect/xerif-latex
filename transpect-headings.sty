@@ -59,12 +59,16 @@
   \tpDeclareBlock{Author}{#3}%
   \tpDeclareBlock{Subtitle}{#3}%
   \tpDeclareBlock{Quote}{#3}%
+  \tpDeclareBlock{QuoteSource}{#3}%
   \tpDeclareBlock{Number}{#3}%
   \tpDeclareHook{BlockFormat#3}%
   \tpDeclareHook{BeforeHeading#3}%
   \tpDeclareHook{AfterHeading#3}%
   \tpDeclareHook{AfterSkip#3}%
   \tpDeclareHook{TitleFormat#3}%
+  \tpDeclareHook{BeforeBox#3}%
+  \tpDeclareHook{AfterBox#3}%
+  \def\tpAfterIndent{\expandafter\global\expandafter\let\csname tp@fter@indent@#3\endcsname\@empty}%
   \def\tpAuthorAfter{\expandafter\global\expandafter\let\csname tp@author@fter@#3\endcsname\@empty}%
   \def\tpHideAuthor{\expandafter\global\expandafter\let\csname tp@hide@uthor@#3\endcsname\@empty}%
   \def\tpHangNumber{\expandafter\global\expandafter\let\csname tp@hang@number@#3\endcsname\@empty}%
@@ -85,6 +89,7 @@
     \tpUseHook{BeforeHeading#3}%
     \everypar{}%
     \def\@svsec{%
+      \tpUseHook{BeforeBox#3}%
       \bgroup
         \parindent\z@ \parskip\z@
         \tpUseHook{BlockFormat#3}%
@@ -117,6 +122,7 @@
           \vss\egroup
         \fi
         \tp@use@heading@block{Quote}{#3}%
+        \tp@use@heading@block{QuoteSource}{#3}%
         \ifx\heading@Number\relax
           \expandafter\global\expandafter\let\csname the#3\endcsname\@empty%
         \else
@@ -173,6 +179,7 @@
             \tp@mark@name{\heading@Runtitle}%
           \fi
         \fi
+        \tpUseHook{AfterBox#3}%
       \egroup
       \tpUseHook{AfterHeading#3}%
     }%
@@ -182,7 +189,11 @@
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\@tempskipa\expandafter=\csname tp@hook@AfterSkip#3\endcsname\relax%
     \fi
     \ifdim\@tempskipa <\z@\relax
-      \global\@afterindentfalse
+      \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
+        \global\@afterindentfalse
+      \else
+        \global\@afterindenttrue
+      \fi
       \expandafter\gdef\expandafter\@svsechd\expandafter{\@svsec}%
       \@nobreakfalse
       \global\@noskipsectrue
@@ -203,7 +214,11 @@
       \@svsec
       \par \nobreak
       \vskip \@tempskipa
-      \global\@afterindentfalse
+      \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
+        \global\@afterindentfalse
+      \else
+        \global\@afterindenttrue
+      \fi
       \aftergroup\@afterheading%
     \fi}}
 
@@ -230,6 +245,7 @@
     \global\let\heading@Toctitle\relax
     \global\let\heading@Runtitle\relax
     \global\let\heading@Quote\relax
+    \global\let\heading@QuoteSource\relax
     \global\let\ltx@label\label
     \global\let\tp@label\relax
     \global\let\tp@notoc\@empty
@@ -245,14 +261,16 @@
       \def\runtitle##1{\gdef\heading@Runtitle{##1}}%
       \def\number##1{\gdef\heading@Number{##1}}%
       \long\def\quote##1{\long\gdef\heading@Quote{##1}}%
+      \long\def\quotesource##1{\long\gdef\heading@QuoteSource{##1}}%
 }
 \def\endheading{%
     \egroup
     \expandafter\ifx\csname tpUseHeading\heading@name\endcsname\relax
       \PackageError{transpect.cls}{Heading level \heading@name\space unknown!}{A Heading with level \heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
     \fi
-    \csname tpUseHeading\heading@name\endcsname
+    \expandafter\aftergroup\csname tpUseHeading\heading@name\endcsname
   \egroup
+  \nopagebreak
 }
 \def\tp@init@l@#1{%
   \def\tpToCProperty##1##2{\tpAddToHook{##1#1}{##2}}%
