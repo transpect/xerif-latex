@@ -764,8 +764,12 @@
 %    \begin{macrocode}[lastline=1]
   \def\tpToCFormat##1{\expandafter\def\csname tp@toc@format@#1\endcsname{##1}}%\bfseries
 %    \end{macrocode}
+% Use this switch to suppress the output of the page number at all.
+%    \begin{macrocode}[lastline=1]
+  \def\tpToCNoPage{\expandafter\let\csname tp@toc@nopage@#1\endcsname\@empty}%\bfseries
+%    \end{macrocode}
 % Generically provide \LaTeX's internal toc entry formatting macros:
-%    \begin{macrocode}[lastline=28]
+%    \begin{macrocode}[lastline=32]
   \expandafter\def\csname l@#1\endcsname##1##2{%
     \addpenalty{-\@highpenalty}%
     \csname tp@toc@before@#1\endcsname
@@ -785,10 +789,14 @@
       \csname tp@toc@format@#1\endcsname
       \advance\leftskip\@tempdima
       \hskip -\@tempdima
-      ##1\nobreak
-      \csname tp@toc@pagesep@#1\endcsname
-      \nobreak\hb@xt@\@pnumwidth{\hss\csname tp@toc@pageformat@#1\endcsname ##2%
-        \kern-\p@\kern\p@}\par
+      ##1%
+      \expandafter\ifx\csname tp@toc@nopage@#1\endcsname\relax
+        \nobreak
+        \csname tp@toc@pagesep@#1\endcsname
+        \nobreak\hb@xt@\@pnumwidth{\hss\csname tp@toc@pageformat@#1\endcsname ##2%
+          \kern-\p@\kern\p@}%
+      \fi
+      \par
       \penalty\@highpenalty
       \csname tp@toc@after@#1\endcsname
     \endgroup
