@@ -66,6 +66,7 @@
   \tpDeclareHook{AfterHeading#3}%
   \tpDeclareHook{AfterSkip#3}%
   \tpDeclareHook{TitleFormat#3}%
+  \def\tpAfterTitle##1{\def\csname tp@after@title@#3\endcsname{##1}}\expandafter\let\csname tp@after@title@#3\endcsname\par
   \tpDeclareHook{BeforeBox#3}%
   \tpDeclareHook{AfterBox#3}%
   \def\tpAfterIndent{\expandafter\global\expandafter\let\csname tp@fter@indent@#3\endcsname\@empty}%
@@ -75,7 +76,7 @@
   \def\tpNoToc{\expandafter\global\expandafter\let\csname tp@no@toc@#3\endcsname\@empty}%
   \def\tpHangFixed##1{\expandafter\gdef\csname tp@hang@fixed@#3\endcsname{##1}}%
   \tpHangFixed{\z@}%
-  \tp@init@l@{#3}%
+  \tp@init@l@{#3}{#2}%
   \ifx\tp@inherit\relax\else
     \csname tp@decl@\tp@inherit\endcsname
   \fi
@@ -88,6 +89,53 @@
     \par\@afterindenttrue
     \tpUseHook{BeforeHeading#3}%
     \everypar{}%
+    \expandafter\let\expandafter\tp@mark@name\csname #3mark\endcsname%
+    \ifx\tp@mark@name\relax
+      \ifx\tp@inherit@name\relax\else
+        \expandafter\let\expandafter\tp@mark@name\csname \tp@inherit@name mark\endcsname
+      \fi
+    \fi
+    \ifx\tp@mark@name\relax
+    \else
+      \ifx\heading@Runtitle\relax
+        \ifx\heading@Number\relax
+          \tp@mark@name{\heading@Title}%
+        \else
+          \tp@mark@name{\protect\numberline{\heading@Number}\heading@Title}%
+        \fi
+      \else
+        \tp@mark@name{\heading@Runtitle}%
+      \fi
+    \fi
+    \expandafter\ifx\csname tp@no@toc@#3\endcsname\@empty\else
+      \expandafter\ifx\tp@notoc\relax
+        \global\let\tp@notoc\@empty
+      \else
+        \ifx\tp@notocnumber\relax
+          \let\numberline\@gobble
+          \global\let\tp@notocnumber\@empty
+        \fi
+        \expandafter\ifnum\heading@level<\c@tocdepth\relax
+          \ifx\heading@Toctitle\relax
+            \ifx\heading@Number\relax
+              \ifx\heading@Author\relax
+                \addcontentsline{toc}{#3}{\heading@Title}\relax
+              \else
+                \ifx\heading@Tocauthor\relax
+                  \addcontentsline{toc}{#3}{\string\tpToCAuthor{\heading@Author}\heading@Title}\relax
+                \else
+                  \addcontentsline{toc}{#3}{\string\tpToCAuthor{\heading@Tocauthor}\heading@Title}\relax
+                \fi
+              \fi
+            \else
+              \addcontentsline{toc}{#3}{\protect\numberline{\heading@Number}\heading@Title}\relax
+            \fi
+          \else
+            \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
+          \fi
+        \fi
+      \fi
+    \fi
     \def\@svsec{%
       \tpUseHook{BeforeBox#3}%
       \bgroup
@@ -110,8 +158,10 @@
             \hskip-\@tempdimb
         \fi
         {\tpUseHook{TitleFormat#3}%
-         \tp@use@heading@block{Number}{#3}%
-         \heading@Title}%
+          \tp@use@heading@block{Number}{#3}%
+          \heading@Title
+          \csname tp@after@title@#3\endcsname
+        }%
         \tp@use@heading@block{Subtitle}{#3}%
         \expandafter\ifx\csname tp@hide@uthor@#3\endcsname\relax
           \expandafter\ifx\csname tp@author@fter@#3\endcsname\relax\else
@@ -141,44 +191,6 @@
           \fi
         \fi
         \global\let\label\ltx@label
-        \expandafter\ifx\csname tp@no@toc@#3\endcsname\@empty\else
-          \expandafter\ifx\tp@notoc\relax
-            \global\let\tp@notoc\@empty
-          \else
-            \ifx\tp@notocnumber\relax
-              \let\numberline\@gobble
-              \global\let\tp@notocnumber\@empty
-            \fi
-            \expandafter\ifnum\heading@level<\c@tocdepth\relax
-              \ifx\heading@Toctitle\relax
-                \ifx\heading@Number\relax
-                  \addcontentsline{toc}{#3}{\heading@Title}\relax
-                \else
-                  \addcontentsline{toc}{#3}{\protect\numberline{\heading@Number}\heading@Title}\relax
-                \fi
-              \else
-                \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
-              \fi
-            \fi
-          \fi
-        \fi
-        \expandafter\let\expandafter\tp@mark@name\csname #3mark\endcsname%
-        \ifx\tp@mark@name\relax
-          \ifx\tp@inherit@name\relax\else
-            \expandafter\let\expandafter\tp@mark@name\csname \tp@inherit@name mark\endcsname
-          \fi
-        \fi
-        \ifx\tp@mark@name\relax\else
-          \ifx\heading@Runtitle\relax
-            \ifx\heading@Number\relax
-              \tp@mark@name{\heading@Title}%
-            \else
-              \tp@mark@name{\numberline{\heading@Number}\heading@Title}%
-            \fi
-          \else
-            \tp@mark@name{\heading@Runtitle}%
-          \fi
-        \fi
         \tpUseHook{AfterBox#3}%
       \egroup
       \tpUseHook{AfterHeading#3}%
@@ -213,13 +225,15 @@
     \else
       \@svsec
       \par \nobreak
-      \vskip \@tempskipa
-      \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
-        \global\@afterindentfalse
-      \else
-        \global\@afterindenttrue
-      \fi
-      \aftergroup\@afterheading%
+      \gdef\next{%
+        \vskip \@tempskipa
+        \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
+          \global\@afterindentfalse
+        \else
+          \global\@afterindenttrue
+        \fi
+        \@afterheading}%
+      \aftergroup\next%
     \fi}}
 
 \def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
@@ -243,6 +257,7 @@
     \global\let\heading@Number\relax
     \global\let\heading@Subtitle\relax
     \global\let\heading@Toctitle\relax
+    \global\let\heading@Tocauthor\relax
     \global\let\heading@Runtitle\relax
     \global\let\heading@Quote\relax
     \global\let\heading@QuoteSource\relax
@@ -258,6 +273,7 @@
       \long\def\title##1{\long\gdef\heading@Title{##1}}%
       \long\def\subtitle##1{\long\gdef\heading@Subtitle{##1}}%
       \long\def\toctitle##1{\long\gdef\heading@Toctitle{##1}}%
+      \long\def\tocauthor##1{\long\gdef\heading@Tocauthor{##1}}%
       \def\runtitle##1{\gdef\heading@Runtitle{##1}}%
       \def\number##1{\gdef\heading@Number{##1}}%
       \long\def\quote##1{\long\gdef\heading@Quote{##1}}%
@@ -272,7 +288,7 @@
   \egroup
   \nopagebreak
 }
-\def\tp@init@l@#1{%
+\def\tp@init@l@#1#2{%
   \def\tpToCProperty##1##2{\tpAddToHook{##1#1}{##2}}%
   \def\tpToCBefore##1{\expandafter\gdef\csname tp@toc@before@#1\endcsname{##1}}%\vskip 1.0em \@plus\p@
   \def\tpToCAfter##1{\expandafter\def\csname tp@toc@after@#1\endcsname{##1}}%
@@ -281,28 +297,71 @@
   \expandafter\let\csname tp@toc@hangfixed@#1\endcsname\z@
   \def\tpToCNumSep##1{\expandafter\gdef\csname tp@toc@numsep@#1\endcsname{##1}}%\enskip
   \def\tpToCPageSep##1{\expandafter\gdef\csname tp@toc@pagesep@#1\endcsname{##1}}%\dotfill
+  \def\tpToCAuthorAfter##1{\expandafter\gdef\csname tp@toc@author@after@#1\endcsname{##1}}%;
+  \def\tpToCAuthorBefore##1{\expandafter\gdef\csname tp@toc@author@before@#1\endcsname{##1}}%;
+  \def\tpToCAuthorFormat##1{\expandafter\gdef\csname tp@toc@authorformat@#1\endcsname{##1}}%
+  \def\tpToCAuthorAfterHeading{\expandafter\global\expandafter\let\csname tp@toc@author@after@heading@#1\endcsname\@empty}%
   \def\tpToCPageFormat##1{\expandafter\gdef\csname tp@toc@pageformat@#1\endcsname{##1}}%
-  \def\tpToCFormat##1{\expandafter\def\csname tp@toc@format@#1\endcsname{##1}}%\bfseries
-  \def\tpToCNoPage{\expandafter\let\csname tp@toc@nopage@#1\endcsname\@empty}%\bfseries
+  \def\tpToCFormat##1{\expandafter\gdef\csname tp@toc@format@#1\endcsname{##1}}%\bfseries
+  \def\tpToCNoPage{\expandafter\global\expandafter\let\csname tp@toc@nopage@#1\endcsname\@empty}%
   \expandafter\def\csname l@#1\endcsname##1##2{%
+    \@tempdima\z@%% Breite der eigenen numberline
+    \@tempdimc\z@%% Breite des linken Einzugs der nächsthöheren ÜS
     \addpenalty{-\@highpenalty}%
+    \setbox\@tempboxa\box\voidb@x
     \csname tp@toc@before@#1\endcsname
     \begingroup
-      \parindent \z@ \rightskip \@pnumwidth
-      \parfillskip -\@pnumwidth
+      \@tempcnta\numexpr#2-1\relax
+      \@whilenum\@tempcnta>\m@ne\do{%
+        \expandafter\ifx\csname numberlinewidth\the\@tempcnta\endcsname\relax\else
+          \expandafter\advance\expandafter\@tempdimc\csname numberlinewidth\the\@tempcnta\endcsname
+        \fi
+        \advance\@tempcnta\m@ne
+      }%
+      \parindent \z@
+      \rightskip \@pnumwidth\@plus1fill\relax
+      \parfillskip -\rightskip
       \leavevmode
       \csname tp@toc@format@#1\endcsname
-      \expandafter\ifx\csname tp@toc@hangnum@#1\endcsname\relax
-        \expandafter\@tempdima\csname tp@toc@hangfixed@#1\endcsname
+      \let\tp@toc@author@after@heading\relax
+      \expandafter\ifx\csname tp@toc@author@after@heading@#1\endcsname\@empty
+        \def\tpToCAuthor####1{\gdef\tp@toc@author@after@heading{\csname tp@toc@author@before@#1\endcsname{\csname tp@toc@authorformat@#1\endcsname ####1\csname tp@toc@author@after@#1\endcsname}}}%
       \else
-        \def\numberline####1{\global\setbox\@tempboxa\hbox{####1\csname tp@toc@numsep@#1\endcsname}}%
-        \sbox\z@{##1}%
-        \expandafter\@tempdima\wd\@tempboxa%
-        \global\setbox\@tempboxa\box\voidb@x
+        \def\tpToCAuthor####1{\csname tp@toc@author@before@#1\endcsname{\csname tp@toc@authorformat@#1\endcsname ####1\csname tp@toc@author@after@#1\endcsname}}%
       \fi
-      \def\numberline####1{####1\csname tp@toc@numsep@#1\endcsname\ignorespaces}%
-      \advance\leftskip\@tempdima
-      \hskip -\@tempdima
+      \sbox\z@{\def\numberline####1{\global\sbox\@tempboxa{####1\enskip}}##1}%
+      \expandafter\@tempdima\csname  tp@toc@hangfixed@#1\endcsname\relax
+      \ifvoid\@tempboxa
+      \else
+        \expandafter\ifx\csname tp@toc@hangnum@#1\endcsname\@empty
+          \@tempdima\dimexpr\wd\@tempboxa\relax
+        \fi
+      \fi
+      \edef\@tempa{%
+        \string\expandafter\string\gdef\string\csname\space numberlinewidth#2\string\endcsname{\the\@tempdima}%
+      }%
+      \expandafter\ifx\csname numberlinewidth#2\endcsname\relax
+        \expandafter\xdef\csname numberlinewidth#2\endcsname{\the\@tempdima}%
+        \expandafter\write\expandafter\@auxout\expandafter{\@tempa}%
+      \else
+        \expandafter\ifdim\csname numberlinewidth#2\endcsname<\@tempdima\relax
+          \expandafter\xdef\csname numberlinewidth#2\endcsname{\the\@tempdima}%
+          \expandafter\write\expandafter\@auxout\expandafter{\@tempa}%
+        \else
+          \expandafter\ifdim\csname numberlinewidth#2\endcsname=\@tempdima\relax
+            \expandafter\write\expandafter\@auxout\expandafter{\@tempa}%
+          \else
+            \expandafter\@tempdima\csname numberlinewidth#2\endcsname\relax
+          \fi
+        \fi
+      \fi
+      \def\numberline####1{\hb@xt@\@tempdima{####1\csname tp@toc@numsep@#1\endcsname\ignorespaces}}%
+      \ifvoid\@tempboxa
+        \leftskip \dimexpr\@tempdimc\relax
+      \else
+        \leftskip \dimexpr\@tempdima+\@tempdimc\relax
+        \hskip -\@tempdima
+      \fi
       ##1%
       \expandafter\ifx\csname tp@toc@nopage@#1\endcsname\relax
         \nobreak
@@ -310,6 +369,7 @@
         \nobreak\hb@xt@\@pnumwidth{\hss\csname tp@toc@pageformat@#1\endcsname ##2%
           \kern-\p@\kern\p@}%
       \fi
+      \tp@toc@author@after@heading
       \par
       \penalty\@highpenalty
       \csname tp@toc@after@#1\endcsname
