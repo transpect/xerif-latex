@@ -510,6 +510,22 @@
     \tpUseHook{BeforeHeading#3}%
     \everypar{}%
 %    \end{macrocode}
+% catch \LaTeX's referencing facility with some magick for \lstinline{hyperref}:
+%    \begin{macrocode}[lastline=13]
+    \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
+      \Hy@MakeCurrentHrefAuto{#3}%
+      \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
+    \fi
+    \ifx\tp@label\relax\else
+      \ifx\heading@Number\relax
+      \else
+        \let\@currentlabel\heading@Number
+        \let\@currentlabelname\heading@Title
+        \expandafter\ltx@label\expandafter{\tp@label}%
+      \fi
+    \fi
+    \global\let\label\ltx@label
+%    \end{macrocode}
 % Running headers
 %    \begin{macrocode}[lastline=12]
     \expandafter\let\expandafter\tp@mark@name\csname #3mark\endcsname%
@@ -553,9 +569,9 @@
                 \addcontentsline{toc}{#3}{\heading@Title}\relax
               \else
                 \ifx\heading@Tocauthor\relax
-                  \addcontentsline{toc}{#3}{\string\tpToCAuthor{\heading@Author}\heading@Title}\relax
+                  \addcontentsline{toc}{#3}{\protect\tpToCAuthor{\heading@Author}\heading@Title}\relax
                 \else
-                  \addcontentsline{toc}{#3}{\string\tpToCAuthor{\heading@Tocauthor}\heading@Title}\relax
+                  \addcontentsline{toc}{#3}{\protect\tpToCAuthor{\heading@Tocauthor}\heading@Title}\relax
                 \fi
               \fi
             \else
@@ -606,28 +622,12 @@
         \tp@use@heading@block{QuoteSource}{#3}%
 %    \end{macrocode}
 % Since all counters are taken from Word input, we can safely override \lstinline{\the<name>}:
-%    \begin{macrocode}[lastline=5]
+%    \begin{macrocode}[lastline=9]
         \ifx\heading@Number\relax
           \expandafter\global\expandafter\let\csname the#3\endcsname\@empty%
         \else
           \expandafter\xdef\csname the#3\endcsname{\heading@Number}%
         \fi
-%    \end{macrocode}
-% catch \LaTeX's referencing facility with some magick for \lstinline{hyperref}:
-%    \begin{macrocode}[lastline=17]
-        \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
-          \Hy@MakeCurrentHrefAuto{#3}%
-          \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
-        \fi
-        \ifx\tp@label\relax\else
-          \ifx\heading@Number\relax
-          \else
-            \let\@currentlabel\heading@Number
-            \let\@currentlabelname\heading@Title
-            \expandafter\ltx@label\expandafter{\tp@label}%
-          \fi
-        \fi
-        \global\let\label\ltx@label
         \tpUseHook{AfterBox#3}%
       \egroup
       \tpUseHook{AfterHeading#3}%
@@ -880,7 +880,7 @@
 %    \end{macrocode}
 %
 % \section{Defaults}
-%    \begin{macrocode}[lastline=95]
+%    \begin{macrocode}[lastline=94]
 \def\partmark#1{}%
 \tpDeclareHeading{-1}{part}{%
   \tpHeadingProperty{BlockFormat}{\centering
@@ -975,36 +975,12 @@
     \def\numberline####1{####1\enskip}%
     \markright{##1}}%
 }
-
 %    \end{macrocode}
-%
-% \section{ToC entries}
-%    \begin{macrocode}[lastline=26]
-% \def\l@part#1#2{%
-%   \ifnum \c@tocdepth >-2\relax
-%     \addpenalty{-\@highpenalty}%
-%     \addvspace{2.25em \@plus\p@}%
-%     \setlength\@tempdima{3em}%
-%     \begingroup
-%       \parindent \z@ \rightskip \@pnumwidth
-%       \parfillskip -\@pnumwidth
-%       {\leavevmode
-%        \large \bfseries #1\hfil
-%        \hb@xt@\@pnumwidth{\hss #2%
-%                           \kern-\p@\kern\p@}}\par
-%        \nobreak
-%          \global\@nobreaktrue
-%          \everypar{\global\@nobreakfalse\everypar{}}%
-%     \endgroup
-%   \fi}
+% This macro is re-defined in \lstinline{\l@<level>}. This default definition is only used for pdf bookmarks:
+%    \begin{macrocode}[lastline=4]
 
+\def\tpToCAuthor#1{#1: }
 
-
-% \renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.3em}}
-% \renewcommand*\l@subsection{\@dottedtocline{2}{3.8em}{3.2em}}
-% \renewcommand*\l@subsubsection{\@dottedtocline{3}{7.0em}{4.1em}}
-% \renewcommand*\l@paragraph{\@dottedtocline{4}{10em}{5em}}
-% \renewcommand*\l@subparagraph{\@dottedtocline{5}{12em}{6em}}
 
 %    \end{macrocode}
 %</headings>
@@ -1520,7 +1496,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
 %    \end{macrocode}
 % \#1: caption type
 % \#2: float pos
-%    \begin{macrocode}[lastline=30]
+%    \begin{macrocode}[lastline=32]
 \def\tp@float[#1]#2{%
   \begingroup
     \tp@reset@subflts
@@ -1536,39 +1512,41 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
     \fi
   }
 
-\def\endtp@float{%
-   \tp@subflt@hsize=\hsize\relax
-   \bgroup
-      \@tempdima=\z@\relax
-      \ifnum\tp@subflts=\z@\relax
-        \tp@usefloat0%
-      \else
-        \sh@iterate{\@tempcnta}{\@ne}{\tp@subflts}{%
-          \edef\@tempa{\CalcRatio{\tp@subflt@maxheight}{\csname tp@subflt@height@\the\@tempcnta\endcsname}}%
-          \ifnum\@tempcnta>\@ne\global\advance\tp@subflt@hsize-\tp@subflt@sep\relax\fi
-          \expandafter\@tempdimc\csname tp@subflt@width@\the\@tempcnta\endcsname\relax
-          \@tempdimb=\@tempa\@tempdimc\relax
-          \expandafter\edef\csname  tp@subflt@adj@width@\the\@tempcnta\endcsname{\the\@tempdimb}%
-          \advance\@tempdima\@tempdimb
-        }%
+  \def\endtp@float{%
+    \tp@subflt@hsize=\hsize\relax
+    \vbox{%
+      \bgroup
+        \@tempdima=\z@\relax
+        \ifnum\tp@subflts=\z@\relax
+          \tp@usefloat0%
+        \else
+          \sh@iterate{\@tempcnta}{\@ne}{\tp@subflts}{%
+            \edef\@tempa{\CalcRatio{\tp@subflt@maxheight}{\csname tp@subflt@height@\the\@tempcnta\endcsname}}%
+            \ifnum\@tempcnta>\@ne\global\advance\tp@subflt@hsize-\tp@subflt@sep\relax\fi
+            \expandafter\@tempdimc\csname tp@subflt@width@\the\@tempcnta\endcsname\relax
+            \@tempdimb=\@tempa\@tempdimc\relax
+            \expandafter\edef\csname  tp@subflt@adj@width@\the\@tempcnta\endcsname{\the\@tempdimb}%
+            \advance\@tempdima\@tempdimb
+          }%
+          \@tempcnta\z@
 %    \end{macrocode}
 %% 2nd iteration: Calculate width ratio of all adjusted subfigures against total width of all figures plus separators and output:
 %    \begin{macrocode}[lastline=90]
-        \@tempcnta\z@
-        \sh@iterate{\@tempcnta}{\@ne}{\tp@subflts}{%
-          \edef\@tempa{\CalcRatio{\csname tp@subflt@adj@width@\the\@tempcnta\endcsname}{\@tempdima}}%
-          \@tempdimb\@tempa\tp@subflt@hsize\relax
-          \ifnum\@tempcnta>\@ne\hskip\tp@subflt@sep\fi
-          \begin{minipage}[t]{\@tempdimb}%
-            \captionsetup{margin=\z@}%
-            \tp@usefloat{\the\@tempcnta}%
-          \end{minipage}%
-        }%
+          \sh@iterate{\@tempcnta}{\@ne}{\tp@subflts}{%
+            \edef\@tempa{\CalcRatio{\csname tp@subflt@adj@width@\the\@tempcnta\endcsname}{\@tempdima}}%
+            \@tempdimb\@tempa\tp@subflt@hsize\relax
+            \ifnum\@tempcnta>\@ne\hskip\tp@subflt@sep\fi
+            \begin{minipage}[t]{\@tempdimb}%
+              \captionsetup{margin=\z@}%
+              \tp@usefloat{\the\@tempcnta}%
+            \end{minipage}%
+          }%
+        \fi
+      \egroup
+      \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax\else
+        \tp@make@caption{0}%
       \fi
-    \egroup
-    \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax\else
-      \tp@make@caption{0}%
-    \fi
+    }
     \ifx\csname tp@below@flt@skip@\@captype\endcsname\relax\else
       \expandafter\vskip\csname tp@below@flt@skip@\@captype\endcsname
     \fi
@@ -1577,7 +1555,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
 
 \def\tp@usefloat#1{{%
     \parindent\z@
-    \csname tp@subflt@fig@#1\endcsname\par
+    \csname tp@subflt@fig@#1\endcsname\nobreak\par
     \expandafter\ifx\csname tp@cap@sep@\@captype\endcsname\relax\else
       \expandafter\vskip\csname tp@cap@sep@\@captype\endcsname
     \fi
@@ -1591,7 +1569,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
   {\edef\tp@cap{%
      \csname tp@subflt@lbl@#1\endcsname\csname tp@cap@labelsep@\@captype\endcsname%
      \csname tp@subflt@cpt@#1\endcsname\csname tp@cap@sourcesep@\@captype\endcsname
-     \csname tp@subflt@src@#1\endcsname}
+     \csname tp@subflt@src@#1\endcsname}%
    \expandafter\caption\expandafter*\expandafter{\tp@cap}%
    \addcontentsline{lof}{figure}{\string\numberline{\csname tp@subflt@lbl@#1\endcsname}\csname tp@subflt@cpt@#1\endcsname\csname tp@subflt@src@#1\endcsname}%
    \tp@reset@caption{#1}%
