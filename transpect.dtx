@@ -1455,7 +1455,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
 %   column and does itself not provide a column!
 % \end{description}
 %
-%    \begin{macrocode}[lastline=37]
+%    \begin{macrocode}[lastline=38]
 \newcolumntype{Q}{>{\raggedright\arraybackslash\unskip}X}
 \newcolumntype{W}{>{\raggedleft\arraybackslash\unskip}X}
 \newcolumntype{L}{>{\raggedright\arraybackslash\unskip}p}
@@ -1479,6 +1479,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
 
 \tp@provide@setting{tpCaptionLabelSep}{tp@cap@labelsep@}
 \tp@provide@setting{tpCaptionSourceSep}{tp@cap@sourcesep@}
+\tp@provide@setting{tpCaptionLegendSep}{tp@cap@lgdsep@}
 \tp@provide@setting{tpCaptionSep}{tp@cap@sep@}
 \tp@provide@setting{tpAboveFloatSkip}{tp@above@flt@skip@}
 \tp@provide@setting{tpBelowFloatSkip}{tp@below@flt@skip@}
@@ -1494,9 +1495,9 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
 \def\endtpFigure{\endtp@float}
 
 %    \end{macrocode}
-% \#1: caption type
-% \#2: float pos
-%    \begin{macrocode}[lastline=32]
+% \#1: float pos
+% \#2: caption type
+%    \begin{macrocode}[lastline=33]
 \def\tp@float[#1]#2{%
   \begingroup
     \tp@reset@subflts
@@ -1504,6 +1505,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
     \def\@captype{#2}%
     \def\Fig##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@fig@\the\tp@subflts\endcsname{##1}}%
     \def\Caption##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@cpt@\the\tp@subflts\endcsname{##1}}%
+    \def\Legend##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@lgd@\the\tp@subflts\endcsname{##1}}%
     \def\Source##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@src@\the\tp@subflts\endcsname{##1}}%
     \def\Label##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@lbl@\the\tp@subflts\endcsname{##1}}%
     \parindent\z@
@@ -1531,7 +1533,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
           \@tempcnta\z@
 %    \end{macrocode}
 %% 2nd iteration: Calculate width ratio of all adjusted subfigures against total width of all figures plus separators and output:
-%    \begin{macrocode}[lastline=90]
+%    \begin{macrocode}[lastline=94]
           \sh@iterate{\@tempcnta}{\@ne}{\tp@subflts}{%
             \edef\@tempa{\CalcRatio{\csname tp@subflt@adj@width@\the\@tempcnta\endcsname}{\@tempdima}}%
             \@tempdimb\@tempa\tp@subflt@hsize\relax
@@ -1567,8 +1569,12 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
 
 \def\tp@make@caption#1{%
   {\edef\tp@cap{%
-     \csname tp@subflt@lbl@#1\endcsname\csname tp@cap@labelsep@\@captype\endcsname%
-     \csname tp@subflt@cpt@#1\endcsname\csname tp@cap@sourcesep@\@captype\endcsname
+     \csname tp@subflt@lbl@#1\endcsname%
+     \csname tp@cap@labelsep@\@captype\endcsname%
+     \csname tp@subflt@cpt@#1\endcsname%
+     \csname tp@cap@lgdsep@\@captype\endcsname%
+     \csname tp@subflt@lgd@#1\endcsname%
+     \csname tp@cap@sourcesep@\@captype\endcsname%
      \csname tp@subflt@src@#1\endcsname}%
    \expandafter\caption\expandafter*\expandafter{\tp@cap}%
    \addcontentsline{lof}{figure}{\string\numberline{\csname tp@subflt@lbl@#1\endcsname}\csname tp@subflt@cpt@#1\endcsname\csname tp@subflt@src@#1\endcsname}%
