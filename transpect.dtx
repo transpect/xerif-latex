@@ -635,7 +635,7 @@
 %    \end{macrocode}
 % Skip after the heading, taken partially from the definition of
 % \LaTeX's \lstinline{\@xsect} macro:
-%    \begin{macrocode}[lastline=41]
+%    \begin{macrocode}[lastline=43]
     \expandafter\ifx\csname tp@hook@AfterSkip#3\endcsname\@empty
       \global\@tempskipa=1sp\relax
     \else
@@ -663,6 +663,7 @@
           \everypar{}%
         \fi}%
       \ignorespaces
+      \let\next\relax
     \else
       \@svsec
       \par \nobreak
@@ -674,8 +675,9 @@
           \global\@afterindenttrue
         \fi
         \@afterheading}%
-      \aftergroup\next%
-    \fi}}
+    \fi
+    \aftergroup\next%
+  }}
 
 %    \end{macrocode}
 %
