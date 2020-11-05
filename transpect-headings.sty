@@ -238,6 +238,39 @@
     \aftergroup\next%
   }}
 
+\def\@xminusvskip{%
+  \ifdim\lastskip<\@tempskipb
+    %\vskip-\lastskip
+    %\vskip\@tempskipb
+  \else
+    \ifdim\@tempskipb<\z@
+      \ifdim\lastskip<\z@
+      \else
+        \advance\@tempskipb\lastskip
+        \vskip-\lastskip
+        \vskip \@tempskipb
+      \fi
+    \fi
+  \fi}
+
+\def\minusvspace#1{%
+  \ifvmode
+     \if@minipage\else
+       \ifdim \lastskip =\z@
+         \ifx\@vspace@calcify\@undefined
+           \vskip #1\relax
+         \else
+           \@vspace@calcify{#1}%
+         \fi
+       \else
+       \setlength\@tempskipb{#1}%
+         \@xminusvskip
+       \fi
+     \fi
+  \else
+    \@noitemerr
+  \fi}
+
 \def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
 
 \DeclareRobustCommand{\TitleBreak}{\hfill\break}
