@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.90}%
-\def\filedate{2020-04-22}%
+\def\fileversion{0.91}%
+\def\filedate{2020-11-25}%
 %%
 %% module for le-tex transpect.cls that handles footnote/endnote switching.
 %%
@@ -31,7 +31,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2019/01/01]
 \ProvidesPackage{transpect-endnotes}
-    [2020/22/04 0.90 le-tex transpect endnotes module]
+    [\filedate \fileversion le-tex transpect endnotes module]
 \newif\ifendnotes \endnotesfalse
 \DeclareOption{endnotes}{\global\endnotestrue}
 \DeclareOption{resetnotesperchapter}{\global\let\reset@notes@per@chapter\relax}
@@ -41,21 +41,29 @@
 \newif\if@enotesopen
 \ifendnotes
   \RequirePackage{endnotes}
+  \@ifpackageloaded{transpect-headings}{\let\tp@useTeXHeading\relax}{}
   \let\footnote=\endnote
   \def\enotesize{\normalsize}%
   \def\enoteformat{\leavevmode\hskip-2em\hb@xt@2em{\@theenmark\hss}}%
   \def\enoteheading{%
-    \ifcollection
-      \ifx\endnotes@per@chapter\relax
-        \chapter*{\notesname}%
-        \addcontentsline{toc}{chapter}{\notesname}%
-      \else
+    \ifx\endnotes@per@chapter\relax
+      \ifx\tp@useTeXHeading\relax
+        \begin{heading}{section}%
+          \title{\notesname}%
+        \end{heading}
+      \else%
         \section*{\notesname}%
         \addcontentsline{toc}{chapter}{\notesname}%
       \fi
     \else
-      \chapter*{\notesname}%
-      \addcontentsline{toc}{chapter}{\notesname}%
+      \ifx\tp@useTeXHeading\relax
+        \begin{heading}{chapter}%
+          \title{\notesname}%
+        \end{heading}
+      \else%
+        \chapter*{\notesname}%
+        \addcontentsline{toc}{chapter}{\notesname}%
+      \fi
     \fi
     \leftskip2em
   }%
@@ -81,6 +89,7 @@
   \tpAddToHook{BeforeChapterHook}{\global\c@footnote\z@}
 \fi
 
+\newcount\realchap \realchap\z@
 \ifx\endnotes@per@chapter\relax
   \tpAddToHook{Before@ChapterHook}{%
     \ifnum\c@endnote>\z@\relax

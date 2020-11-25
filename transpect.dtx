@@ -1,5 +1,5 @@
-\def\fileversion{0.90}%
-\def\filedate{2020-04-22}%
+\def\fileversion{0.91}%
+\def\filedate{2020-11-25}%
 %\iffalse
 %<*driver>
 \ProvidesFile{transpect.dtx}
@@ -342,7 +342,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2019/01/01]
 \ProvidesPackage{transpect-headings}
-    [2020/18/05 0.90 le-tex transpect headings module]
+    [\filedate \fileversion le-tex transpect headings module]
 %    \end{macrocode}
 %
 % Headings are handled differently with \lstinline{transpect.cls}
@@ -635,7 +635,7 @@
 %    \end{macrocode}
 % Skip after the heading, taken partially from the definition of
 % \LaTeX's \lstinline{\@xsect} macro:
-%    \begin{macrocode}[lastline=76]
+%    \begin{macrocode}[lastline=42]
     \expandafter\ifx\csname tp@hook@AfterSkip#3\endcsname\@empty
       \global\@tempskipa=1sp\relax
     \else
@@ -678,11 +678,14 @@
     \fi
     \aftergroup\next%
   }}
-
+%    \end{macrocode}
+% Counterpart to \lstinline{\addvspace}: if the value of
+% \lstinline{\minusvspace} is larger than \lstinline{\lastskip},
+% \lstinline{\lastskip} is used. Otherwise, the value of
+% \lstinline{\minusvspace} is used.
+%    \begin{macrocode}[lastline=16]
 \def\@xminusvskip{%
   \ifdim\lastskip<\@tempskipb
-    %\vskip-\lastskip
-    %\vskip\@tempskipb
   \else
     \ifdim\@tempskipb<\z@
       \ifdim\lastskip<\z@
@@ -693,11 +696,13 @@
       \fi
     \fi
   \fi}
-
 \def\minusvspace#1{%
   \ifvmode
      \if@minipage\else
        \ifdim \lastskip =\z@
+%    \end{macrocode}
+% Compatibility to texlive pre 2020:
+%    \begin{macrocode}[lastline=14]
          \ifx\@vspace@calcify\@undefined
            \vskip #1\relax
          \else
@@ -1037,7 +1042,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2019/01/01]
 \ProvidesPackage{transpect-endnotes}
-    [2020/22/04 0.90 le-tex transpect endnotes module]
+    [\filedate \fileversion le-tex transpect endnotes module]
 %    \end{macrocode}
 % internal switch for endnotes (\lstinline{\endnotestrue}) or footnotes (\lstinline{\endnotesfalse}, default).
 %    \begin{macrocode}[lastline=1]
@@ -1065,25 +1070,33 @@
 \usepackage{footnote}
 %    \end{macrocode}
 % Handling of endnotes:
-%    \begin{macrocode}[lastline=53]
+%    \begin{macrocode}[lastline=62]
 \newif\if@enotesopen
 \ifendnotes
   \RequirePackage{endnotes}
+  \@ifpackageloaded{transpect-headings}{\let\tp@useTeXHeading\relax}{}
   \let\footnote=\endnote
   \def\enotesize{\normalsize}%
   \def\enoteformat{\leavevmode\hskip-2em\hb@xt@2em{\@theenmark\hss}}%
   \def\enoteheading{%
-    \ifcollection
-      \ifx\endnotes@per@chapter\relax
-        \chapter*{\notesname}%
-        \addcontentsline{toc}{chapter}{\notesname}%
-      \else
+    \ifx\endnotes@per@chapter\relax
+      \ifx\tp@useTeXHeading\relax
+        \begin{heading}{section}%
+          \title{\notesname}%
+        \end{heading}
+      \else%
         \section*{\notesname}%
         \addcontentsline{toc}{chapter}{\notesname}%
       \fi
     \else
-      \chapter*{\notesname}%
-      \addcontentsline{toc}{chapter}{\notesname}%
+      \ifx\tp@useTeXHeading\relax
+        \begin{heading}{chapter}%
+          \title{\notesname}%
+        \end{heading}
+      \else%
+        \chapter*{\notesname}%
+        \addcontentsline{toc}{chapter}{\notesname}%
+      \fi
     \fi
     \leftskip2em
   }%
@@ -1109,6 +1122,7 @@
   \tpAddToHook{BeforeChapterHook}{\global\c@footnote\z@}
 \fi
 
+\newcount\realchap \realchap\z@
 \ifx\endnotes@per@chapter\relax
   \tpAddToHook{Before@ChapterHook}{%
     \ifnum\c@endnote>\z@\relax

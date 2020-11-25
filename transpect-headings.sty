@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.90}%
-\def\filedate{2020-04-22}%
+\def\fileversion{0.91}%
+\def\filedate{2020-11-25}%
 %%
 %% module for le-tex transpect.cls that extends heading objects.
 %%
@@ -31,7 +31,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2019/01/01]
 \ProvidesPackage{transpect-headings}
-    [2020/18/05 0.90 le-tex transpect headings module]
+    [\filedate \fileversion le-tex transpect headings module]
 \def\tpDeclareBlock#1#2{%
   \tpDeclareHook{Before#1#2}%
   \tpDeclareHook{#1Format#2}%
@@ -237,11 +237,8 @@
     \fi
     \aftergroup\next%
   }}
-
 \def\@xminusvskip{%
   \ifdim\lastskip<\@tempskipb
-    %\vskip-\lastskip
-    %\vskip\@tempskipb
   \else
     \ifdim\@tempskipb<\z@
       \ifdim\lastskip<\z@
@@ -252,7 +249,6 @@
       \fi
     \fi
   \fi}
-
 \def\minusvspace#1{%
   \ifvmode
      \if@minipage\else
