@@ -656,14 +656,15 @@
 %    \end{macrocode}
 % Skip after the heading, taken partially from the definition of
 % \LaTeX's \lstinline{\@xsect} macro:
-%    \begin{macrocode}[lastline=38]
+%    \begin{macrocode}[lastline=39]
     \ifdim\@tempskipa <\z@\relax
       \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
         \global\@afterindentfalse
       \else
         \global\@afterindenttrue
       \fi
-      \expandafter\gdef\expandafter\@svsechd\expandafter{\@svsec}%
+      \global\setbox\@tempboxa\hbox{\@svsec}%
+      %\expandafter\gdef\expandafter\@svsechd\expandafter{\@svsec}%
       \@nobreakfalse
       \global\@noskipsectrue
       \gdef\next{%
@@ -672,7 +673,7 @@
             \global\@noskipsecfalse
             {\setbox\z@\lastbox}%
             \clubpenalty\@M
-            \begingroup \@svsechd \endgroup
+            \begingroup \unhbox\@tempboxa \endgroup
             \unskip
             \hskip -\@tempskipa
           \else

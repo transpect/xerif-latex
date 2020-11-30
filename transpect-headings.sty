@@ -213,7 +213,8 @@
       \else
         \global\@afterindenttrue
       \fi
-      \expandafter\gdef\expandafter\@svsechd\expandafter{\@svsec}%
+      \global\setbox\@tempboxa\hbox{\@svsec}%
+      %\expandafter\gdef\expandafter\@svsechd\expandafter{\@svsec}%
       \@nobreakfalse
       \global\@noskipsectrue
       \gdef\next{%
@@ -222,7 +223,7 @@
             \global\@noskipsecfalse
             {\setbox\z@\lastbox}%
             \clubpenalty\@M
-            \begingroup \@svsechd \endgroup
+            \begingroup \unhbox\@tempboxa \endgroup
             \unskip
             \hskip -\@tempskipa
           \else
