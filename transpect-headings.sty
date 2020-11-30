@@ -71,6 +71,14 @@
   \tpDeclareHook{AfterBox#3}%
   \def\tpAfterIndent{\expandafter\global\expandafter\let\csname tp@fter@indent@#3\endcsname\@empty}%
   \def\tpAuthorAfter{\expandafter\global\expandafter\let\csname tp@author@fter@#3\endcsname\@empty}%
+  \def\tpHeadingPar{%
+    \ifx\tp@interline@paragraphs\relax\else
+      \if@noskipsec \leavevmode \fi
+    \fi
+    \@@par\@afterindenttrue
+  }%
+  \def\tpInterlineParagraphs{\global\let\tp@interline@paragraphs\relax}%
+  \def\tpInterlineParaSep{\space}%
   \def\tpHideAuthor{\expandafter\global\expandafter\let\csname tp@hide@uthor@#3\endcsname\@empty}%
   \def\tpHangNumber{\expandafter\global\expandafter\let\csname tp@hang@number@#3\endcsname\@empty}%
   \def\tpNoToc{\expandafter\global\expandafter\let\csname tp@no@toc@#3\endcsname\@empty}%
@@ -97,8 +105,7 @@
     \fi
     \xdef\heading@level{#2}%
     \edef\Hy@toclevel{\csname toclevel@#2\endcsname}%
-    \if@noskipsec \leavevmode \fi
-    \par\@afterindenttrue
+    \tpHeadingPar
     \tpUseHook{BeforeHeading#3}%
     \everypar{}%
     \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
@@ -213,7 +220,11 @@
       \else
         \global\@afterindenttrue
       \fi
-      \global\setbox\@tempboxa\hbox{\@svsec}%
+      \ifx\tp@interline@paragraphs\relax
+        \global\setbox\@tempboxa\hbox{\ifvoid\@tempboxa\else\unhbox\@tempboxa\tpInterlineParaSep\fi\@svsec}%
+      \else
+        \global\setbox\@tempboxa\hbox{\@svsec}%
+      \fi
       \@nobreakfalse
       \global\@noskipsectrue
       \gdef\next{%
@@ -227,6 +238,7 @@
             \hskip -\@tempskipa
           \else
             \clubpenalty \@clubpenalty
+            \global\setbox\@tempboxa\box\voidb@x
             \everypar{}%
           \fi}%
         \ignorespaces
