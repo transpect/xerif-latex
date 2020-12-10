@@ -475,8 +475,11 @@
   }%
 %    \end{macrocode}
 % Switch to print consecutive inline headings inline instead of block.
-%    \begin{macrocode}[lastline=2]
+%    \begin{macrocode}[lastline=1]
   \def\tpInterlineParagraphs{\global\let\tp@interline@paragraphs\relax}%
+%    \end{macrocode}
+% Separator between consecutive inline-printed headings
+%    \begin{macrocode}[lastline=1]
   \def\tpInterlineParaSep{\space}%
 %    \end{macrocode}
 % This switch suppresses the output of author names all-together.
@@ -1299,7 +1302,7 @@
     [2020/22/04 0.90 le-tex transpect title module]
 %    \end{macrocode}
 % Localized labels for meta data in the imprint:
-%    \begin{macrocode}[lastline=199]
+%    \begin{macrocode}[lastline=200]
 \def\@tempa{%
   \def\lectoratename{Lectorate: }%
   \def\qualificationname{Qualification: }%
@@ -1410,17 +1413,18 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
 
 \def\maketitle{%
   \bgroup
+    %% Seite i
     \parindent\z@
     \def\UrlFont{\rmfamily\itshape}%
     \fontsize{9.5}{11}\selectfont
-    %% Seite i
     \thispagestyle{empty}%
     \ifx\@editor\@empty
       \@author
     \else
       \@editor\space\editorabbrevname
     \fi\par
-    \@title\par
+    \vskip.5\baselineskip
+    {\large\@title\par}%
     \vfill
     \ifx\@edition\@empty\else{\sffamily\fontsize{10.5}{11}\selectfont\@edition}\ifx\@band\@empty\else\enskip\lower.5\dp\strutbox\hbox{\rule{.5\p@}{\ht\strutbox}}\enskip \volname~\@volume\fi\fi
     \clearpage
