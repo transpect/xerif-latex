@@ -85,13 +85,12 @@
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{soul}
-
+\PassOptionsToPackage{breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
 \usepackage{transpect-headings}
 \usepackage{transpect-floats}
 \RequirePackage{transpect-endnotes}
  % \RequirePackage{transpect-title}
-
-\usepackage[breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true]{hyperref}
+\RequirePackage{hyperref}
 
 \endinput
 %%

@@ -32,6 +32,8 @@
 \NeedsTeXFormat{LaTeX2e}[2019/01/01]
 \ProvidesPackage{transpect-headings}
     [\filedate \fileversion le-tex transpect headings module]
+\RequirePackage{bookmark}
+\hypersetup{bookmarksdepth=-999}
 \def\tpDeclareBlock#1#2{%
   \tpDeclareHook{Before#1#2}%
   \tpDeclareHook{#1Format#2}%
@@ -152,18 +154,23 @@
             \ifx\heading@Number\relax
               \ifx\heading@Author\relax
                 \addcontentsline{toc}{#3}{\heading@Title}\relax
+                \bookmark[level=#2,dest=\@currentHref]{\heading@Title}%
               \else
                 \ifx\heading@Tocauthor\relax
                   \addcontentsline{toc}{#3}{\protect\tpToCAuthor{\heading@Author}\heading@Title}\relax
+                  \bookmark[level=#2,dest=\@currentHref]{\heading@Author\space\heading@Title}%
                 \else
                   \addcontentsline{toc}{#3}{\protect\tpToCAuthor{\heading@Tocauthor}\heading@Title}\relax
+                  \bookmark[level=#2,dest=\@currentHref]{\heading@Tocauthor\space\heading@Title}%
                 \fi
               \fi
             \else
               \addcontentsline{toc}{#3}{\protect\numberline{\heading@Number}\heading@Title}\relax
+              \bookmark[level=#2,dest=\@currentHref]{\Hy@numberline{\heading@Number}\heading@Title}%
             \fi
           \else
             \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
+            \bookmark[level=#2,dest=\@currentHref]{\heading@Toctitle}%
           \fi
         \fi
       \fi

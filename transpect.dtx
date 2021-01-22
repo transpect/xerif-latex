@@ -236,11 +236,16 @@
 
 %    \end{macrocode}
 % hard requirements for all transpect derivates:
-%    \begin{macrocode}[lastline=6]
+%    \begin{macrocode}[lastline=3]
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{soul}
-
+%    \end{macrocode}
+% In the \lstinline{transpect-headings.sty}, we include the
+% \lstinline{bookmark} package, which within calls the
+% \lstinline{hyperref} package.
+%    \begin{macrocode}[lastline=3]
+\PassOptionsToPackage{breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
 \usepackage{transpect-headings}
 \usepackage{transpect-floats}
 %    \end{macrocode}
@@ -249,13 +254,13 @@
 \RequirePackage{transpect-endnotes}
 %    \end{macrocode}
 % Inclusion of transpect-title
-%    \begin{macrocode}
+%    \begin{macrocode}[lastline=1]
  % \RequirePackage{transpect-title}
-
-
-
-
-\usepackage[breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true]{hyperref}
+%    \end{macrocode}
+% Fallback, in case, \lstinline{transpect-headings.sty} is not loaded for
+% some reason.
+%    \begin{macrocode}
+\RequirePackage{hyperref}
 
 %</class>
 %<*helpers>
@@ -353,6 +358,15 @@
 % \lstinline{\@make[s]chapterhead} facilities from {\LaTeX} are no longer
 % sufficient. At the same time, the package does not redefine those
 % macros and keeps them available for backwards compatibility.
+%
+% First, we load the \lstinline{bookmark} package:
+%    \begin{macrocode}[lastline=1]
+\RequirePackage{bookmark}
+%    \end{macrocode}
+% Since we use our own heading levels, we disable all automatically generated bookmarks.
+%    \begin{macrocode}[lastline=1]
+\hypersetup{bookmarksdepth=-999}
+%    \end{macrocode}
 %
 % \section{Blocks}
 % Blocks are bundled units of heading elements. They provide three
@@ -590,7 +604,7 @@
     \fi
 %    \end{macrocode}
 % Entry in table of contents
-%    \begin{macrocode}[lastline=66]
+%    \begin{macrocode}[lastline=71]
     \expandafter\ifx\csname tp@no@toc@#3\endcsname\@empty\else
       \expandafter\ifx\tp@notoc\relax
         \global\let\tp@notoc\@empty
@@ -604,18 +618,23 @@
             \ifx\heading@Number\relax
               \ifx\heading@Author\relax
                 \addcontentsline{toc}{#3}{\heading@Title}\relax
+                \bookmark[level=#2,dest=\@currentHref]{\heading@Title}%
               \else
                 \ifx\heading@Tocauthor\relax
                   \addcontentsline{toc}{#3}{\protect\tpToCAuthor{\heading@Author}\heading@Title}\relax
+                  \bookmark[level=#2,dest=\@currentHref]{\heading@Author\space\heading@Title}%
                 \else
                   \addcontentsline{toc}{#3}{\protect\tpToCAuthor{\heading@Tocauthor}\heading@Title}\relax
+                  \bookmark[level=#2,dest=\@currentHref]{\heading@Tocauthor\space\heading@Title}%
                 \fi
               \fi
             \else
               \addcontentsline{toc}{#3}{\protect\numberline{\heading@Number}\heading@Title}\relax
+              \bookmark[level=#2,dest=\@currentHref]{\Hy@numberline{\heading@Number}\heading@Title}%
             \fi
           \else
             \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
+            \bookmark[level=#2,dest=\@currentHref]{\heading@Toctitle}%
           \fi
         \fi
       \fi
