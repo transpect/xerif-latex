@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.92}%
-\def\filedate{2020-11-25}%
+\def\fileversion{0.94}%
+\def\filedate{2021-01-25}%
 %%
 %% module for le-tex transpect.cls that extends floating objects.
 %%
@@ -43,73 +43,88 @@
 \newcolumntype{C}{>{\centering\arraybackslash\unskip}X}
 \newcolumntype{Z}{>{\centering\arraybackslash\unskip}p}
 \newcolumntype{e}{!{\extracolsep{\fill}}}
-
 \newbox \tp@subfltbox
 \newcount\tp@subflts          \tp@subflts=\z@\relax
 \newdimen\tp@subflt@maxheight \tp@subflt@maxheight=\z@\relax
 \newdimen\tp@subflt@sep       \tp@subflt@sep=\fboxsep\relax
 \newdimen\tp@subflt@hsize     \tp@subflt@hsize=\textwidth\relax
-
 \def\tp@provide@setting#1#2{%
+  \expandafter\def\csname @#1@internal@\endcsname{#2}%
   \expandafter\def\csname #1\endcsname{\@ifnextchar[{\csname @#1\endcsname}{\csname @#1\endcsname[]}}%]
-  \expandafter\def\csname @#1\endcsname[##1]##2{\ltx@LocalExpandAfter\gdef\csname #2\if!##1!\else##1\fi\endcsname{##2}}%
+  \expandafter\def\csname @#1\endcsname[##1]##2{%
+    \edef\tp@opt@arg{##1}%
+    \ifx\tp@opt@arg\@empty
+      \ltx@LocalExpandAfter\gdef\csname @#1@internal@\endcsname{##2}%
+    \else
+      \ltx@LocalExpandAfter\gdef\csname @#1@internal@##1\endcsname{##2}%
+    \fi
+  }%
 }
-
-\tp@provide@setting{tpCaptionLabelSep}{tp@cap@lbl@sep@}
-\tp@provide@setting{tpCaptionSourceSep}{tp@cap@src@sep@}
-\tp@provide@setting{tpCaptionLegendSep}{tp@cap@lgd@sep@}
-\tp@provide@setting{tpCaptionSep}{tp@cap@sep@}
-\tp@provide@setting{tpAboveFloatSkip}{tp@above@flt@skip@}
-\tp@provide@setting{tpBelowFloatSkip}{tp@below@flt@skip@}
-\tp@provide@setting{tpSubFloatSep}{tp@subflt@sep}
-
+\def\tp@use@setting#1{%
+  \expandafter\ifx\csname @#1@internal@\tp@captype\endcsname\relax
+    \csname @#1@internal@\endcsname
+  \else
+    \csname @#1@internal@\tp@captype\endcsname
+  \fi}
+\tp@provide@setting{tpCaptionLabelSep}{}
+\tp@provide@setting{tpCaptionSourceSep}{}
+\tp@provide@setting{tpCaptionLegendSep}{}
+\tp@provide@setting{tpCaptionSep}{\z@}
+\tp@provide@setting{tpAboveFloatSkip}{\@fptop}
+\tp@provide@setting{tpBelowFloatSkip}{\@fpbot}
+\tp@provide@setting{tpSubFloatSep}{\tp@subflt@sep}
 \def\tp@reset@subflts{%
   \global\tp@subflts=\z@
   \global\tp@subflt@maxheight=\z@\relax
 }
-
-\def\tpFigure{\@ifnextchar[{\tp@Figure}{\tp@Figure[!]}}%]
+\def\tpFigure{\@ifnextchar[{\tp@Figure}{\tp@Figure[]}}%]
 \def\tp@Figure[#1]{\tp@float[#1]{figure}}
 \def\endtpFigure{\endtp@float}
-
 \def\tp@float[#1]#2{%
   \begingroup
+    \def\tp@fps{#1}%
     \tp@reset@subflts
     \tp@reset@caption{0}%
-    \def\@captype{#2}%
+    \def\tp@captype{#2}%
     \def\Fig##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@fig@\the\tp@subflts\endcsname{##1}}%
     \def\Caption##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@cpt@\the\tp@subflts\endcsname{##1}}%
     \def\Legend##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@lgd@\the\tp@subflts\endcsname{##1}}%
     \def\Source##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@src@\the\tp@subflts\endcsname{##1}}%
     \def\Label##1{\ltx@LocalExpandAfter\gdef\csname tp@subflt@lbl@\the\tp@subflts\endcsname{##1}}%
     \parindent\z@
-    \ifx\csname tp@above@flt@skip@\@captype\endcsname\relax\else
-      \expandafter\addvspace\expandafter{\csname tp@above@flt@skip@\@captype\endcsname}%
+    \ifx\tp@fps\@empty
+      \expandafter\addvspace\expandafter{\tp@use@setting{tpAboveFloatSkip}}%
     \fi
   }
-
   \def\endtp@float{%
+    \ifx\tp@fps\@empty\else
+      \expandafter\@float\expandafter{\expandafter\tp@captype\expandafter}\expandafter[\tp@fps]%
+    \fi
     \tp@subflt@hsize=\hsize\relax
     \vbox{%
       \bgroup
+        \expandafter\tp@subflt@sep=\tp@use@setting{tpSubFloatSep}%
         \@tempdima=\z@\relax
         \ifnum\tp@subflts=\z@\relax
           \tp@usefloat0%
         \else
           \sh@iterate{\@tempcnta}{\@ne}{\tp@subflts}{%
             \edef\@tempa{\CalcRatio{\tp@subflt@maxheight}{\csname tp@subflt@height@\the\@tempcnta\endcsname}}%
-            \ifnum\@tempcnta>\@ne\global\advance\tp@subflt@hsize-\tp@subflt@sep\relax\fi
+            \ifnum\@tempcnta>\@ne
+              \expandafter\global\expandafter\advance\expandafter\tp@subflt@hsize\expandafter-\tp@subflt@sep\relax%
+            \fi
             \expandafter\@tempdimc\csname tp@subflt@width@\the\@tempcnta\endcsname\relax
             \@tempdimb=\@tempa\@tempdimc\relax
             \expandafter\edef\csname  tp@subflt@adj@width@\the\@tempcnta\endcsname{\the\@tempdimb}%
             \advance\@tempdima\@tempdimb
           }%
           \@tempcnta\z@
-%% 2nd iteration: Calculate width ratio of all adjusted subfigures against total width of all figures plus separators and output:
           \sh@iterate{\@tempcnta}{\@ne}{\tp@subflts}{%
             \edef\@tempa{\CalcRatio{\csname tp@subflt@adj@width@\the\@tempcnta\endcsname}{\@tempdima}}%
             \@tempdimb\@tempa\tp@subflt@hsize\relax
-            \ifnum\@tempcnta>\@ne\hskip\tp@subflt@sep\fi
+            \ifnum\@tempcnta>\@ne\relax
+              \hskip\tp@subflt@sep\relax
+            \fi
             \begin{minipage}[t]{\@tempdimb}%
               \captionsetup{margin=\z@}%
               \tp@usefloat{\the\@tempcnta}%
@@ -121,55 +136,49 @@
         \tp@make@caption{0}%
       \fi
     }
-    \ifx\csname tp@below@flt@skip@\@captype\endcsname\relax\else
-      \expandafter\vskip\csname tp@below@flt@skip@\@captype\endcsname
+    \ifx\tp@fps\@empty
+      \expandafter\vskip\tp@use@setting{tpBelowFloatSkip}\relax%
+    \else
+      \end@float
     \fi
   \endgroup
 }
-
 \def\tp@usefloat#1{{%
     \parindent\z@
     \csname tp@subflt@fig@#1\endcsname\nobreak\par
-    \expandafter\ifx\csname tp@cap@sep@\@captype\endcsname\relax\else
-      \expandafter\vskip\csname tp@cap@sep@\@captype\endcsname
-    \fi
+    \vskip\tp@use@setting{tpCaptionSep}%
     \expandafter\ifx\csname tp@subflt@cpt@#1\endcsname\relax
     \else
       \tp@make@caption{#1}%
     \fi
 }}
-
 \def\tp@make@caption#1{%
   {\edef\tp@cap{%
      \expandafter\ifx\csname tp@subflt@lbl@#1\endcsname\relax\else
        \csname tp@subflt@lbl@#1\endcsname%
-       \csname tp@cap@lbl@sep@\@captype\endcsname%
+       \tp@use@setting{tpCaptionLabelSep}%
      \fi
      \csname tp@subflt@cpt@#1\endcsname%
      \expandafter\ifx\csname tp@subflt@lgd@#1\endcsname\relax\else
-       \csname tp@cap@lgd@sep@\@captype\endcsname%
+       \tp@use@setting{tpCaptionLegendSep}%
        \csname tp@subflt@lgd@#1\endcsname%
      \fi
-     \expandafter\ifx\csname tp@cap@src@sep@\@captype\endcsname\relax\else%
-       \csname tp@cap@src@sep@\@captype\endcsname%
-       \csname tp@subflt@src@#1\endcsname
-     \fi}%
-   \expandafter\caption\expandafter*\expandafter{\tp@cap}%
-   \addcontentsline{lof}{figure}{\string\numberline{\csname tp@subflt@lbl@#1\endcsname}\csname tp@subflt@cpt@#1\endcsname\csname tp@subflt@src@#1\endcsname}%
+     \tp@use@setting{tpCaptionSourceSep}%
+     \csname tp@subflt@src@#1\endcsname
+   }%
+   \expandafter\captionof\expandafter{\expandafter\tp@captype\expandafter}\expandafter*\expandafter{\tp@cap}%
+   \addcontentsline{lof}{\tp@captype}{\string\numberline{\csname tp@subflt@lbl@#1\endcsname}\csname tp@subflt@cpt@#1\endcsname\csname tp@subflt@src@#1\endcsname}%
    \tp@reset@caption{#1}%
  }}
-
 \def\tp@reset@caption#1{
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@fig@#1\endcsname\relax%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@cpt@#1\endcsname\relax%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@src@#1\endcsname\relax%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@lbl@#1\endcsname\relax%
   }
-
 \def\tpSubFloat{%
   \global\advance\tp@subflts\@ne
 }
-
 \def\endtpSubFloat{%
   \setbox\tp@subfltbox\hbox{\csname tp@subflt@fig@\the\tp@subflts\endcsname}%
   \expandafter\xdef\csname tp@subflt@width@\the\tp@subflts\endcsname{\the\wd\tp@subfltbox}%
@@ -177,22 +186,6 @@
   \expandafter\ifdim\csname tp@subflt@height@\the\tp@subflts\endcsname>\tp@subflt@maxheight\relax
     \expandafter\global\expandafter\tp@subflt@maxheight=\csname tp@subflt@height@\the\tp@subflts\endcsname\relax
   \fi}
-
-%%%%%%%%%%
-%%%%%%%%%%
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 \def\tablefont{\small}
 \def\arraystretch{1.3}
@@ -213,6 +206,22 @@
   \endarray
   $\egroup}%$
 \expandafter\let\csname endtabular*\endcsname=\endtabular
+
+%%%%%%%%%%
+%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \endinput
 %%
