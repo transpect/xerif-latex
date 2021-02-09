@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.94}%
-\def\filedate{2021-01-25}%
+\def\fileversion{0.95}%
+\def\filedate{2021-02-09}%
 %%
 %% module for le-tex transpect.cls for maketitle.
 %%
@@ -159,7 +159,7 @@ Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Di
     \clearpage
     %% Seite ii
     \thispagestyle{empty}%
-    \if\@editorial\@empty\null\else{\parskip\baselineskip\textsf{Editorial}\par\@editorial}\fi\par
+    \null\if\@editorial\@empty\else{\parskip\baselineskip\textsf{Editorial}\par\@editorial}\fi\par
     \vfill
     \ifx\the@authorinfos\@empty\else\the@authorinfos\fi
     \clearpage
