@@ -1,5 +1,12 @@
 #!/bin/bash
 
+XINDY=/usr/local/texlive/2019/bin/x86_64-linux/xindy
+THISHOST=$(hostname -s)
+
+if [ "$THISHOST" = "igor" ] ; then
+    XINDY=/usr/local/texlive/2017/bin/x86_64-linux/xindy
+fi
+
 if [ $# != 2 ]; then
     if [ $# != 1 ]; then
 	echo "BBenutzung: $0 Dateiwurzel_ohne_endung [prefix]"
@@ -47,7 +54,7 @@ perl -i -p -0 -e 's/hyperindexformat\{\\see ?(\{[^\}]+)\}/see$1/g' $1.$idx
 perl -i -p -0 -e 's/hyperindexformat\{\\seealso ?(\{[^\}]+)\}/seealso$1/g' $1.$idx
 perl -i -p -0 -e 's/(\\indexentry ?\{.+)(\|seealso\{.+\})\}\{(.+)\}/$1}{$3}\n$1$2}{$3}/g' $1.$idx #seealso-Eintrag verdoppeln, um Seitenzahl vor texindy zu retten
 perl -i -p -0 -e 's/\(hyperpage/\(/g' $1.$idx
-/usr/local/texlive/2019/bin/x86_64-linux/xindy -v -d script -M transpect.xdy -L $lang -C utf8 -M tex/inputenc/utf8 -M german-sty.xdy -M texindy -M page-ranges -M word-order -M german-sty.xdy -I latex -d level=3 -t xindy.log $1.$idx -o $1.$ind
+$XINDY -v -d script -M transpect.xdy -L $lang -C utf8 -M tex/inputenc/utf8 -M german-sty.xdy -M texindy -M page-ranges -M word-order -M german-sty.xdy -I latex -d level=3 -t xindy.log $1.$idx -o $1.$ind
 perl -i -p -0 -e 's/(item[^\n]+)(\\enskip [0-9]{1,2}\n)/$1\\nobreak$2/g' $1.$ind
 
 perl -i -p -0 -e 's/(\n {2,2}\\item[^\n]+\n\n {2,2}\\indexspace)/\\nopagebreak$1/g' $1.$ind                    #kein Eintrag-Hurenkind
