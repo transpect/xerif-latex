@@ -45,12 +45,19 @@
  %\PassOptionsToPackage{}{transpect-script}
 \newif\ifcollection \collectionfalse
 \newif\ifhasparts \haspartsfalse
-\DeclareOptionX{book}{\global\collectionfalse}
-\DeclareOptionX{collection}{\global\collectiontrue}
+\newif\if@article \@articlefalse
+\DeclareOptionX{book}{\global\collectionfalse\global\@articlefalse}
+\DeclareOptionX{article}{\global\collectionfalse\global\@articletrue}
+\DeclareOptionX{collection}{\global\collectiontrue\global\@articlefalse}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
 
 \ProcessOptionsX
-\LoadClass[10pt,a4paper]{book}
+\if@article
+  \LoadClass[10pt,a4paper]{article}
+\else
+  \LoadClass[10pt,a4paper]{book}
+\fi
 \voffset-1in\relax
 \hoffset-1in\relax
 \emergencystretch=2em
@@ -65,23 +72,24 @@
 }
 \def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
     \hbox{}\thispagestyle{empty}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
-\newif\if@frontmatter  \@frontmatterfalse
-\renewcommand\frontmatter{%
-  \cleardoublepage
-  \@mainmatterfalse
-  \@frontmattertrue
-  \pagenumbering{arabic}}
+\if@article\else
+  \newif\if@frontmatter  \@frontmatterfalse
+  \renewcommand\frontmatter{%
+    \cleardoublepage
+    \@mainmatterfalse
+    \@frontmattertrue
+    \pagenumbering{arabic}}
 
-\renewcommand\mainmatter{%
-  \cleardoublepage
-  \@frontmatterfalse
-  \@mainmattertrue}
+  \renewcommand\mainmatter{%
+    \cleardoublepage
+    \@frontmatterfalse
+    \@mainmattertrue}
 
-\renewcommand\backmatter{%
-  \cleardoublepage
-  \@mainmatterfalse
-  \@frontmatterfalse}
-
+  \renewcommand\backmatter{%
+    \cleardoublepage
+    \@mainmatterfalse
+    \@frontmatterfalse}
+\fi
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{soul}
