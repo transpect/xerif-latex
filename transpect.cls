@@ -20,7 +20,7 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.96}%
+\def\fileversion{0.97}%
 \def\filedate{2021-02-25}%
 
 \message{le-tex transpect package version \fileversion\space (\filedate)^^J}
@@ -98,6 +98,7 @@
 \usepackage{transpect-floats}
 \RequirePackage{transpect-endnotes}
  % \RequirePackage{transpect-title}
+\RequirePackage{index}
 \RequirePackage{hyperref}
 
 \endinput
