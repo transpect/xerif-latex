@@ -97,10 +97,13 @@
 \gdef\strippercent#1{\expandafter\@strippercent#1%\@nil}
 \endgroup
 \gdef\@stripstar#1*#2\@nil{#1}
-\def\ht@callback@semicolon#1;#2;\@nil#3\@nil{\csname#3\endcsname{#1}%
+\def\ht@callback@semicolon#1;#2;\@nil#3\@nil{%
   \let\next\relax%
-  \if!#2!\else
-    \def\next{\ht@callback@semicolon#2;\@nil#3\@nil}%
+  \if!#1!\else
+    \csname#3\endcsname{#1}%
+    \if!#2!\else
+      \def\next{\ht@callback@semicolon#2;\@nil#3\@nil}%
+    \fi
   \fi
   \next}
 
@@ -299,7 +302,13 @@
 \def\ht@handle@name@color{\ht@parse@and@set@color@prop}
 \expandafter\let\csname ht@handle@name@background-color\endcsname\ht@handle@name@color
 
-\def\ht@handle@name@border{\let\ht@next\ht@parse@border@prop}
+\def\ht@handle@name@border{%
+  \let\ht@next\ht@parse@border@prop
+  \def\ht@prop{border-top}\csname ht@handle@name@border-top\endcsname
+  \def\ht@prop{border-left}\csname ht@handle@name@border-left\endcsname
+  \def\ht@prop{border-bottom}\csname ht@handle@name@border-bottom\endcsname
+  \def\ht@prop{border-right}\csname ht@handle@name@border-right\endcsname
+}
 \def\ht@handle@border@dired{\let\ht@border@dired\relax\ht@parse@border@prop}
 \expandafter\let\csname ht@handle@name@border-top\endcsname\ht@handle@border@dired
 \expandafter\let\csname ht@handle@name@border-left\endcsname\ht@handle@border@dired
@@ -314,7 +323,9 @@
 \def\@ht@handle@border@color@dired{%
   \ifx\ht@is@nested\relax\else
     \ht@parse@color@prop
-    \ht@apply@prop{\ht@prop}{\expandonce{\ht@color@val}}%
+    \let\ht@no@expand\relax
+    \let\ht@next\@undefined
+    \expandafter\ht@apply@prop\expandafter{\expandafter\ht@prop\expandafter}\expandafter{\ht@color@val}%
   \fi}%
 
 \def\ht@handle@border@color@dired#1#2{%
@@ -322,6 +333,7 @@
     \edef\ht@prop{#1}%
     \edef\ht@val{#2}%
     \ht@parse@color@prop
+    \let\ht@no@expand\relax
     \ht@brdcol@apply@prop{\ht@prop}{\ht@color@val}%
   \endgroup%
 }
@@ -414,8 +426,9 @@
   \ht@debugmsg{prop}{Processing \ifx\ht@apply\@undefined\else[\ht@apply]\fi{\ht@scope}{\ht@prop}; input: "\ht@val"}%
   \ifx\ht@val\@empty\else
     \ht@parse@color@prop
+    \let\ht@no@expand\relax
     \def\ht@apply@color{\ht@apply@prop{internal-\ht@prop}}%
-    \expandafter\ht@apply@color\expandafter{\expandafter\noexpand\ht@color@val}%
+    \expandafter\ht@apply@color\expandafter{\ht@color@val}%
   \fi
 }
 \def\ht@parse@border@prop{%
@@ -451,8 +464,13 @@
         \expandafter\expandafter\expandafter\ht@apply@border@dir\expandafter\expandafter\expandafter{\csname ht@val@1\endcsname}%
         \def\ht@prop@post{-style}%
         \expandafter\expandafter\expandafter\ht@apply@border@dir\expandafter\expandafter\expandafter{\csname ht@val@2\endcsname}%
-        \def\ht@prop@post{-color}%
-        \expandafter\expandafter\expandafter\ht@apply@border@dir\expandafter\expandafter\expandafter{\csname ht@val@3\endcsname}%
+        \begingroup
+          \def\ht@prop@post{-color}%
+          \let\ht@brdcol@apply@prop\ht@apply@prop
+          \let\ht@apply@prop\ht@handle@border@color@dired
+          \def\ht@apply@border@dir{\ht@apply@prop{\ht@prop\ht@prop@post}}%
+          \expandafter\expandafter\expandafter\ht@apply@border@dir\expandafter\expandafter\expandafter{\csname ht@val@3\endcsname}%
+        \endgroup
       \fi
     \fi
   \fi
@@ -462,29 +480,21 @@
   \def\ht@tempa{font}%
   \ifx\ht@prop\ht@tempa
     \global\ht@tempcnta=\z@\relax
-    \let\ht@next\relax
     \expandafter\ht@count@args\expandafter{\ht@val}%
-    % \ifnum\ht@tempcnta=\z@
-    %   \htNCError{Font attribute missing values!}%
-    % \else
-    %   \ifnum\ht@tempcnta=\@ne
-    %     \htNCError{Font attribute needs at least two values!}%
-    %   \else
     \ifnum\ht@tempcnta>\@ne
       \ht@tempcntb=\z@\relax
       \ht@Iterate{\ht@tempcntb}{1}{\the\ht@tempcnta}{%
         \expandafter\expandafter\expandafter\ht@apply@font\expandafter\expandafter\expandafter{\csname ht@val@\the\ht@tempcntb\endcsname}%
       }%
     \fi
-    % \fi
-    % \fi
   \else
-    \expandafter\expandafter\expandafter\ht@apply@font\expandafter\expandafter\expandafter{\csname ht@val\endcsname}%
+    \expandafter\expandafter\expandafter\ht@apply@font\expandafter\expandafter\expandafter{\ht@val}%
   \fi}
 
 \def\ht@apply@font#1{%
   \ht@debugmsg{font}{Applying \ht@prop:  #1;}%
   \expandafter\ifx\csname ht@\ht@prop @#1\endcsname\relax\else
+    \let\ht@no@expand\relax
     \csname ht@\ht@prop @#1\endcsname
   \fi
 }
@@ -532,7 +542,7 @@
 \def\ht@SetHTClass[#1]#2#3{%
   \edef\cls@argi{#1}%
   \edef\cls@argii{#2}%
-  \ifx\cls@argii\@empty\edef\ht@class@name{default}\else\edef\ht@class@name{#2}\fi
+  \ifx\cls@argii\@empty\edef\ht@class@name{default}\else\let\ht@class@name\cls@argii\fi
   \ht@debugmsg{info}{Declaring class `\ht@class@name'\ifx\cls@argi\@empty\else\ht@debugbrk (parent class: #1)\fi}%
   \let\ht@recursive@inherit\relax
   \ifx\cls@argi\@empty\else
@@ -746,13 +756,13 @@
 \expandafter\def\csname ht@font-variant@normal\endcsname{\ht@apply@prop{internal-font-variant}{\upshape}}
 \expandafter\def\csname ht@font-variant@small-caps\endcsname{\ht@apply@prop{internal-font-variant}{\scshape}}
 
-\expandafter\def\csname ht@font-size@normal\endcsname{\ht@apply@prop{internal-font-size}{\noexpand\normalsize}}
-\expandafter\def\csname ht@font-size@large\endcsname{\ht@apply@prop{internal-font-size}{\noexpand\large}}
-\expandafter\def\csname ht@font-size@x-large\endcsname{\ht@apply@prop{internal-font-size}{\noexpand\Large}}
-\expandafter\def\csname ht@font-size@xx-large\endcsname{\ht@apply@prop{internal-font-size}{\noexpand\LARGE}}
-\expandafter\def\csname ht@font-size@small\endcsname{\ht@apply@prop{internal-font-size}{\noexpand\small}}
-\expandafter\def\csname ht@font-size@x-small\endcsname{\ht@apply@prop{internal-font-size}{\noexpand\footnotesize}}
-\expandafter\def\csname ht@font-size@xx-small\endcsname{\ht@apply@prop{internal-font-size}{\noexpand\tiny}}
+\expandafter\def\csname ht@font-size@normal\endcsname{\ht@apply@prop{internal-font-size}{\normalsize}}
+\expandafter\def\csname ht@font-size@large\endcsname{\ht@apply@prop{internal-font-size}{\large}}
+\expandafter\def\csname ht@font-size@x-large\endcsname{\ht@apply@prop{internal-font-size}{\Large}}
+\expandafter\def\csname ht@font-size@xx-large\endcsname{\ht@apply@prop{internal-font-size}{\LARGE}}
+\expandafter\def\csname ht@font-size@small\endcsname{\ht@apply@prop{internal-font-size}{\small}}
+\expandafter\def\csname ht@font-size@x-small\endcsname{\ht@apply@prop{internal-font-size}{\footnotesize}}
+\expandafter\def\csname ht@font-size@xx-small\endcsname{\ht@apply@prop{internal-font-size}{\tiny}}
 
 \def\ht@CalculateColumnWidths{%
   \global\let\has@relative@cells\@undefined
@@ -866,7 +876,7 @@
       }%
     }}% /Iterate:cols
   \fi
-  %% 5. Iteration: Setting col width
+  %% 4. Iteration: Setting col width
   \ht@tempdima\z@
   \ht@Iterate{\ht@curcol}{1}{\the\ht@maxcol}{{%
     \ht@eval@props{col-\the\ht@curcol}%
@@ -958,7 +968,6 @@
               \ifx\ht@cur@element\ht@str@col\def\ht@proplistname{col-\the\ht@curcol-props}\else
                 \ifx\ht@cur@element\ht@str@td\def\ht@proplistname{td-\the\ht@currow-\the\ht@curcol-props}
                 \fi\fi\fi\fi\fi\fi\fi
-    %\ExecuteCSList{#1-property-list}{htAddToPropertyList}%
     \expandafter\ifx\csname #1-property-list\endcsname\relax\else
       \expandafter\ht@append@to@props\expandafter{\csname #1-property-list\endcsname}{\ht@proplistname}%
     \fi
@@ -1016,17 +1025,19 @@
 \def\ht@set@prop#1#2#3#4{%
   \ht@debugmsg{prop}{Setting #1-#3 in #2-props to #4}%
   \def\@argiv{#4}%
-  \edef\@tempa{\noexpand\expandafter\noexpand\def\noexpand\csname #1-#3\noexpand\endcsname{\@argiv}}%
+  \ifx\ht@no@expand\relax
+    \edef\@tempa{\noexpand\expandafter\noexpand\def\noexpand\csname #1-#3\noexpand\endcsname{\expandafter\noexpand\@argiv}}%
+    \let\ht@no@expand\@undefined
+  \else
+    \edef\@tempa{\noexpand\expandafter\noexpand\def\noexpand\csname #1-#3\noexpand\endcsname{\@argiv}}%
+  \fi
   \expandafter\ht@append@to@props\expandafter{\@tempa}{#2-props}}
 
-\DeclareRobustCommand\SetTableProp[2]{%
-  \ht@set@prop{table}{table}{#1}{#2}}
+\DeclareRobustCommand\SetTableProp[2]{\ht@set@prop{table}{table}{#1}{#2}}
 
-\DeclareRobustCommand\SetRowProp[2]{%
-  \ht@set@prop{tr}{tr-\ht@therow}{#1}{#2}}
+\DeclareRobustCommand\SetRowProp[2]{\ht@set@prop{tr}{tr-\ht@therow}{#1}{#2}}
 
-\DeclareRobustCommand\SetColProp[2]{%
-  \ht@set@prop{col}{col-\the\ht@curcol}{#1}{#2}}
+\DeclareRobustCommand\SetColProp[2]{\ht@set@prop{col}{col-\the\ht@curcol}{#1}{#2}}
 
 \DeclareRobustCommand{\SetCellContent}[1]{%
   \begingroup\expandafter\endgroup
