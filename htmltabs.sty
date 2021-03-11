@@ -1500,7 +1500,10 @@
   \parskip\z@
   \hfuzz\maxdimen
   \hbadness=\@M
-  \advance\ht@h@offset\leftskip \advance\linewidth-\leftskip  \advance\linewidth-\rightskip
+  \advance\ht@h@offset\leftskip
+  \advance\ht@h@offset\@totalleftmargin
+  \advance\linewidth-\leftskip
+  \advance\linewidth-\rightskip
   \leftskip\z@ \rightskip\z@
   \global\advance\ht@curtab\@ne
   \HTResetInternal
@@ -2160,7 +2163,7 @@
     \fi
     \ht@ltx@reg@style@and@class
     \expandafter\let\expandafter\htTableWidth\csname ht@Table@attr@width\endcsname%
-    \ifx\htTableWidth\relax\edef\htTableWidth{\hsize}\fi
+    \ifx\htTableWidth\relax\edef\htTableWidth{\linewidth}\fi
     \HTBeginTable
   }
 \def\endhtmltab{%
