@@ -99,6 +99,7 @@
 \RequirePackage{transpect-endnotes}
  % \RequirePackage{transpect-title}
 \RequirePackage{index}
+\makeindex
 \RequirePackage{hyperref}
 
 \endinput
