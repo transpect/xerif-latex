@@ -43,6 +43,13 @@
 \newcolumntype{C}{>{\centering\arraybackslash\unskip}X}
 \newcolumntype{Z}{>{\centering\arraybackslash\unskip}p}
 \newcolumntype{e}{!{\extracolsep{\fill}}}
+\def\topfraction{0.9}
+\def\textfraction{0.1}
+\def\bottomfraction{0.8}
+\def\totalnumber{8}
+\def\topnumber{8}
+\def\bottomnumber{8}
+\def\floatpagefraction{.95}
 \newbox \tp@subfltbox
 \newcount\tp@subflts          \tp@subflts=\z@\relax
 \newdimen\tp@subflt@maxheight \tp@subflt@maxheight=\z@\relax
@@ -155,13 +162,33 @@
     \nobreak %
   \fi
   \box\htTableBox
-  \tp@make@caption{0}{Below}\nobreak%
+  \nobreak
+  \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax
+  \else
+    \tp@make@caption{0}{Below}\nobreak%
+    \tp@add@list{0}%
+  \fi
+}
+
+\def\tp@add@list#1{%
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@cpt\expandafter\expandafter\expandafter{\csname tp@subflt@cpt@#1\endcsname}%
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@src\expandafter\expandafter\expandafter{\csname tp@subflt@src@#1\endcsname}%
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@lbl\expandafter\expandafter\expandafter{\csname tp@subflt@lbl@#1\endcsname}%
+  \ifx\tp@lo@lbl\relax
+    \addcontentsline{\tp@caplisttype}{\tp@captype}{\tp@lo@cpt\tp@lo@src}%
+  \else
+    \addcontentsline{\tp@caplisttype}{\tp@captype}{\string\numberline{\tp@lo@lbl}\tp@lo@cpt\tp@lo@src}%
+  \fi
+  \tp@reset@caption{#1}%
 }
 
 
 \def\tp@figure@float{%
   \tp@subflt@hsize=\hsize\relax
   \vbox{%
+    \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax\else
+      \tp@make@caption{0}{Top}%
+    \fi
     \bgroup
       \expandafter\tp@subflt@sep=\tp@use@setting{tpSubFloatSep}%
       \@tempdima=\z@\relax
@@ -193,19 +220,25 @@
       \fi
     \egroup
     \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax\else
-      \nobreak
+      \nobreak\par
       \tp@make@caption{0}{Below}%
+      \tp@add@list{0}%
     \fi
   }% /vbox
 }
 
 \def\tp@usefloat#1{{%
     \parindent\z@
+    \expandafter\ifx\csname tp@subflt@cpt@#1\endcsname\relax\else
+      \tp@make@caption{#1}{Top}\nobreak%
+      \nobreak\par
+    \fi
     \csname tp@subflt@fig@#1\endcsname\nobreak\par
     \vskip\tp@use@setting{tpCaptionSep}%
     \expandafter\ifx\csname tp@subflt@cpt@#1\endcsname\relax\else
-      \nobreak
+      \nobreak\par
       \tp@make@caption{#1}{Below}\nobreak%
+      \tp@add@list{#1}%
     \fi
 }}
 
@@ -263,11 +296,6 @@
     \tp@caption@order{#1}{#2}%
     \nobreak\par
   \egroup
-  \edef\@argii{#2}\def\@tempa{Below}%
-  \ifx\@argii\@tempa
-    \addcontentsline{\tp@caplisttype}{\tp@captype}{\string\numberline{\csname tp@subflt@lbl@#1\endcsname}\csname tp@subflt@cpt@#1\endcsname\csname tp@subflt@src@#1\endcsname}%
-    \tp@reset@caption{#1}%
-  \fi
 }
 \def\tp@reset@caption#1{%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@fig@#1\endcsname\relax%
