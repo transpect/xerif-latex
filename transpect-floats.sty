@@ -133,6 +133,7 @@
 \let\tp@dblfloat\tp@float
 \def\endtp@float{%
   \ifx\tp@fps\@empty\else
+    \def\@tempa{h}\ifx\tp@fps\@tempa\def\tp@fps{ht!}\fi
     \ifx\tp@do@dblfloat\relax
       \expandafter\@dblfloat\expandafter{\expandafter\tp@captype\expandafter}\expandafter[\tp@fps]%
     \else

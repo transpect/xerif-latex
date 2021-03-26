@@ -2134,7 +2134,7 @@
 \ht@ltx@define{HTth}
 \ht@ltx@define{HTcol}
 \ht@ltx@define{HTcaption}
-\def\ht@register@macro#1{\expandafter\def\csname #1\endcsname{\@ifnextchar[{\csname ht@#1\endcsname}{\csname ht@#1\endcsname[]}}}%]
+\def\ht@register@macro#1{\expandafter\long\expandafter\def\csname #1\endcsname{\@ifnextchar[{\csname ht@#1\endcsname}{\csname ht@#1\endcsname[]}}}%]
 \def\ht@register@env#1{\expandafter\def\csname #1\endcsname{\@ifnextchar[{\csname ht@#1\endcsname}{\csname ht@#1\endcsname[]}}%]
   \expandafter\expandafter\expandafter\let\expandafter\csname end#1\expandafter\endcsname\csname endht@#1\endcsname}
 \def\ht@ltx@prepare@env@macros{%
@@ -2227,7 +2227,7 @@
     \expandafter\let\expandafter\htColWidth\csname ht@Col@attr@width\endcsname%
     \HTCol{\htColWidth}%
   \endgroup}
-\def\ht@HTtr[#1]#2{%
+\long\def\ht@HTtr[#1]#2{%
   \begingroup
     \def\ht@ltx@cur@env{Tr}%
     \ht@parse@attributes #1,,\@nil
@@ -2239,7 +2239,7 @@
     \HTEndTableRow
   \endgroup
   \ignorespaces}
-\def\ht@HTtd[#1]#2{%
+\long\def\ht@HTtd[#1]#2{%
   \begingroup
     \def\ht@ltx@cur@env{Td}%
     \ht@parse@attributes #1,,\@nil
@@ -2250,7 +2250,7 @@
     \ifx\htCellColspan\relax\def\htCellColspan{1}\fi%
     \HTTableCell{\ignorespaces#2}%
   \endgroup}
-\def\ht@HTcaption[#1]#2{%
+\long\def\ht@HTcaption[#1]#2{%
   \begingroup
     \def\ht@ltx@cur@env{Caption}%
     \ht@parse@attributes #1,,\@nil
