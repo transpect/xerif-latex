@@ -108,17 +108,27 @@
   \global\tp@subflt@maxheight=\z@\relax
 }
 \newenvironment{tpFigure}[1][]{\tp@float[#1]{figure}{lof}}{\endtp@float}
-\newenvironment{tpFigure*}[1][]{\tp@dblfloat[#1]{figure}{lof}}{\endtp@dblfloat}
+\newenvironment{tpFigure*}[1][]{\tp@float[#1]{figure}{lof}}{\endtp@dblfloat}
 \newenvironment{tpTable}[1][]{\tp@float[#1]{table}{lot}}{\endtp@float}
-\newenvironment{tpTable*}[1][]{\tp@dblfloat[#1]{table}{lot}}{\endtp@dblfloat}
+\newenvironment{tpTable*}[1][]{\tp@float[#1]{table}{lot}}{\endtp@dblfloat}
 
 \def\tp@float[#1]#2#3{%
   \begingroup
-    \def\tp@fps{#1}%
     \tp@reset@subflts
     \tp@reset@caption{0}%
     \def\tp@captype{#2}%
     \def\tp@caplisttype{#3}%
+    \if!#1!\else
+      \tp@parse@attributes#1\@nil%
+      \expandafter\ifx\csname tp@attr@class\endcsname\relax\else
+        \message{^^Jtranspect-floats.sty: Class of float \tp@captype\space is: `\tp@attr@class'.}%
+      \fi
+    \fi
+    \expandafter\ifx\csname tp@attr@float-pos\endcsname\relax
+      \let\tp@fps\@empty
+    \else
+      \expandafter\let\expandafter\tp@fps\csname tp@attr@float-pos\endcsname
+    \fi
     \protected\def\tpFig##1{\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@fig@\the\tp@subflts\endcsname{##1}}%
     \protected\def\tpCaption##1{\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@cpt@\the\tp@subflts\endcsname{##1}}%
     \protected\def\tpLegend##1{\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@lgd@\the\tp@subflts\endcsname{##1}}%
@@ -130,7 +140,7 @@
     \fi
     \let\htOutputTable\relax
   }
-\let\tp@dblfloat\tp@float
+
 \def\endtp@float{%
   \ifx\tp@fps\@empty\else
     \def\@tempa{h}\ifx\tp@fps\@tempa\def\tp@fps{ht!}\fi
@@ -154,7 +164,6 @@
   \endgroup
 }
 \def\endtp@dblfloat{\let\tp@do@dblfloat\relax\endtp@float}%
-
 \def\tp@table@float{%
   \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax
   \else
@@ -162,7 +171,10 @@
     \vskip\tp@use@setting{tpCaptionSep}%
     \nobreak %
   \fi
-  \box\htTableBox
+  \ifx\htTableBox\@undefined
+  \else
+    \box\htTableBox
+  \fi
   \nobreak
   \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax
   \else
@@ -170,17 +182,19 @@
     \tp@add@list{0}%
   \fi
 }
-
 \def\tp@add@list#1{%
   \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@cpt\expandafter\expandafter\expandafter{\csname tp@subflt@cpt@#1\endcsname}%
   \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@src\expandafter\expandafter\expandafter{\csname tp@subflt@src@#1\endcsname}%
   \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@lbl\expandafter\expandafter\expandafter{\csname tp@subflt@lbl@#1\endcsname}%
-  \ifx\tp@lo@lbl\relax
-    \addcontentsline{\tp@caplisttype}{\tp@captype}{\tp@lo@cpt\tp@lo@src}%
-  \else
-    \addcontentsline{\tp@caplisttype}{\tp@captype}{\string\numberline{\tp@lo@lbl}\tp@lo@cpt\tp@lo@src}%
+  \expandafter\ifx\tp@lo@src\relax\def\tp@lo@src{}\fi
+  \expandafter\ifx\tp@lo@cpt\relax\else
+    \expandafter\ifx\tp@lo@lbl\relax
+      \addcontentsline{\tp@caplisttype}{\tp@captype}{\tp@lo@cpt\tp@lo@src}%
+    \else
+      \addcontentsline{\tp@caplisttype}{\tp@captype}{\string\numberline{\tp@lo@lbl}\tp@lo@cpt\tp@lo@src}%
+    \fi
+    \tp@reset@caption{#1}%
   \fi
-  \tp@reset@caption{#1}%
 }
 
 
