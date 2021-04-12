@@ -69,12 +69,14 @@
 }
 \def\tpUseHook#1{\expandafter\ifx\csname tp@hook@#1\endcsname\relax\else\csname tp@hook@#1\endcsname\fi}
 
-\def\tp@parse@attributes#1\@nil{%
+\begingroup
+\catcode`\"=\active
+\gdef\tp@parse@attributes#1\@nil{%
   \if!#1!\else
     \@tp@parse@attributes#1 ="" =""\@nil%
   \fi
 }
-\def\@tp@parse@attributes#1="#2" #3=""\@nil{%
+\gdef\@tp@parse@attributes#1="#2" #3=""\@nil{%
   \edef\@argi{#1}%
   \edef\@argiii{#3}%
   \ifx\@argi\@empty\else%
@@ -91,7 +93,7 @@
     \fi
   \fi
 }%
-
+\endgroup
 \endinput
 %%
 %% End of file `transpect-helpers.sty'.
