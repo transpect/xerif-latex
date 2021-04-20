@@ -34,7 +34,7 @@
 %%
 %% lualatex  -  texlive > 2019
 %%
-\NeedsTeXFormat{LaTeX2e}[2019/01/01]
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{transpect}
     [\filedate \fileversion le-tex transpect]
 \RequirePackage{kvoptions-patch}%%%NEW
@@ -90,7 +90,7 @@
     \@mainmatterfalse
     \@frontmatterfalse}
 \fi
-\usepackage{color}
+\usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{soul}
 \PassOptionsToPackage{breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}

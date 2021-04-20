@@ -114,6 +114,7 @@
 \newenvironment{tpTable}[1][]{\tp@float[#1]{table}{lot}}{\endtp@float}
 \newenvironment{tpTable*}[1][]{\tp@float[#1]{table}{lot}}{\endtp@dblfloat}
 
+\let\ltx@label\label
 \def\tp@float[#1]#2#3{%
   \savenotes
   \begingroup
@@ -137,6 +138,7 @@
     \protected\def\tpLegend##1{\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@lgd@\the\tp@subflts\endcsname{##1}}%
     \protected\def\tpSource##1{\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@src@\the\tp@subflts\endcsname{##1}}%
     \protected\def\tpNumber##1{\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@lbl@\the\tp@subflts\endcsname{##1}}%
+    \protected\def\label##1{\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@ref@\the\tp@subflts\endcsname{##1}}%
     \parindent\z@
     \ifx\tp@fps\@empty
       \expandafter\addvspace\expandafter{\tp@use@setting{tpAboveFloatSkip}}%
@@ -189,16 +191,29 @@
   \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@cpt\expandafter\expandafter\expandafter{\csname tp@subflt@cpt@#1\endcsname}%
   \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@src\expandafter\expandafter\expandafter{\csname tp@subflt@src@#1\endcsname}%
   \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@lbl\expandafter\expandafter\expandafter{\csname tp@subflt@lbl@#1\endcsname}%
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\tp@lo@ref\expandafter\expandafter\expandafter{\csname tp@subflt@ref@#1\endcsname}%
   \expandafter\ifx\tp@lo@src\relax\def\tp@lo@src{}\fi
   \expandafter\ifx\tp@lo@cpt\relax\else
     \expandafter\ifx\tp@lo@lbl\relax
       \addcontentsline{\tp@caplisttype}{\tp@captype}{\tp@lo@cpt\tp@lo@src}%
     \else
+      \tp@make@anchor%
       \addcontentsline{\tp@caplisttype}{\tp@captype}{\string\numberline{\tp@lo@lbl}\tp@lo@cpt\tp@lo@src}%
     \fi
     \tp@reset@caption{#1}%
   \fi
 }
+\def\tp@make@anchor{%
+  \expandafter\ifx\tp@lo@ref\relax\else
+    \let\@currentlabel\tp@lo@lbl
+    \expandafter\H@refstepcounter\expandafter{\tp@captype}%
+    \expandafter\hyper@makecurrent\expandafter{\tp@captype}%
+    \let\Hy@tempa\Hy@float@caption
+    \expandafter\hyper@@anchor\expandafter{%
+      \@currentHref
+    }{\relax}%
+    \expandafter\ltx@label\expandafter{\tp@lo@ref}%
+  \fi
 
 \def\tp@figure@float{%
   \tp@subflt@hsize=\hsize\relax
@@ -335,6 +350,7 @@
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@src@#1\endcsname\relax%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@lbl@#1\endcsname\relax%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@lgd@#1\endcsname\relax%
+  \ltx@LocalExpandAfter\global\expandafter\let\csname tp@subflt@ref@#1\endcsname\relax%
   }
 \def\tpSubFloat{%
   \global\advance\tp@subflts\@ne
@@ -366,21 +382,6 @@
   \endarray
   $\egroup}%$
 \expandafter\let\csname endtabular*\endcsname=\endtabular
-
-%%%%%%%%%%
-%%%%%%%%%%
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 \endinput
