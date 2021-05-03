@@ -69,14 +69,17 @@
 }
 \def\tpUseHook#1{\expandafter\ifx\csname tp@hook@#1\endcsname\relax\else\csname tp@hook@#1\endcsname\fi}
 
+\edef\tp@qtcc{\the\catcode`"}
 \begingroup
-\catcode`\"=\active
+\catcode`"=12
+
 \gdef\tp@parse@attributes#1\@nil{%
   \if!#1!\else
     \@tp@parse@attributes#1 ="" =""\@nil%
-  \fi
-}
+  \fi}
+
 \gdef\@tp@parse@attributes#1="#2" #3=""\@nil{%
+  %\show"
   \edef\@argi{#1}%
   \edef\@argiii{#3}%
   \ifx\@argi\@empty\else%
