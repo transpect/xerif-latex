@@ -134,13 +134,14 @@
     \else
       \ifx\heading@Runtitle\relax
         \ifx\heading@Number\relax
-          \tp@mark@name{\heading@Title}%
+          \protected@edef\@tp@mark@name{\heading@Title}%
         \else
-          \tp@mark@name{\protect\numberline{\heading@Number}\heading@Title}%
+          \protected@edef\@tp@mark@name{\noexpand\numberline{\heading@Number}\heading@Title}%
         \fi
       \else
-        \tp@mark@name{\heading@Runtitle}%
+        \protected@edef\@tp@mark@name{\heading@Runtitle}%
       \fi
+      \expandafter\tp@mark@name\expandafter{\@tp@mark@name}%
     \fi
     \expandafter\ifx\csname tp@no@toc@#3\endcsname\@empty\else
       \expandafter\ifx\tp@notoc\relax
@@ -166,23 +167,23 @@
               \fi
               \expandonce{\heading@Title}%
             }%
-            \edef\heading@BMtitle{%
-              \ifx\heading@Tocauthor\relax
-                \ifx\heading@Author\relax\else
-                  \noexpand\protect\noexpand\tpToCAuthor{\heading@Author}%
-                \fi
-              \else
-                \noexpand\protect\noexpand\tpToCAuthor{\heading@Tocauthor}%
-              \fi
-              \expandafter\ifx\csname tp@toc@no@number@#3\endcsname\@empty\else
-                \ifx\heading@Number\relax\else
-                  \noexpand\protect\noexpand\Hy@numberline{\heading@Number}%
-                \fi
-              \fi
-              \expandonce{\heading@Title}%
-            }%
           \fi
           \addcontentsline{toc}{#3}{\heading@Toctitle}\relax
+          \edef\heading@BMtitle{%
+            \ifx\heading@Tocauthor\relax
+              \ifx\heading@Author\relax\else
+                \noexpand\protect\noexpand\tpToCAuthor{\heading@Author}%
+              \fi
+            \else
+              \noexpand\protect\noexpand\tpToCAuthor{\heading@Tocauthor}%
+            \fi
+            \expandafter\ifx\csname tp@toc@no@number@#3\endcsname\@empty\else
+              \ifx\heading@Number\relax\else
+                \noexpand\protect\noexpand\Hy@numberline{\heading@Number}%
+              \fi
+            \fi
+            \expandonce{\heading@Title}%
+          }%
           \bookmark[level=#2,dest=\@currentHref]{\heading@BMtitle}%
         \fi
       \fi
