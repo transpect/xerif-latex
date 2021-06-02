@@ -118,10 +118,20 @@
   \global\tp@subflts=\z@
   \global\tp@subflt@maxheight=\z@\relax
 }
-\newenvironment{tpFigure}[1][]{\tp@float[#1]{figure}{lof}}{\endtp@float}
-\newenvironment{tpFigure*}[1][]{\let\tp@do@dblfloat\relax\tp@float[#1]{figure}{lof}}{\endtp@dblfloat}
-\newenvironment{tpTable}[1][]{\tp@float[#1]{table}{lot}}{\endtp@float}
-\newenvironment{tpTable*}[1][]{\let\tp@do@dblfloat\relax\tp@float[#1]{table}{lot}}{\endtp@dblfloat}
+
+\def\tpDeclareFloat{\@ifnextchar[{\@tpDeclareFloat}{\@tpDeclareFloat[]}}%]
+\def\@tpDeclareFloat[#1]#2#3#4#5{%
+  \def\tp@float@name{#2}%
+  \expandafter\ifx\csname\tp@float@name\endcsname\relax
+    \newenvironment{#2}[1][]{\tp@float[##1]{#3}{#4}}{\endtp@float}%
+    \newenvironment{#2*}[1][]{\let\tp@do@dblfloat\relax\tp@float[##1]{#3}{#4}}{\endtp@dblfloat}%
+  \fi
+  #5}
+
+\tpDeclareFloat{tpFigure}{figure}{lof}{%
+}
+\tpDeclareFloat{tpTable}{table}{lot}{%
+}
 
 \let\ltx@label\label
 \def\tp@str@landscape{landscape}
@@ -152,12 +162,12 @@
     \fi
     \def\tp@bcnthack{\bgroup\ifx\tp@is@subflt\relax\else\tp@subflts=\z@\relax\fi}%
     \def\tp@ecnthack{\egroup}%
-    \protected\def\tpFig##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@fig@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
-    \protected\def\tpCaption##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@cpt@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
-    \protected\def\tpLegend##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@lgd@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
-    \protected\def\tpSource##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@src@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
-    \protected\def\tpNumber##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@lbl@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
-    \protected\def\label##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@ref@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
+    \tpProvideMacro{tpFig}{\tp@bcnthack}{\tp@ecnthack}{tp@subflt@fig@\the\tp@subflts}%
+    \tpProvideMacro{tpCaption}{\tp@bcnthack}{\tp@ecnthack}{tp@subflt@cpt@\the\tp@subflts}%
+    \tpProvideMacro{tpLegend}{\tp@bcnthack}{\tp@ecnthack}{tp@subflt@lgd@\the\tp@subflts}%
+    \tpProvideMacro{tpSource}{\tp@bcnthack}{\tp@ecnthack}{tp@subflt@src@\the\tp@subflts}%
+    \tpProvideMacro{tpNumber}{\tp@bcnthack}{\tp@ecnthack}{tp@subflt@lbl@\the\tp@subflts}%
+    \tpProvideMacro{tpLabel}{\tp@bcnthack}{\tp@ecnthack}{tp@subflt@ref@\the\tp@subflts}%
     \parindent\z@
     \ifx\tp@do@dblfloat\relax\linewidth\dimexpr2\columnwidth+\columnsep\relax\fi
     \expandafter\ifx\csname css@#2@attr@orientation\endcsname\tp@str@landscape
