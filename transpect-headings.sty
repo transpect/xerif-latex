@@ -134,7 +134,7 @@
       \expandafter\tp@mark@name\expandafter{\@tp@mark@name}%
     \fi
     \expandafter\ifx\csname tp@no@toc@#3\endcsname\@empty\else
-      \expandafter\ifx\tp@notoc\relax
+      \expandafter\ifx\csname css@heading@attr@notoc\endcsname\relax
         \let\tp@notoc\@empty
       \else
         \expandafter\ifnum\tp@heading@level>\c@tocdepth\relax\else
@@ -309,15 +309,6 @@
 
 \DeclareRobustCommand{\TitleBreak}{\hfill\break}
 
-\def\tp@parse@opt#1{\@tp@parse@opt#1,,\@nil}
-\def\@tp@parse@opt#1,#2,\@nil{%
-  \expandafter\ifx\csname tp@#1\endcsname\@empty
-    \expandafter\global\expandafter\let\csname tp@#1\endcsname\relax
-  \fi
-  \if!#2!\else
-    \@tp@parse@opt#2,\@nil
-  \fi}
-
 \def\@heading[#1]#2{%
   \bgroup
     \tpNamespace{heading}%
@@ -325,8 +316,7 @@
     \global\let\ltx@label\label
     \global\let\tp@heading@label\relax
     \global\let\tp@notoc\@empty
-    \global\let\tp@notocnumber\@empty
-    \tp@parse@opt{#1}%
+    \cssParseAttributes{heading}{#1}%
     \xdef\tp@heading@name{#2}%
     \tpProvideMacro{label}{}{}{label}%
     \tpProvideMacro{author}{}{}{Author}%

@@ -84,32 +84,66 @@
   \expandafter\long\expandafter\protected\expandafter\def\csname #1\endcsname##1{#2\ltx@LocalExpandAfter\long\expandafter\protected\expandafter\gdef\csname tp@\tp@namespace @#4\endcsname{##1}\ignorespaces#3}
 }
 \def\tpNamespace#1{\def\tp@namespace{#1}}
+\def\CSSDeclareClass{\@ifnextchar [{\@css@set@class}{\@css@set@class[]}}%]
+
+\def\@css@set@class[#1]#2{\@ifnextchar [{\css@set@class[#1]{#2}}{\css@set@class[#1]{#2}[]}}%]
+
+\gdef\css@@class@default{}
+
+\def\css@set@class[#1]#2[#3]#4{%
+  \def\@argii{#2}\ifx\@argii\@empty\let\@argii\tp@str@default\fi%
+  \if!#3!\else
+    \expandafter\def\csname css@#1@class@\@argii @parent\endcsname{#3}%
+  \fi
+  \expandafter\def\csname css@#1@class@\@argii\endcsname{%
+    #4%
+  }%
+}
+
+\def\cssUseClass#1{%
+  \expandafter\ifx\csname css@\tp@captype @class@#1\endcsname\relax
+    \expandafter\ifx\csname css@@class@#1\endcsname\relax
+      \PackageError{transpect-flaots.sty}{Class `#1' not defined!}{Please declare the class `#1'!}%
+    \fi
+  \fi
+  \let\ht@cur@element\tp@captype
+  \csname css@@class@#1\endcsname%
+  \expandafter\ifx\csname css@\tp@captype @class@#1@parent\endcsname\relax\else
+    \expandafter\let\expandafter\@tempa\csname css@\tp@captype @class@#1@parent\endcsname
+    \csname css@\tp@captype @class@\@tempa\endcsname
+  \fi
+  \csname css@\tp@captype @class@#1\endcsname%
+}
 \begingroup
 \catcode`"=12
 \gdef\cssParseAttributes#1#2{%
-  \def\css@cur@node{#1}%
-  \if!#2!\else
-    \@css@parse@attributes#2 ="" =""\@nil%
-  \fi
-}
-\gdef\@css@parse@attributes#1="#2" #3=""\@nil{%
-  \edef\@argi{#1}%
-  \edef\@argiii{#3}%
-  \ifx\@argi\@empty\else%
-    \ifx\@argi\space\else%
+  \if!#1!\else
+    \if!#2!\else
+      \def\css@cur@node{#1}%
+      \@css@parse@attributes #2,,\@nil
+    \fi\fi}
+\gdef\css@parse@kv#1=#2=#3\@nil{%
+  \ifx!#2!\else
+    \ifx #2==\else
       \expandafter\def\csname css@\css@cur@node @attr@#1\endcsname{#2}%
-      \ifx\@argiii\@empty\else
-        \ifx\@argiii\space\else
-          \def\@tempa{="" }%
-          \ifx\@argiii\@tempa\else%
-            \expandafter\@css@parse@attributes #3=""\@nil%
-          \fi
-        \fi
-      \fi
     \fi
-  \fi
-}%
+  \fi}
+\gdef\@css@parse@attributes #1,#2,\@nil{%
+  \if!#1!\else
+    \css@parse@kv#1==\@nil
+    \if!#2!\else
+      \@css@parse@attributes#2,\@nil
+    \fi\fi}
 \endgroup
+
+\DeclareRobustCommand{\tpSetProperty}[2]{%
+  \expandafter\protect\expandafter\def\csname tp@\tp@namespace @#1\endcsname{#2}%
+}
+
+\def\tpUseProperty#1{\csname tp@\tp@namespace @#1\endcsname}
+\DeclareRobustCommand{\tpAddToDefault}[2]{%
+  \csgappto{tp@#1@default}{#2}%
+}
 
 \let\hack\@firstofone
 \let\Hack\@firstofone

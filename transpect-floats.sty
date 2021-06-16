@@ -29,20 +29,9 @@
 %%
 %% lualatex  -  texlive > 2019
 %%
-\NeedsTeXFormat{LaTeX2e}[2019/01/01]
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{transpect-floats}
     [2020/22/04 0.90 le-tex transpect floats module]
-\usepackage{tabularx}
-\usepackage{multirow}
-\usepackage{caption}
-\newcolumntype{Q}{>{\raggedright\arraybackslash\unskip}X}
-\newcolumntype{W}{>{\raggedleft\arraybackslash\unskip}X}
-\newcolumntype{L}{>{\raggedright\arraybackslash\unskip}p}
-\newcolumntype{P}{>{\RaggedRight\arraybackslash\unskip}p}
-\newcolumntype{R}{>{\raggedleft\arraybackslash\unskip}p}
-\newcolumntype{C}{>{\centering\arraybackslash\unskip}X}
-\newcolumntype{Z}{>{\centering\arraybackslash\unskip}p}
-\newcolumntype{e}{!{\extracolsep{\fill}}}
 \def\topfraction{0.9}
 \def\textfraction{0.1}
 \def\bottomfraction{0.8}
@@ -55,65 +44,6 @@
 \newdimen\tp@subflt@maxheight \tp@subflt@maxheight=\z@\relax
 \newdimen\tp@subflt@sep       \tp@subflt@sep=\fboxsep\relax
 \newdimen\tp@total@flt@width     \tp@total@flt@width=\textwidth\relax
-\def\tp@provide@setting#1#2{%
-  \expandafter\def\csname @#1@internal@\endcsname{#2}%
-  \expandafter\def\csname #1\endcsname{\@ifnextchar[{\csname @#1\endcsname}{\csname @#1\endcsname[]}}%]
-  \expandafter\def\csname @#1\endcsname[##1]##2{%
-    \edef\tp@opt@arg{##1}%
-    \ifx\tp@opt@arg\@empty
-      \ltx@LocalExpandAfter\gdef\csname @#1@internal@\endcsname{##2}%
-    \else
-      \ltx@LocalExpandAfter\gdef\csname @#1@internal@##1\endcsname{##2}%
-    \fi
-  }%
-}
-\def\tp@provide@switch#1{%
-  \expandafter\let\csname @#1@internal@\endcsname\relax%
-  \expandafter\def\csname #1\endcsname{\@ifnextchar[{\csname @#1\endcsname}{\csname @#1\endcsname[]}}%]
-  \expandafter\def\csname @#1\endcsname[##1]{%
-    \edef\tp@opt@arg{##1}%
-    \ifx\tp@opt@arg\@empty
-      \ltx@LocalExpandAfter\global\expandafter\let\csname @#1@internal@\endcsname\@empty%
-    \else
-      \ltx@LocalExpandAfter\global\expandafter\let\csname @#1@internal@##1\endcsname\@empty%
-    \fi
-  }%
-}
-\def\tp@use@setting#1{%
-  \expandafter\ifx\csname @#1@internal@\tp@captype\endcsname\relax
-    \csname @#1@internal@\endcsname
-  \else
-    \csname @#1@internal@\tp@captype\endcsname
-  \fi}
-\tp@provide@setting{tpCaptionLabelSep}{}
-\tp@provide@setting{tpCaptionLabelFont}{}
-\tp@provide@setting{tpCaptionSourceSep}{}
-\tp@provide@setting{tpCaptionSourceFont}{}
-\tp@provide@setting{tpCaptionLegendSep}{}
-\tp@provide@setting{tpCaptionLegendFont}{}
-\tp@provide@setting{tpCaptionFormat}{}
-\tp@provide@setting{tpCaptionFormatBelow}{}
-\tp@provide@setting{tpCaptionFormatTop}{}
-\tp@provide@setting{tpCaptionFont}{}
-\tp@provide@setting{tpCaptionTopSep}{\z@}
-\tp@provide@setting{tpCaptionBelowSep}{\z@}
-\tp@provide@setting{tpCaptionOrderTop}{}
-\tp@provide@setting{tpCaptionOrderBelow}{}
-\tp@provide@setting{tpCaptionVAlignTop}{t}
-\tpCaptionVAlignTop[table]{b}
-\tp@provide@setting{tpCaptionVAlignBottom}{t}
-\tpCaptionOrderTop[figure]{}
-\tpCaptionOrderBelow[figure]{label,caption,source,legend}
-\tpCaptionOrderTop[table]{label,caption,source}
-\tpCaptionOrderBelow[table]{legend}
-\tp@provide@setting{tpIntextSkipAbove}{\z@}
-\tp@provide@setting{tpIntextSkipBelow}{\z@}
- %\tp@provide@setting{tpCaptionSep}{\z@}
-\tp@provide@setting{tpAboveFloatSkip}{\z@}
-\tp@provide@setting{tpBelowFloatSkip}{\z@}
-\tp@provide@setting{tpSubFloatSep}{\tp@subflt@sep}
-\tp@provide@setting{tpLeftSkip}{\z@}
-\tp@provide@setting{tpRightSkip}{\z@}
 \def\tp@reset@subflts{%
   \global\tp@subflts=\z@
   \global\tp@subflt@maxheight=\z@\relax
@@ -123,24 +53,70 @@
 \def\@tpDeclareFloat[#1]#2#3#4#5{%
   \def\tp@float@name{#2}%
   \expandafter\ifx\csname\tp@float@name\endcsname\relax
-    \newenvironment{#2}[1][]{\tp@float[##1]{#3}{#4}}{\endtp@float}%
-    \newenvironment{#2*}[1][]{\let\tp@do@dblfloat\relax\tp@float[##1]{#3}{#4}}{\endtp@dblfloat}%
+    \PackageInfo{transpect}{Declaring \tp@float@name\space environment}%
+    \newenvironment{#2}[1][]{\tp@float[##1]{#3}{#4}{#2}}{\endtp@float}%
+    \newenvironment{#2*}[1][]{\let\tp@do@dblfloat\relax\tp@float[##1]{#3}{#4}{#2}}{\endtp@dblfloat}%
+  \else
+    \PackageInfo{transpect}{Re-Declaring \tp@float@name\space environment}%
+    \renewenvironment{#2}[1][]{\tp@float[##1]{#3}{#4}{#2}}{\endtp@float}%
+    \renewenvironment{#2*}[1][]{\let\tp@do@dblfloat\relax\tp@float[##1]{#3}{#4}{#2}}{\endtp@dblfloat}%
   \fi
+  \let\tp@namespace\tp@float@name
+  \csname tp@float@default\endcsname
+  \if!#1!\else
+    \expandafter\def\csname tp@float@#2@parent\endcsname{#1}%
+    \@tp@inherit@float{#1}%
+  \fi
+  \expandafter\protect\expandafter\gdef\csname tp@float@#2@properties\endcsname{#5}%
   #5}
+\def\@tp@inherit@float#1{%
+  \expandafter\ifx\csname tp@float@#1@parent\endcsname\relax\else\expandafter\@tp@inherit@float\expandafter{\csname tp@float@#1@parent\endcsname}\fi
+  \csname tp@float@#1@properties\endcsname
+}
+\tpAddToDefault{float}{%
+  \tpSetProperty{caption-label-sep}{}
+  \tpSetProperty{caption-label-font}{}
+  \tpSetProperty{caption-source-sep}{}
+  \tpSetProperty{caption-source-font}{}
+  \tpSetProperty{caption-legend-sep}{}
+  \tpSetProperty{caption-legend-font}{}
+  \tpSetProperty{caption-format}{}
+  \tpSetProperty{caption-format-below}{}
+  \tpSetProperty{caption-format-above}{}
+  \tpSetProperty{caption-font}{}
+  \tpSetProperty{caption-above-sep}{\z@}
+  \tpSetProperty{caption-below-sep}{\z@}
+  \tpSetProperty{caption-order-above}{}
+  \tpSetProperty{caption-order-below}{}
+  \tpSetProperty{caption-valign-above}{t}
+  \tpSetProperty{caption-valign-below}{t}
+  \tpSetProperty{intext-skip-above}{\z@}
+  \tpSetProperty{intext-skip-below}{\z@}
+  \tpSetProperty{above-float-skip}{\z@}
+  \tpSetProperty{below-float-skip}{\z@}
+  \tpSetProperty{sub-float-sep}{\tp@subflt@sep}
+  \tpSetProperty{left-skip}{\z@}
+  \tpSetProperty{right-skip}{\z@}
+}
 
 \tpDeclareFloat{tpFigure}{figure}{lof}{%
+  \tpSetProperty{caption-order-above}{}
+  \tpSetProperty{caption-order-below}{label,caption,source,legend}
 }
 \tpDeclareFloat{tpTable}{table}{lot}{%
+  \tpSetProperty{caption-order-above}{label,caption,source}
+  \tpSetProperty{caption-order-below}{legend}
+  \tpSetProperty{caption-valign-above}{b}
 }
-
 \let\ltx@label\label
 \def\tp@str@landscape{landscape}
 \def\tp@str@default{default}
 \AtBeginDocument{\@ifpackageloaded{htmltabs}{\global\let\tp@uses@htmltabs\relax}{}}%
 
-\def\tp@float[#1]#2#3{%
+\def\tp@float[#1]#2#3#4{%
   \savenotes
   \begingroup
+    \tpNamespace{#4}%
     \tp@reset@subflts
     \tp@reset@caption{0}%
     \def\tp@captype{#2}%
@@ -160,15 +136,15 @@
     \else
       \expandafter\let\expandafter\tp@fps\csname css@#2@attr@float-pos\endcsname
     \fi
+    \def\@tempa{h!}\ifx\tp@fps\@tempa\let\tp@fps\@empty\fi
     \def\tp@bcnthack{\bgroup\ifx\tp@is@subflt\relax\else\tp@subflts=\z@\relax\fi}%
     \def\tp@ecnthack{\egroup}%
-    \tpNamespace{subflt}%
-    \tpProvideMacro{tpFig}{\tp@bcnthack}{\tp@ecnthack}{fig@\the\tp@subflts}%
-    \tpProvideMacro{tpCaption}{\tp@bcnthack}{\tp@ecnthack}{cpt@\the\tp@subflts}%
-    \tpProvideMacro{tpLegend}{\tp@bcnthack}{\tp@ecnthack}{lgd@\the\tp@subflts}%
-    \tpProvideMacro{tpSource}{\tp@bcnthack}{\tp@ecnthack}{src@\the\tp@subflts}%
-    \tpProvideMacro{tpNumber}{\tp@bcnthack}{\tp@ecnthack}{lbl@\the\tp@subflts}%
-    \tpProvideMacro{tpLabel}{\tp@bcnthack}{\tp@ecnthack}{ref@\the\tp@subflts}%
+    \protected\def\tpFig##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@fig@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
+    \protected\def\tpCaption##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@cpt@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
+    \protected\def\tpLegend##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@lgd@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
+    \protected\def\tpSource##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@src@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
+    \protected\def\tpNumber##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@lbl@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
+    \protected\def\label##1{\tp@bcnthack\ltx@LocalExpandAfter\protected\expandafter\gdef\csname tp@subflt@ref@\the\tp@subflts\endcsname{##1}\ignorespaces\tp@ecnthack}%
     \parindent\z@
     \ifx\tp@do@dblfloat\relax\linewidth\dimexpr2\columnwidth+\columnsep\relax\fi
     \expandafter\ifx\csname css@#2@attr@orientation\endcsname\tp@str@landscape
@@ -176,9 +152,9 @@
       \def\tp@fps{p}%
     \else
       \ifx\tp@fps\@empty
-        \expandafter\addvspace\expandafter{\tp@use@setting{tpAboveFloatSkip}}%
+        \expandafter\addvspace\expandafter{\tpUseProperty{intext-skip-above}}%
       \else
-        \expandafter\addvspace\expandafter{\tp@use@setting{tpIntextSkipAbove}}%
+        \expandafter\addvspace\expandafter{\tpUseProperty{above-float-skip}}%
       \fi
     \fi
     \ifx\tp@uses@htmltabs\relax
@@ -189,7 +165,6 @@
 
 \RequirePackage{rotating}
 \def\endtp@float{%
-  \def\@tempa{h!}\ifx\tp@fps\@tempa\let\tp@fps\@empty\fi
   \ifx\tp@fps\@empty\else
     \def\@tempa{h}\ifx\tp@fps\@tempa\def\tp@fps{ht!}\fi
     \let\tp@b@flt\tp@captype%
@@ -202,10 +177,11 @@
     \expandafter\expandafter\expandafter\begin\expandafter\expandafter\expandafter{\expandafter\tp@b@flt\expandafter}\expandafter[\tp@fps]%
   \fi
   \csname tp@\tp@captype @float\endcsname
+  \par
   \ifx\tp@fps\@empty
-    \expandafter\vskip\tp@use@setting{tpBelowFloatSkip}\relax%
+    \expandafter\vskip\tpUseProperty{intext-skip-below}%
   \else
-    \expandafter\vskip\tp@use@setting{tpIntextSkipBelow}\relax%
+    \expandafter\addvspace\expandafter{\tpUseProperty{below-float-skip}}%
     \expandafter\end\expandafter{\tp@b@flt}%
   \fi
   \endgroup
@@ -215,7 +191,7 @@
 \def\tp@table@float{%
   \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax
   \else
-    \tp@make@caption{0}{Top}%
+    \tp@make@caption{0}{above}%
   \fi
   \ifx\htTableBox\@undefined
   \else
@@ -224,7 +200,7 @@
     \fi
   \fi
   \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax\else
-    \tp@make@caption{0}{Below}%
+    \tp@make@caption{0}{below}%
   \fi}
 
 \def\tpListEntry{\tp@lo@cpt\space\tp@lo@src}
@@ -265,18 +241,18 @@
 
 \def\tp@figure@float{%
   \tp@total@flt@width=\hsize\relax
-  \expandafter\@tempdima\tp@use@setting{tpRightSkip}\relax
+  \expandafter\@tempdima\tpUseProperty{right-skip}\relax
   \ifdim\@tempdima>\z@\relax\advance\tp@total@flt@width-\@tempdima\relax\fi
-  \expandafter\@tempdima\tp@use@setting{tpLeftSkip}\relax
+  \expandafter\@tempdima\tpUseProperty{left-skip}\relax
   \ifdim\@tempdima>\z@\relax\advance\tp@total@flt@width-\@tempdima\relax\fi
   \hskip\@tempdima
   \vtop{%
     \hsize\tp@total@flt@width
     \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax\else
-      \tp@make@caption{0}{Top}%
+      \tp@make@caption{0}{above}%
     \fi
     \bgroup
-      \expandafter\tp@subflt@sep=\tp@use@setting{tpSubFloatSep}\relax%
+      \expandafter\tp@subflt@sep=\tpUseProperty{sub-float-sep}\relax%
       \@tempdima=\z@\relax
       \ifnum\tp@subflts=\z@\relax
         \ifx\tp@current@class\relax\else\let\includegraphics\tp@includesubgraphics\fi
@@ -301,14 +277,14 @@
           \expandafter\edef\csname tp@subflt@res@width@\the\@tempcnta\endcsname{\dimexpr\@tempa\tp@total@flt@width\relax}%
           \expandafter\ifx\csname tp@subflt@cpt@\the\@tempcnta\endcsname\relax\else\let\tp@has@subcapt\relax\fi
         }%
-        \ifx\tp@has@subcapt\relax\tp@create@mp{\tp@make@caption{\the\@tempcnta}{Top}}{\tp@use@setting{tpCaptionVAlignTop}}\par\fi%
+        \ifx\tp@has@subcapt\relax\tp@create@mp{\tp@make@caption{\the\@tempcnta}{above}}{\tpUseProperty{caption-valign-above}}\par\fi%
         \tp@create@mp{\csname tp@subflt@fig@\the\@tempcnta\endcsname}{t}%
-        \ifx\tp@has@subcapt\relax \par\tp@create@mp{\tp@make@caption{\the\@tempcnta}{Below}}{\tp@use@setting{tpCaptionVAlignBottom}}\par\fi%
+        \ifx\tp@has@subcapt\relax \par\tp@create@mp{\tp@make@caption{\the\@tempcnta}{below}}{\tpUseProperty{caption-valign-below}}\par\fi%
         \par
       \fi
     \egroup
     \expandafter\ifx\csname tp@subflt@cpt@0\endcsname\relax\else
-      \tp@make@caption{0}{Below}%
+      \tp@make@caption{0}{below}%
     \fi
   }% /vbox
 }
@@ -322,43 +298,43 @@
   }}
 
 
-\def\tp@use@label#1{%
+\def\tp@flt@use@label#1{%
   \expandafter\ifx\csname tp@subflt@lbl@#1\endcsname\relax\else
     \bgroup
-      \expandonce{\tp@use@setting{tpCaptionLabelFont}}%
+      \expandonce{\tpUseProperty{caption-label-font}}%
       \csname tp@subflt@lbl@#1\endcsname%
     \egroup
-    \tp@use@setting{tpCaptionLabelSep}%
+    \tpUseProperty{caption-label-sep}%
   \fi
 }
-\def\tp@use@legend#1{%
+\def\tp@flt@use@legend#1{%
   \expandafter\ifx\csname tp@subflt@lgd@#1\endcsname\relax\else
-    \tp@use@setting{tpCaptionLegendSep}%
+    \tpUseProperty{caption-legend-sep}%
     \bgroup
-      \expandonce{\tp@use@setting{tpCaptionLegendFont}}%
+      \expandonce{\tpUseProperty{caption-legend-font}}%
       \expandonce{\csname tp@subflt@lgd@#1\endcsname}%
     \egroup
   \fi
 }
-\def\tp@use@source#1{%
+\def\tp@flt@use@source#1{%
   \expandafter\ifx\csname tp@subflt@src@#1\endcsname\relax\else
-    \tp@use@setting{tpCaptionSourceSep}%
+    \tpUseProperty{caption-source-sep}%
     \bgroup
-      \expandonce{\tp@use@setting{tpCaptionSourceFont}}%
+      \expandonce{\tpUseProperty{caption-source-font}}%
       \expandonce{\csname tp@subflt@src@#1\endcsname}%
     \egroup
   \fi
 }
-\def\tp@use@caption#1{%
+\def\tp@flt@use@caption#1{%
   \bgroup
-    \expandonce{\tp@use@setting{tpCaptionFont}}%
+    \expandonce{\tpUseProperty{caption-font}}%
     \expandonce{\csname tp@subflt@cpt@#1\endcsname}%
   \egroup}
 
 \def\tp@traverse@cap@order #1,#2,\@nil#3{%
   \if!#1!\else
-    \expandafter\ifx\csname tp@use@#1\endcsname\relax\else%
-      \csname tp@use@#1\endcsname{#3}%
+    \expandafter\ifx\csname tp@flt@use@#1\endcsname\relax\else%
+      \csname tp@flt@use@#1\endcsname{#3}%
     \fi
     \if!#2!\else
       \tp@traverse@cap@order#2,\@nil{#3}%
@@ -366,25 +342,25 @@
   \fi
 }
 \def\tp@caption@order#1#2{%
-  \edef\@tp@cap@odr{\tp@use@setting{tpCaptionOrder#2}}%
+  \edef\@tp@cap@odr{\tpUseProperty{caption-order-#2}}%
   \expandafter\tp@traverse@cap@order\@tp@cap@odr,,\@nil{#1}%
 }
 
 \def\tp@make@caption#1#2{%
-  \def\@argii{#2}\def\@tempa{Below}%
+  \def\@argii{#2}\def\@tempa{below}%
   \ifx\@tempa\@argii
-    \vskip\tp@use@setting{tpCaptionBelowSep}%
+    \expandafter\vskip\tpUseProperty{caption-below-sep}%
   \fi
   \bgroup%
-    \expandonce{\tp@use@setting{tpCaptionFormat}}%
-    \expandonce{\tp@use@setting{tpCaptionFormat#2}}%
+    \expandonce{\tpUseProperty{caption-format}}%
+    \expandonce{\tpUseProperty{caption-format-#2}}%
     \strut\tp@caption@order{#1}{#2}\strut%
     \nobreak\par
   \egroup
   \ifx\@tempa\@argii
     \tp@add@list{#1}%
   \else
-    \vskip\tp@use@setting{tpCaptionTopSep}%
+    \expandafter\vskip\tpUseProperty{caption-above-sep}%
   \fi
 }
 \def\tp@reset@caption#1{%
@@ -428,30 +404,6 @@
   \endarray
   $\egroup}%$
 \expandafter\let\csname endtabular*\endcsname=\endtabular
-\def\CSSDeclareClass{\@ifnextchar [{\css@set@class}{\css@set@class[]}}%]
-
-\gdef\css@@class@default{}
-\gdef\css@figure@class@default{}
-\gdef\css@table@class@default{}
-
-\def\css@set@class[#1]#2#3{%
-  \def\@argii{#2}\ifx\@argii\@empty\let\@argii\tp@str@default\fi%
-  \expandafter\def\csname css@#1@class@\@argii\endcsname{%
-    #3%
-  }%
-}
-
-\def\cssUseClass#1{%
-  \expandafter\ifx\csname css@\tp@captype @class@#1\endcsname\relax
-    \expandafter\ifx\csname css@@class@#1\endcsname\relax
-      \PackageError{transpect-flaots.sty}{Class `#1' not defined!}{Please declare the class `#1'!}%
-    \fi
-  \fi
-  \let\ht@cur@element\tp@captype
-  \csname css@@class@#1\endcsname%
-  \csname css@\tp@captype @class@#1\endcsname%
-}
-
 
 \endinput
 %%
