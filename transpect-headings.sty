@@ -34,247 +34,91 @@
     [\filedate \fileversion le-tex transpect headings module]
 \RequirePackage{bookmark}
 \hypersetup{bookmarksdepth=-999}
-\def\tpDeclareHeading{\@ifnextchar[{\@tpDeclareHeading}{\@tpDeclareHeading[]}}%]
-\def\@tpDeclareHeading[#1]#2#3#4{%
+\long\def\tpDeclareHeading{\@ifnextchar[{\@tpDeclareHeading}{\@tpDeclareHeading[]}}%]
+\long\def\@tpDeclareHeading[#1]#2#3#4{%
   \tpNamespace{heading}%
-  \expandafter\gdef\csname tp@decl@#3\endcsname{#4}%
-  \global\let\tp@inherit\relax
-  \if!#1!\else
-    \xdef\tp@inherit{#1}%
-    \expandafter\xdef\csname tp@inherit@#3\expandafter\endcsname{#1}%
-  \fi
   \expandafter\def\csname heading@#3@name\endcsname{#3}%
-  \def\tpHeadingProperty##1##2{%
-    \ifx\tp@inherit\relax\else\tpDeclareHook{##1#3}\fi
-    \tpAddToHook{##1#3}{##2}%
-  }%
-  \tpDeclareBlock{Author}{#3}%
-  \tpDeclareBlock{Subtitle}{#3}%
-  \tpDeclareBlock{Quote}{#3}%
-  \tpDeclareBlock{QuoteSource}{#3}%
-  \tpDeclareBlock{Number}{#3}%
-  \tpDeclareHook{BlockFormat#3}%
-  \tpDeclareHook{BeforeHeading#3}%
-  \tpDeclareHook{AfterHeading#3}%
-  \tpDeclareHook{AfterSkip#3}%
-  \tpDeclareHook{TitleFormat#3}%
-  \def\tpAfterTitle##1{\expandafter\gdef\csname tp@after@title@#3\endcsname{##1}}%
-  \tpDeclareHook{BeforeBox#3}%
-  \tpDeclareHook{AfterBox#3}%
-  \tpDeclareHook{AfterTitles#3}%
-  \def\tpAfterIndent{\expandafter\global\expandafter\let\csname tp@fter@indent@#3\endcsname\@empty}%
-  \def\tpAuthorAfter{\expandafter\global\expandafter\let\csname tp@author@fter@#3\endcsname\@empty}%
-  \def\tpAuthorAfterIndent{\expandafter\global\expandafter\let\csname tp@author@fter@indent@#3\endcsname\@empty}%
-  \def\tpHeadingPar{%
-    \ifx\tp@interline@paragraphs\relax\else
-      \if@noskipsec \leavevmode \fi
-    \fi
-    \@@par\@afterindenttrue
-  }%
-  \def\tpInterlineParagraphs{\global\let\tp@interline@paragraphs\relax}%
-  \def\tpInterlineParaSep{\space}%
-  \def\tpHideAuthor{\expandafter\global\expandafter\let\csname tp@hide@uthor@#3\endcsname\@empty}%
-  \def\tpHangNumber{\expandafter\global\expandafter\let\csname tp@hang@number@#3\endcsname\@empty}%
-  \def\tpNoToc{\expandafter\global\expandafter\let\csname tp@no@toc@#3\endcsname\@empty}%
-  \def\tpToCNoNumber{\expandafter\global\expandafter\let\csname tp@toc@no@number@#3\endcsname\@empty}%
-  \def\tpHangFixed##1{\expandafter\gdef\csname tp@hang@fixed@#3\endcsname{##1}}%
-  \tpHangFixed{\z@}%
-  \tp@init@l@{#3}{#2}%
-  \ifx\tp@inherit\relax\else
-    \csname tp@decl@\tp@inherit\endcsname
-  \fi
-  \csname tp@decl@#3\endcsname
+  %
+  \expandafter\protect\expandafter\gdef\csname tp@heading@#3@properties\endcsname{#4}%
+  %
+  %
+  %
   \expandafter\def\csname tpUseHeading#3\endcsname{%
-    \expandafter\let\expandafter\tp@inherit@name\csname tp@inherit@#3\endcsname
-    \expandafter\ifx\csname tp@hook@heading@AfterSkip#3\endcsname\@empty
-      \global\@tempskipa=1sp\relax
-    \else
-      \expandafter\expandafter\expandafter\global\expandafter\expandafter\@tempskipa\expandafter=\csname tp@hook@heading@AfterSkip#3\endcsname\relax%
-    \fi
-    \expandafter\ifx\csname tp@after@title@#3\endcsname\relax
-      \ifdim\@tempskipa<\z@\relax\else
-        \expandafter\global\expandafter\let\csname tp@after@title@#3\endcsname\par
-      \fi
-    \fi
-    \xdef\tp@heading@level{#2}%
-    \edef\Hy@toclevel{\csname toclevel@#2\endcsname}%
-    \tpHeadingPar
-    \tpUseHook{BeforeHeading#3}%
+    \@setpar{\@@par}%
+    \tpNamespace{heading}%
+    \tp@cascade@props{#1}{#3}{heading}%
+    \csname tp@heading@#3@properties\endcsname
+    \tpUseProperty{heading-par}%
+    \tpUseProperty{before-heading}%
     \everypar{}%
-    \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
-      \Hy@MakeCurrentHrefAuto{#3}%
-      \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
-    \fi
-    \ifx\tp@heading@label\relax\else
-      \ifx\tp@heading@Number\relax
-      \else
-        \let\@currentlabel\tp@heading@Number
-        \let\@currentlabelname\tp@heading@Title
-        \expandafter\ltx@label\expandafter{\tp@heading@label}%
-      \fi
-    \fi
-    \global\let\label\ltx@label
-    \expandafter\let\expandafter\tp@mark@name\csname #3mark\endcsname%
-    \ifx\tp@mark@name\relax
-      \ifx\tp@inherit@name\relax\else
-        \expandafter\let\expandafter\tp@mark@name\csname \tp@inherit@name mark\endcsname
-      \fi
-    \fi
-    \ifx\tp@mark@name\relax
-    \else
-      \ifx\tp@heading@Runtitle\relax
-        \ifx\tp@heading@Number\relax
-          \protected@edef\@tp@mark@name{\tp@heading@Title}%
-        \else
-          \protected@edef\@tp@mark@name{\noexpand\numberline{\tp@heading@Number}\tp@heading@Title}%
-        \fi
-      \else
-        \protected@edef\@tp@mark@name{\tp@heading@Runtitle}%
-      \fi
-      \expandafter\tp@mark@name\expandafter{\@tp@mark@name}%
-    \fi
-    \expandafter\ifx\csname tp@no@toc@#3\endcsname\@empty\else
-      \expandafter\ifx\csname css@heading@attr@notoc\endcsname\relax
-        \let\tp@notoc\@empty
-      \else
-        \expandafter\ifnum\tp@heading@level>\c@tocdepth\relax\else
-          \ifx\tp@heading@Toctitle\relax
-            \edef\tp@heading@Toctitle{%
-              \expandafter\ifx\csname tp@toc@no@number@#3\endcsname\@empty\else
-                \ifx\tp@heading@Number\relax\else
-                  \noexpand\protect\noexpand\numberline{\tp@heading@Number}%
-                \fi
-              \fi
-              \ifx\tp@heading@Subtitle\relax\else
-                \noexpand\protect\noexpand\tpToCSubTitle{\tp@heading@Subtitle}%
-              \fi
-              \ifx\tp@heading@Tocauthor\relax
-                \ifx\tp@heading@Author\relax\else
-                  \noexpand\protect\noexpand\tpToCAuthor{\tp@heading@Author}%
-                \fi
-              \else
-                  \noexpand\protect\noexpand\tpToCAuthor{\tp@heading@Tocauthor}%
-              \fi
-              \expandonce{\tp@heading@Title}%
-            }%
-          \fi
-          \addcontentsline{toc}{#3}{\expandonce{\tp@heading@Toctitle}}\relax
-          \edef\tp@heading@BMtitle{%
-            \ifx\tp@heading@Tocauthor\relax
-              \ifx\tp@heading@Author\relax\else
-                \noexpand\protect\noexpand\tpToCAuthor{\tp@heading@Author}%
-              \fi
-            \else
-              \noexpand\protect\noexpand\tpToCAuthor{\tp@heading@Tocauthor}%
-            \fi
-            \expandafter\ifx\csname tp@toc@no@number@#3\endcsname\@empty\else
-              \ifx\tp@heading@Number\relax\else
-                \noexpand\protect\noexpand\Hy@numberline{\tp@heading@Number}%
-              \fi
-            \fi
-            \expandonce{\tp@heading@Title}%
-          }%
-          \bookmark[level=#2,dest=\@currentHref]{\expandonce{\tp@heading@BMtitle}}%
-        \fi
-      \fi
-    \fi
+    \tp@number@props
+    \tpIfProp{after-skip}{\expandafter\@tempskipa\expandafter=\tpUseProperty{after-skip}\relax}{\@tempskipa=1sp\relax}%
     \def\@svsec{%
-      \tpUseHook{BeforeBox#3}%
-      \bgroup
-        \parindent\z@ \parskip\z@
-        \tpUseHook{BlockFormat#3}%
-        \expandafter\ifx\csname tp@hide@uthor@#3\endcsname\relax
-          \expandafter\ifx\csname tp@author@fter@#3\endcsname\relax
-            \expandafter\ifx\csname tp@author@fter@indent@#3\endcsname\relax
-              \tpUseBlock{Author}{#3}%
-            \fi
-          \fi
-        \fi
-        \@tempdimb\z@
-        \ifx\tp@heading@Number\relax\else
-          \expandafter\ifx\csname tp@hang@number@#3\endcsname\@empty
-            \expandafter\@tempdimb\dimexpr\csname tp@hang@fixed@#3\endcsname\relax
-            \ifdim\@tempdimb>\z@\relax\else
-              \setbox\z@\hbox{\tpUseHook{TitleFormat#3}\tpUseBlock{Number}{#3}\strut}%
-              \@tempdimb\wd\z@
-            \fi
-          \fi
-        \fi
-        \bgroup
-          \leftskip\@tempdimb
-          \hskip-\@tempdimb
-          {\tpUseHook{TitleFormat#3}%
-            \tpUseBlock{Number}{#3}%
-            \tp@heading@Title
-            \csname tp@after@title@#3\endcsname
-          }%
-          \tpUseBlock{Subtitle}{#3}%
-          \expandafter\ifx\csname tp@hide@uthor@#3\endcsname\relax
-            \expandafter\ifx\csname tp@author@fter@#3\endcsname\relax\else
-              \tpUseBlock{Author}{#3}%
-            \fi
-          \fi
-        \egroup
-        \tpUseHook{AfterTitles#3}%
-        \expandafter\ifx\csname tp@hide@uthor@#3\endcsname\relax
-          \expandafter\ifx\csname tp@author@fter@indent@#3\endcsname\relax\else
-            \tpUseBlock{Author}{#3}%
-          \fi
-        \fi
-        \tpUseBlock{Quote}{#3}%
-        \tpUseBlock{QuoteSource}{#3}%
-        \ifx\tp@heading@Number\relax
-          \expandafter\global\expandafter\let\csname the#3\endcsname\@empty%
-        \else
-          \expandafter\xdef\csname the#3\endcsname{\tp@heading@Number}%
-        \fi
-        \tpUseHook{AfterBox#3}%
-      \egroup
-      \tpUseHook{AfterHeading#3}%
+      \tpUseProperty{before-heading-block}
+      {\tpUseProperty{heading-block}}%
+      \tpUseProperty{after-heading-block}%
     }%
     \ifdim\@tempskipa <\z@\relax
-      \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
-        \global\@afterindentfalse
-      \else
-        \global\@afterindenttrue
-      \fi
-      \ifx\tp@interline@paragraphs\relax
-        \global\setbox\@tempboxa\hbox{\ifvoid\@tempboxa\else\unhbox\@tempboxa\tpInterlineParaSep\fi\@svsec}%
-      \else
-        \global\setbox\@tempboxa\hbox{\@svsec}%
-      \fi
-      \@nobreakfalse
-      \global\@noskipsectrue
-      \gdef\next{%
-        \global\everypar{%
-          \if@noskipsec
-            \global\@noskipsecfalse
-            {\setbox\z@\lastbox}%
-            \clubpenalty\@M
-            \begingroup \unhbox\@tempboxa \endgroup
-            \unskip
-            \hskip -\@tempskipa
-          \else
-            \clubpenalty \@clubpenalty
-            \global\setbox\@tempboxa\box\voidb@x
-            \everypar{}%
-          \fi}%
-        \ignorespaces
-      }%
+      \tp@inline@heading
     \else
-      \@svsec
-      \par \nobreak
-      \gdef\next{%
-        \vskip \@tempskipa
-        \expandafter\ifx\csname tp@fter@indent@#3\endcsname\relax
-          \global\@afterindentfalse
-        \else
-          \global\@afterindenttrue
-        \fi
-        \@afterheading}%
+      \tp@block@heading
     \fi
     \aftergroup\next%
   }}
+
+\tpAddToDefault{heading}{%
+  \tpSetProperty{interline-para}{}%
+  \tpSetProperty{heading-par}{%
+    \tpIfProp{interline-para}{\if@noskipsec \leavevmode \fi}{}%
+    \@@par\global\@afterindenttrue}%
+  \tpSetProperty{before-heading}{}%
+  \tpSetProperty{after-heading-block}{}%
+  \tpSetProperty{before-heading-block}{\parindent\z@ \parskip\z@}%
+  \tpSetProperty{after-indent}{}%
+  \tpSetProperty{after-skip}{1sp}%
+  \tpSetProperty{number-sep}{\space}%
+  \tpSetProperty{title-format}{\raggedright}%
+  \tpSetProperty{number-width}{}
+}
+
+\def\tp@number@props{%
+  \sbox\z@{\tpUseProperty{title-format}\tpUseMacro{Number}\tpUseProperty{number-sep}}\tpSetProperty{number-width}{\the\wd\z@}%
+  \def\tpHangNumber##1{\leftskip##1\hskip-##1\hbox to##1{\tpUseProperty{title-format}\tpUseMacro{Number}}}%
+}
+
+\def\tp@inline@heading{%
+  \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
+  \tpIfProp{interline-para}
+    {\global\setbox\@tempboxa\hbox{\@svsec}}
+    {\global\setbox\@tempboxa\hbox{\ifvoid\@tempboxa\else\unhbox\@tempboxa\tpInterlineParaSep\fi\@svsec}}%
+  \@nobreakfalse
+  \global\@noskipsectrue
+  \gdef\next{%
+    \global\everypar{%
+      \if@noskipsec
+        \global\@noskipsecfalse
+        {\setbox\z@\lastbox}%
+        \clubpenalty\@M
+        \begingroup \unhbox\@tempboxa \endgroup
+        \unskip
+        \hskip -\@tempskipa
+      \else
+        \clubpenalty \@clubpenalty
+        \global\setbox\@tempboxa\box\voidb@x
+        \everypar{}%
+      \fi}%
+    \ignorespaces
+  }}
+
+\def\tp@block@heading{%
+  \@svsec
+  \par \nobreak
+  \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
+  \gdef\next{%
+    \vskip \@tempskipa
+    \@afterheading}}
+
+
 \def\@xminusvskip{%
   \ifdim\lastskip<\@tempskipb
   \else
@@ -305,37 +149,55 @@
     \@noitemerr
   \fi}
 
-\def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
+\def\tp@provide@hd@macros#1{%
+  \tpProvideMacro{tp#1}{}{}{#1}%
+  \tpProvideMacro{tpToc#1}{}{}{Toc#1}%
+  \tpProvideMacro{tpRun#1}{}{}{Run#1}%
+}
 
+\def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
 \DeclareRobustCommand{\TitleBreak}{\hfill\break}
 
 \def\@heading[#1]#2{%
-  \bgroup
-    \tpNamespace{heading}%
-    \let\\\TitleBreak
-    \global\let\ltx@label\label
-    \global\let\tp@heading@label\relax
-    \global\let\tp@notoc\@empty
-    \cssParseAttributes{heading}{#1}%
-    \xdef\tp@heading@name{#2}%
-    \tpProvideMacro{label}{}{}{label}%
-    \tpProvideMacro{author}{}{}{Author}%
-    \tpProvideMacro{title}{}{}{Title}%
-    \tpProvideMacro{subtitle}{}{}{Subtitle}%
-    \tpProvideMacro{toctitle}{}{}{Toctitle}%
-    \tpProvideMacro{tocauthor}{}{}{Tocauthor}%
-    \tpProvideMacro{runtitle}{}{}{Runtitle}%
-    \tpProvideMacro{number}{}{}{Number}%
-    \tpProvideMacro{quote}{}{}{Quote}%
-    \tpProvideMacro{quotesource}{}{}{Quotesource}%
-  }
+  \tp@heading@reserve
+  \cssParseAttributes{heading}{#1}%
+  \edef\tp@heading@name{#2}%
+  \tp@heading@load@props{#2}%
+  \tpProvideMacro{tpLabel}{}{}{Label}%
+  \tp@provide@hd@macros{Author}%
+  \tp@provide@hd@macros{Title}%
+  \tp@provide@hd@macros{Subtitle}%
+  \tp@provide@hd@macros{Number}%
+  \tpProvideMacro{tpQuote}{}{}{Quote}%
+  \tpProvideMacro{tpQuoteSource}{}{}{QuoteSource}%
+}
+\def\tp@heading@load@props#1{%
+  \csname tp@heading@#1@properties\endcsname
+}
 \def\endheading{%
-    \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
-      \PackageError{transpect.cls}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
-    \fi
-    \expandafter\aftergroup\csname tpUseHeading\tp@heading@name\endcsname
-  \egroup
+  \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
+    \PackageError{transpect.cls}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
+  \else
+    \afterfi\csname tpUseHeading\tp@heading@name\endcsname%
+  \fi
+  \tp@heading@reset
   \nopagebreak
+}
+\def\tp@heading@reserve{%
+  \tpNamespace{heading}%
+  \let\ltx@dbl@backslash\\
+  \let\\\TitleBreak
+  \let\ltx@label\label
+  \let\tp@heading@label\relax
+  \let\tp@notoc\@empty
+}
+\def\tp@heading@reset{%
+  \let\tp@namespace\relax
+  \let\\\ltx@dbl@backslash
+  \let\label\ltx@label
+  \let\tp@heading@name\relax
+  \let\tp@heading@label\relax
+  \let\tp@notoc\@empty
 }
 \def\tp@init@l@#1#2{%
   \tp@toc@init@options{#1}{#2}%
@@ -399,101 +261,13 @@
 \def\tp@use@toc@title#1{\ifx\tp@toc@title\@undefined\else \tp@toc@title\fi}
 \def\tp@use@toc@subtitle#1{\ifx\tp@toc@subtitle\@undefined\else  \tp@toc@subtitle\fi}
 \def\tp@use@toc@page#1{\ifx\tp@toc@page\@undefined\else \tp@toc@page\fi}
-\def\partmark#1{}%
-\tpDeclareHeading{-1}{part}{%
-  \tpHeadingProperty{BlockFormat}{\centering
-    \markboth{}{}%
-    \thispagestyle{empty}%
-  }%
-  \tpHeadingProperty{BeforeHeading}{\cleardoublepage\null\vskip10mm}%
-  \tpHeadingProperty{AfterHeading}{\vfill}%
-  \tpHeadingProperty{AuthorFormat}{\itshape}%
-  \tpHeadingProperty{AfterAuthor}{\@@par\vskip2\baselineskip}%
-  \tpHeadingProperty{TitleFormat}{\Huge}%
-  \tpHeadingProperty{BeforeSubtitle}{\@@par\vskip\baselineskip}%
-  \tpHeadingProperty{SubtitleFormat}{\leavevmode\vskip\baselineskip\large\bfseries}%
-  \tpHeadingProperty{AfterNumber}{:\@@par}%
-  \tpToCBefore{\vskip2\baselineskip}%
-  \tpToCFormat{\bfseries}%
-  \tpToCPageSep{\hfill}%
-}
 
-\tpDeclareHeading{0}{chapter}{%
-  \tpHeadingProperty{BlockFormat}{\centering
-    \markboth{}{}%
-    \thispagestyle{empty}%
-  }%
-  \tpHeadingProperty{BeforeHeading}{\cleardoublepage\null\vskip10mm}%
-  \tpHeadingProperty{AfterSkip}{3\baselineskip}%
-  \tpHeadingProperty{AuthorFormat}{\itshape}%
-  \tpHeadingProperty{AfterAuthor}{\@@par\vskip\baselineskip}%
-  \tpHeadingProperty{TitleFormat}{\LARGE}%
-  \tpHeadingProperty{SubtitleFormat}{\leavevmode\vskip\baselineskip\Large\bfseries}%
-  \tpHeadingProperty{BeforeSubtitle}{\@@par\vskip.5\baselineskip}%
-  \tpHeadingProperty{BeforeQuote}{\strut\@@par\vskip\baselineskip\hfil\hbox\bgroup\centering\vbox\bgroup\hsize.5\textwidth\centering}%
-  \tpHeadingProperty{AfterQuote}{\egroup\egroup}%
-  \tpHeadingProperty{AfterNumber}{:\enskip}%
-  \tpToCBefore{\vskip1\baselineskip}%
-  \tpToCFormat{\bfseries}%
-  \tpToCPageSep{\bfseries\dotfill}%
-  %%
-  \tpHeadingProperty{AfterNumber}{:\enskip}%
-}
 
-\tpDeclareHeading{1}{section}{%
-  \tpAuthorAfter
-  \tpHangNumber
-  %\tpHangFixed{12mm}%
-  \tpHeadingProperty{BeforeHeading}{\vskip2\baselineskip}%
-  \tpHeadingProperty{AfterSkip}{1\baselineskip}%
-  \tpHeadingProperty{BeforeSubtitle}{ -- }%
-  \tpHeadingProperty{BeforeAuthor}{\@@par}%
-  \tpHeadingProperty{AuthorFormat}{\itshape}%
-  \tpHeadingProperty{AfterAuthor}{\@@par}%
-  \tpHeadingProperty{TitleFormat}{\Large}%
-  \tpHeadingProperty{SubtitleFormat}{\Large}%
-  \tpHeadingProperty{BeforeQuote}{\@@par\vskip.5\baselineskip}%
-  \tpHeadingProperty{AfterNumber}{:\enskip}%
-  % \tpHeadingProperty{AfterQuote}{\@@par\vskip.5\baselineskip}%
-}
 
-\tpDeclareHeading{2}{subsection}{%
-  \tpHeadingProperty{BeforeHeading}{\vskip1.5\baselineskip}%
-  \tpHeadingProperty{AfterSkip}{0.5\baselineskip}%
-  \tpHeadingProperty{BeforeSubtitle}{ -- }%
-  \tpHeadingProperty{AfterAuthor}{\@@par}%
-  \tpHeadingProperty{TitleFormat}{\large}%
-  \tpHeadingProperty{SubtitleFormat}{}%
-  \tpHeadingProperty{BeforeQuote}{\@@par\vskip.5\baselineskip}%
-  \tpHeadingProperty{AfterNumber}{:\enskip}%
-}
 
-\tpDeclareHeading{3}{subsubsection}{}
 
-\tpDeclareHeading{4}{paragraph}{%
-  \tpHeadingProperty{BeforeHeading}{\vskip1\baselineskip \@minus5bp}%
-  \tpHeadingProperty{AfterSkip}{-.5em}%
-  \tpHeadingProperty{BeforeSubtitle}{ -- }%
-  \tpHeadingProperty{AfterAuthor}{\@@par}%
-  \tpHeadingProperty{TitleFormat}{\normalsize\bfseries}%
-  \tpHeadingProperty{SubtitleFormat}{}%
-  \tpHeadingProperty{AfterNumber}{:\enskip}%
-}
 
-\let\ltx@ps@headings\ps@headings
-\def\ps@headings{%
-  \ltx@ps@headings
-  \def\chaptermark##1{%
-    \def\numberline####1{####1\enskip}%
-    \markboth{%
-      ##1
-    }{}}%
-  \def\sectionmark##1{%
-    \def\numberline####1{####1\enskip}%
-    \markright{##1}}%
-}
 
-\def\tpToCAuthor#1{#1: }
 
 \endinput
 %%
