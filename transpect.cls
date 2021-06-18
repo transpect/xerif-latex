@@ -37,14 +37,15 @@
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{transpect}
     [\filedate \fileversion le-tex transpect]
-\RequirePackage{kvoptions-patch}%%%NEW
+\RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \RequirePackage{transpect-common}
 \PassOptionsToPackage{cmyk}{xcolor}
- %\PassOptionsToPackage{endnotes,resetnotesperchapter,endnotesperchapter}{transpect-endnotes}
- %\PassOptionsToPackage{}{transpect-script}
+\PassOptionsToPackage{shorthands=off}{babel}
+\DeclareOptionX{endnotes}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
+\DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
+\DeclareOptionX{endnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \newif\ifcollection \collectionfalse
-\newif\ifhasparts \haspartsfalse
 \newif\if@article \@articlefalse
 \DeclareOptionX{book}{\global\collectionfalse\global\@articlefalse}
 \DeclareOptionX{article}{\global\collectionfalse\global\@articletrue}
@@ -94,8 +95,8 @@
 \usepackage{graphicx}
 \usepackage{soul}
 \PassOptionsToPackage{breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
-\usepackage{transpect-headings}
-\usepackage{transpect-floats}
+\RequirePackage{transpect-headings}
+\RequirePackage{transpect-floats}
 \RequirePackage{transpect-endnotes}
  % \RequirePackage{transpect-title}
 \RequirePackage{index}
