@@ -126,7 +126,7 @@
   \expandafter\ifx\csname tp@#2@#1@parent\endcsname\relax\else
     \tp@inherit@props{#1}{#2}%
   \fi
-  \csname tp@float@#2@properties\endcsname
+  \csname tp@#2@#1@properties\endcsname
 }
 \def\tp@inherit@props#1#2{%
   \edef\@tempa{\csname tp@#2@#1@parent\endcsname}%
