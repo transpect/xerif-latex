@@ -86,11 +86,11 @@
   \fi}
 \def\tpProvideMacro#1#2#3#4{%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@\tp@namespace @#4\endcsname\relax
-  \expandafter\long\expandafter\protected\expandafter\def\csname #1\endcsname##1{#2\expandafter\def\csname tp@\tp@namespace @#4\endcsname{##1}\ignorespaces#3}
+  \expandafter\long\expandafter\def\csname #1\endcsname##1{#2\expandafter\long\expandafter\def\csname tp@\tp@namespace @#4\endcsname{##1}\ignorespaces#3}
 }
 \def\tpNamespace#1{\def\tp@namespace{#1}}
-\DeclareRobustCommand{\tpUseMacro}[1]{\csname tp@\tp@namespace @#1\endcsname\relax}
-\DeclareRobustCommand{\tpIfMacro}[3]{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
+\def\tpUseMacro#1{\csname tp@\tp@namespace @#1\endcsname\relax}
+\long\def\tpIfMacro#1#2#3{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
 
 \begingroup
 \catcode`"=12
@@ -101,8 +101,11 @@
       \@tp@parse@attributes #2,,\@nil
     \fi\fi}
 \gdef\tp@parse@kv#1=#2=#3\@nil{%
-  \ifx!#2!\else
-    \ifx #2==\else
+  \edef\@argii{#2}%
+  \ifx\@argii\@empty
+    \expandafter\let\csname tp@\tp@cur@node @attr@#1\endcsname\@empty%
+  \else
+    \ifx #2 =\else
       \expandafter\def\csname tp@\tp@cur@node @attr@#1\endcsname{#2}%
     \fi
   \fi}
@@ -118,6 +121,8 @@
 \def\tpUseProperty#1{\csname tp@\tp@namespace @#1\endcsname}
 \DeclareRobustCommand{\tpIfProp}[3]{\long\def\@tempa{}%
   \expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa#3\else#2\fi\ignorespaces}
+\DeclareRobustCommand{\tpIfPropVal}[4]{\long\def\@tempa{#2}%
+  \expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa#4\else#3\fi\ignorespaces}
 \DeclareRobustCommand{\tpAddToDefault}[2]{%
   \csgappto{tp@#1@default}{#2}%
 }
