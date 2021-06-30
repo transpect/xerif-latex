@@ -57,13 +57,10 @@
     \tpUseProperty{before-heading}%
     \everypar{}%
     \tp@create@labels{#3}% label facility
-    \tp@number@props
-    % Running headers
-    \tp@make@run
-    % ToC entries
-    \tp@make@toc
-    % Bookmarks
-    \tp@make@bookmarks
+    \tp@number@props% Calculate number width
+    \tp@make@run% Running headers
+    \tp@make@toc% ToC entries
+    \tp@make@bookmarks% Bookmarks
     \tpIfProp{after-skip}{\expandafter\@tempskipa\expandafter=\tpUseProperty{after-skip}\relax}{\@tempskipa=1sp\relax}%
     \def\@svsec{%
       \tpUseProperty{before-heading-block}%
@@ -132,18 +129,24 @@
   %% ToC
   \tpSetProperty{toc-page-sep}{\dotfill}%
   \tpSetProperty{toc-number-width}{}%
+  \tpSetProperty{toc-title-format}{}%
+  \tpSetProperty{toc-number-format}{\tpUseProperty{toc-title-format}}%
+  \tpSetProperty{toc-number-sep}{\enskip}%
   \tpSetProperty{toc-before-entry}{%
     \parindent \z@
     \rightskip \@pnumwidth\@plus1fil\relax
     \parfillskip -\rightskip
   }%
-  \tpSetProperty{toc-after-entry}{\par}
+  \tpSetProperty{toc-after-entry}{\par}%
   \tpSetProperty{toc-heading}{%
     \tpIfMacro{TocAuthor}{\tpUseMacro{TocAuthor}:\space}{}%
-    \tpUseMacro{TocTitle}%
+    {\tpUseProperty{toc-title-format}\tpUseProperty{toc-formatted-number}\tpUseMacro{TocTitle}}%
     \tpUseProperty{toc-page-sep}\tpUseMacro{TocPage}%
   }%
-  \tpSetProperty{bookmark}{\tpIfMacro{TocNumber}{\tpUseMacro{TocNumber}}{}\enskip\tpIfMacro{TocTitle}{\tpUseMacro{TocTitle}}{\tpUseMacro{Title}}}%
+  \tpSetProperty{bookmark}{%
+    \tpIfMacro{TocNumber}{\tpUseMacro{TocNumber}\enskip}{}%
+    \tpIfMacro{TocTitle}{\tpUseMacro{TocTitle}}{\tpUseMacro{Title}}%
+  }%
 }
 
 \def\tp@make@toc{%
@@ -167,24 +170,42 @@
   \else
     \expandafter\gdef\csname l@#2\endcsname##1##2{%
       \bgroup
-        \tpNamespace{heading}%
-        \tpCascadeProps{#2}{heading}%
-        \tpProvideMacro{tpTocPage}{}{}{TocPage}%
-        \tpTocPage{##2}%
-        \tpProvideMacro{tpTocTitle}{}{}{TocTitle}%
-        \tpProvideMacro{tpTocSubtitle}{}{}{TocSubtitle}%
-        \tpProvideMacro{tpTocNumber}{}{}{TocNumber}%
-        \tpProvideMacro{tpTocAuthor}{}{}{TocAuthor}%
-        \let\tpTocLink\Hy@tocdestname%
-        \expandonce##1%% expand toc-specific macros from heading
+        \tp@toc@extract@data{#1}{#2}{##1}{##2}%
         \begingroup
-          \tpUseProperty{toc-before-entry}%
-          \tpUseProperty{toc-heading}%
-          \tpUseProperty{toc-after-entry}%
+          \tp@toc@print@entry
         \endgroup
       \egroup
     }%
   \fi
+}
+\def\tp@toc@extract@data#1#2#3#4{%
+  \tpNamespace{heading}%
+  \tpCascadeProps{#2}{heading}%
+  \tpProvideMacro{tpTocPage}{}{}{TocPage}%
+  \tpTocPage{#4}%
+  \tpProvideMacro{tpTocTitle}{}{}{TocTitle}%
+  \tpProvideMacro{tpTocSubtitle}{}{}{TocSubtitle}%
+  \tpProvideMacro{tpTocNumber}{}{}{TocNumber}%
+  \tpProvideMacro{tpTocAuthor}{}{}{TocAuthor}%
+  \let\tpTocLink\Hy@tocdestname%
+  \expandonce#3%% expand toc-specific macros from heading; \expandonce is necessary because of hyperref…
+  \tp@calc@toc@numbers{#1}%
+}
+\def\tp@toc@print@entry{%
+  \tpUseProperty{toc-before-entry}%
+  \tpUseProperty{toc-heading}%
+  \tpUseProperty{toc-after-entry}%
+}
+\def\tp@calc@toc@numbers#1{%
+  (#1: \tpUseMacro{TocNumber})
+  \tpSetProperty{toc-formatted-number}{}%
+  \tpIfMacro{TocNumber}{%
+    \tpSetProperty{toc-formatted-number}{%
+      \bgroup
+        \tpUseProperty{toc-number-format}%
+        \tpUseMacro{TocNumber}%
+        \tpUseProperty{toc-number-sep}%
+      \egroup}}{}%
 }
 
  % \expandafter\tp@calc@numwidth\expandafter{\tp@heading@level}%
@@ -199,7 +220,6 @@
       }%
     }%
 }%
-
 \def\tp@make@run{%
   \tpIfMacro{RunTitle}{}{\tpIfMacro{Title}{\let\tp@heading@RunTitle\tp@heading@Title}{}}%
   \tpIfMacro{RunNumber}{}{\tpIfMacro{Number}{\let\tp@heading@RunNumber\tp@heading@Number}{}}%
@@ -213,17 +233,14 @@
     \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@running-heading\endcsname}%
     \expandafter\tp@mark@name\expandafter{\@tempa}%
   \fi}
-
 \def\tp@make@bookmarks{%
   \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@bookmark\endcsname}%
   \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}
 }
-
 \def\tp@number@props{%
   \sbox\z@{\tpUseProperty{title-format}\tpUseMacro{Number}\tpUseProperty{number-sep}}\tpSetProperty{number-width}{\the\wd\z@}%
   \def\tpHangNumber##1{\leftskip##1\hskip-##1\hbox to##1{\tpUseProperty{title-format}\tpUseMacro{Number}}}%
 }
-
 \def\tp@inline@heading{%
   \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
   \tpIfProp{interline-para}
@@ -255,7 +272,6 @@
   \gdef\next{%
     \vskip \@tempskipa
     \@afterheading}}
-
 
 \def\tp@provide@hd@macros#1{%
   \tpProvideMacro{tp#1}{}{}{#1}%
