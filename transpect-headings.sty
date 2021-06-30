@@ -20,8 +20,9 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.97}%
-\def\filedate{2021-02-25}%
+\def\fileversion{0.99}%
+\def\filedate{2021-06-30}%
+
 %%
 %% module for le-tex transpect.cls that extends heading objects.
 %%
@@ -29,13 +30,14 @@
 %%
 %% lualatex  -  texlive >= 2019
 %%
-\NeedsTeXFormat{LaTeX2e}[2019/01/01]
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{transpect-headings}
     [\filedate \fileversion le-tex transpect headings module]
 \RequirePackage{transpect-common}
 \RequirePackage{bookmark}
 \hypersetup{bookmarksdepth=-999}
 \long\def\tpDeclareHeading{\@ifnextchar[{\@tpDeclareHeading}{\@tpDeclareHeading[]}}%]
+
 \long\def\@tpDeclareHeading[#1]#2#3#4{%
   \tpNamespace{heading}%
   \expandafter\def\csname heading@#3@name\endcsname{#3}%
@@ -43,6 +45,7 @@
   \if!#1!\else\expandafter\protect\expandafter\def\csname tp@heading@#3@parent\endcsname{#1}\fi%
   \expandafter\protect\expandafter\def\csname tp@heading@#3@properties\endcsname{#4}%
   \tp@init@l@{#2}{#3}%
+  \tp@restore@init{tp-heading-number-#2-maxwd}%
   %
   %
   %
@@ -126,12 +129,15 @@
   \tpSetProperty{number-sep}{\space}%
   \tpSetProperty{title-format}{\raggedright}%
   \tpSetProperty{number-width}{}%
+  \tpSetProperty{number-indent}{level}%
   %% ToC
   \tpSetProperty{toc-page-sep}{\dotfill}%
   \tpSetProperty{toc-number-width}{}%
   \tpSetProperty{toc-title-format}{}%
   \tpSetProperty{toc-number-format}{\tpUseProperty{toc-title-format}}%
   \tpSetProperty{toc-number-sep}{\enskip}%
+  \tpSetProperty{toc-number-indent}{level}%
+  \tpSetProperty{toc-number-hang}{}%
   \tpSetProperty{toc-before-entry}{%
     \parindent \z@
     \rightskip \@pnumwidth\@plus1fil\relax
@@ -140,7 +146,8 @@
   \tpSetProperty{toc-after-entry}{\par}%
   \tpSetProperty{toc-heading}{%
     \tpIfMacro{TocAuthor}{\tpUseMacro{TocAuthor}:\space}{}%
-    {\tpUseProperty{toc-title-format}\tpUseProperty{toc-formatted-number}\tpUseMacro{TocTitle}}%
+    \tpHangNumber%
+    \tpUseMacro{TocTitle}%
     \tpUseProperty{toc-page-sep}\tpUseMacro{TocPage}%
   }%
   \tpSetProperty{bookmark}{%
@@ -168,12 +175,12 @@
   \ifnum #1>\c@tocdepth
     \expandafter\let\csname l@#2\endcsname\@gobbletwo
   \else
+    \tp@restore@init{tp-heading-toc-number-#1-maxwd}%
+    \tp@restore@init{tp-heading-toc-number-#1-indent}%
     \expandafter\gdef\csname l@#2\endcsname##1##2{%
       \bgroup
         \tp@toc@extract@data{#1}{#2}{##1}{##2}%
-        \begingroup
-          \tp@toc@print@entry
-        \endgroup
+        \tp@toc@print@entry
       \egroup
     }%
   \fi
@@ -188,16 +195,18 @@
   \tpProvideMacro{tpTocNumber}{}{}{TocNumber}%
   \tpProvideMacro{tpTocAuthor}{}{}{TocAuthor}%
   \let\tpTocLink\Hy@tocdestname%
-  \expandonce#3%% expand toc-specific macros from heading; \expandonce is necessary because of hyperref…
-  \tp@calc@toc@numbers{#1}%
+  \expandonce#3%% expand toc-specific macros from heading; \expandonce is necessary because of hyperref...
+  \tp@toc@numbers{#1}%
 }
 \def\tp@toc@print@entry{%
-  \tpUseProperty{toc-before-entry}%
-  \tpUseProperty{toc-heading}%
-  \tpUseProperty{toc-after-entry}%
+  \bgroup
+    \tpUseProperty{toc-before-entry}%
+    \leftskip\tpUseProperty{toc-number-indent}%
+    \tpUseProperty{toc-heading}%
+    \tpUseProperty{toc-after-entry}%
+  \egroup
 }
-\def\tp@calc@toc@numbers#1{%
-  (#1: \tpUseMacro{TocNumber})
+\def\tp@toc@numbers#1{%
   \tpSetProperty{toc-formatted-number}{}%
   \tpIfMacro{TocNumber}{%
     \tpSetProperty{toc-formatted-number}{%
@@ -205,21 +214,62 @@
         \tpUseProperty{toc-number-format}%
         \tpUseMacro{TocNumber}%
         \tpUseProperty{toc-number-sep}%
-      \egroup}}{}%
+      \egroup}%
+    \tp@store@toc@num@wd{#1}%
+  }{}%
 }
 
- % \expandafter\tp@calc@numwidth\expandafter{\tp@heading@level}%
-\def\tp@calc@numwidth#1{%
-  \tpIfPropVal{#1-number-width}{auto-level}
-    {\tp@get@toc@numwidth{}}
-    {\tpIfPropVal{#1-number-width}{auto}
-      {\tp@get@toc@numwidth{}}
-      {\tpIfProp{#1-number-width}
-        {}
-        {}%
-      }%
-    }%
-}%
+\def\tp@store@toc@num@wd#1{%
+  \sbox\z@{\tpUseProperty{toc-formatted-number}}%
+  \tp@store@maxwd{toc-number-#1-maxwd}{\the\wd\z@}%
+  \tpSetValProp{toc-number-width-level-max}{\csname tp-heading-toc-number-#1-maxwd\endcsname}%
+  \tp@store@maxwd{toc-number-maxwd}{\the\wd\z@}%
+  \tpSetValProp{toc-number-width-max}{\csname tp-heading-toc-number-maxwd\endcsname}%
+  \tpSetValProp{toc-number-width}{\the\wd\z@}%
+  \@tempcnta\numexpr#1-1\relax
+  \expandafter\ifx\csname tp-heading-toc-number-\the\@tempcnta-indent\endcsname\relax
+    \@tempdima\the\wd\z@
+  \else
+    \expandafter\ifx\csname tp-heading-toc-number-#1-maxwd\endcsname\relax
+      \@tempdima\dimexpr \csname tp-heading-toc-number-\the\@tempcnta-indent\endcsname\relax
+    \else
+      \@tempdima\dimexpr \csname tp-heading-toc-number-\the\@tempcnta-indent\endcsname+\csname tp-heading-toc-number-#1-maxwd\endcsname\relax
+    \fi
+  \fi
+  \tp@store@maxwd{toc-number-#1-indent}{\the\@tempdima}%
+  \tp@get@indent{toc-number}{#1}%
+  \def\tpHangNumber{%
+    \hskip-\tpUseProperty{toc-number-hang}\hbox to\tpUseProperty{toc-number-hang}{\tpUseProperty{toc-formatted-number}\hss}%
+  }%
+}
+\def\tp@store@maxwd#1#2{%
+  \expandafter\ifx\csname tp-\tp@namespace-#1\endcsname\relax
+    \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space tp-\tp@namespace-#1\string\endcsname{#2}}
+    \expandafter\xdef\csname tp-\tp@namespace-#1\endcsname{#2}%
+  \else
+    \expandafter\ifdim\csname tp-\tp@namespace-#1\endcsname<#2\relax
+      \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space tp-\tp@namespace-#1\string\endcsname{#2}}%
+      \expandafter\xdef\csname tp-\tp@namespace-#1\endcsname{#2}%
+    \fi
+  \fi}
+
+
+\def\tp@get@indent#1#2{%
+  \tpIfPropVal{#1-indent}{level}
+    {\expandafter\let\expandafter\tp@prev@indent\csname tp-\tp@namespace-#1-#2-indent\endcsname
+     \ifx\tp@prev@indent\relax\let\tp@prev@indent\z@\fi
+     \tpSetValProp{#1-indent}{\tp@prev@indent}%
+     \tpSetValProp{#1-hang}{\csname tp-\tp@namespace-#1-#2-maxwd\endcsname}}
+    {\tpIfPropVal{#1-indent}{global}
+      {\tpSetValProp{#1-indent}{\csname tp-\tp@namespace-maxwd\endcsname}
+       \tpSetValProp{#1-hang}{\csname tp-\tp@namespace-maxwd\endcsname}}
+      {\tpIfProp{#1-indent}
+        {\tpIfProp{#1-hang}{}{\tpSetValProp{#1-hang}{\tpUseProperty{#1-width}}}}
+        {\tpSetValProp{#1-indent}{\tpUseProperty{#1-width}}%
+         \tpSetValProp{#1-hang}{\tpUseProperty{#1-width}}}%
+      }}%
+  }%
+
 \def\tp@make@run{%
   \tpIfMacro{RunTitle}{}{\tpIfMacro{Title}{\let\tp@heading@RunTitle\tp@heading@Title}{}}%
   \tpIfMacro{RunNumber}{}{\tpIfMacro{Number}{\let\tp@heading@RunNumber\tp@heading@Number}{}}%
@@ -238,9 +288,24 @@
   \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}
 }
 \def\tp@number@props{%
-  \sbox\z@{\tpUseProperty{title-format}\tpUseMacro{Number}\tpUseProperty{number-sep}}\tpSetProperty{number-width}{\the\wd\z@}%
-  \def\tpHangNumber##1{\leftskip##1\hskip-##1\hbox to##1{\tpUseProperty{title-format}\tpUseMacro{Number}}}%
+  %% get title number
+  \sbox\z@{\tpUseProperty{title-format}\tpUseMacro{Number}\tpUseProperty{number-sep}}%
+  %% store title number width
+  \tp@store@maxwd{number-\tp@heading@level-maxwd}{\the\wd\z@}%
+  \tpSetValProp{number-width-level-max}{\csname tp-heading-number-\tp@heading@level-maxwd\endcsname}%
+  \tp@store@maxwd{number-maxwd}{\the\wd\z@}%
+  \tpSetValProp{number-width-max}{\csname tp-heading-number-\tp@heading@level-maxwd\endcsname}%
+  \tpSetValProp{number-width}{\the\wd\z@}%
+  \tp@get@indent{number}{\tp@heading@level}%
+  \def\tpHangNumber##1{\leftskip##1\hskip-##1\hbox to##1{\tpUseProperty{title-format}\tpUseMacro{Number}\hss}}%
 }
+\def\tp@restore@init#1{%
+  \AtBeginDocument{\expandafter\ifx\csname #1\endcsname\relax\else
+      \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space #1\string\endcsname{\csname #1\endcsname}}%
+    \fi}}
+\tp@restore@init{tp-heading-toc-number-maxwd}
+\tp@restore@init{tp-heading-number-maxwd}
+
 \def\tp@inline@heading{%
   \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
   \tpIfProp{interline-para}
@@ -322,6 +387,7 @@
   \let\tp@heading@label\relax
   \let\tp@notoc\@empty
 }
+
 
 
 

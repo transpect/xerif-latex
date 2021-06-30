@@ -20,8 +20,9 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.97}%
-\def\filedate{2021-02-25}%
+\def\fileversion{0.99}%
+\def\filedate{2021-06-30}%
+
 %%
 %% module for le-tex transpect.cls that provides some commonly used base macros.
 %%
@@ -29,9 +30,9 @@
 %%
 %% lualatex  -  texlive > 2019
 %%
-\NeedsTeXFormat{LaTeX2e}[2019/01/01]
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{transpect-common}
-    [2020/22/04 0.90 le-tex transpect common module]
+    [\filedate \fileversion le-tex transpect common module]
 \def\afterfi#1\fi{\fi#1}
 \def\@afterbox{%
   \everypar{%
@@ -63,7 +64,9 @@
     \sh@iterate{#1}{\the#1}{#3}{#4}%
   \fi}%
 %% \section{Hooks}
-%% In this part we provide the facility to utilize Hooks to patch code into different parts of the package depending on options and loaded packages.
+%% In this part we provide the facility to utilize Hooks to patch code
+%% into different parts of the package depending on options and loaded
+%% packages.
 \RequirePackage{etoolbox}
 \def\tpDeclareHook#1{\expandafter\global\expandafter\let\csname tp@hook@\tp@namespace @#1\endcsname\@empty}
 \def\tpAddToHook#1#2{%
@@ -118,14 +121,13 @@
 \endgroup
 
 \DeclareRobustCommand{\tpSetProperty}[2]{\expandafter\long\expandafter\protect\expandafter\def\csname tp@\tp@namespace @#1\endcsname{#2}}
+\DeclareRobustCommand{\tpSetValProp}[2]{\def\@tempa{\tpSetProperty{#1}}\expandafter\@tempa\expandafter{#2}}
 \def\tpUseProperty#1{\csname tp@\tp@namespace @#1\endcsname}
 \DeclareRobustCommand{\tpIfProp}[3]{\long\def\@tempa{}%
   \expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa#3\else#2\fi\ignorespaces}
 \DeclareRobustCommand{\tpIfPropVal}[4]{\long\def\@tempa{#2}%
-  \expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa#4\else#3\fi\ignorespaces}
-\DeclareRobustCommand{\tpAddToDefault}[2]{%
-  \csgappto{tp@#1@default}{#2}%
-}
+  \expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa\relax#3\else#4\fi\ignorespaces}
+\DeclareRobustCommand{\tpAddToDefault}[2]{\csgappto{tp@#1@default}{#2}}
 \def\tpCascadeProps#1#2{%
   \csname tp@#2@default\endcsname
   \expandafter\ifx\csname tp@#2@#1@parent\endcsname\relax\else
@@ -140,7 +142,6 @@
   \fi
   \csname tp@#2@#1@properties\endcsname
 }
-
 \long\def\tpDeclareClass{\@ifnextchar [{\@tp@set@class}{\@tp@set@class[default]}}%]
 \long\def\@tp@set@class[#1]#2{\@ifnextchar [{\tp@set@class[#1]{#2}}{\tp@set@class[#1]{#2}[]}}%]
 \long\gdef\tp@default@class@default{}

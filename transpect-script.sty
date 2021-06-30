@@ -20,18 +20,18 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.97}%
-\def\filedate{2021-02-25}%
+\def\fileversion{0.99}%
+\def\filedate{2021-06-30}%
+
 %% module for le-tex transpect.cls that handles script switching.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
 %% lualatex  -  texlive > 2019
 %%
-\NeedsTeXFormat{LaTeX2e}[2019/01/01]
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{transpect-script}
-    [2020/22/04 0.90 le-tex transpect script module]
-
+    [\filedate \fileversion le-tex transpect script module]
 \let\usescript\relax
 \define@key{transpect-script.sty}{usescript}{\def\usescript{#1}}
 \ProcessOptionsX
