@@ -75,13 +75,13 @@
   \csgappto{tp@hook@\tp@namespace @#1}{#2}%
 }
 \def\tpUseHook#1{\expandafter\ifx\csname tp@hook@\tp@namespace @#1\endcsname\relax\else\csname tp@hook@\tp@namespace @#1\endcsname\fi}
-\def\tpProvideMacro#1#2#3#4{%
+\def\tpProvideComp#1#2#3#4{%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@\tp@namespace @#4\endcsname\relax
   \expandafter\long\expandafter\def\csname #1\endcsname##1{#2\expandafter\long\expandafter\def\csname tp@\tp@namespace @#4\endcsname{##1}\ignorespaces#3}
 }
 \def\tpNamespace#1{\def\tp@namespace{#1}}
-\def\tpUseMacro#1{\csname tp@\tp@namespace @#1\endcsname\relax}
-\long\def\tpIfMacro#1#2#3{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
+\def\tpUseComp#1{\csname tp@\tp@namespace @#1\endcsname\relax}
+\long\def\tpIfComp#1#2#3{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
 
 \begingroup
 \catcode`"=12
