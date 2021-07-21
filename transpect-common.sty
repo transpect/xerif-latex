@@ -82,6 +82,7 @@
 \def\tpNamespace#1{\def\tp@namespace{#1}}
 \def\tpUseComp#1{\csname tp@\tp@namespace @#1\endcsname\relax}
 \long\def\tpIfComp#1#2#3{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
+\long\def\tpIfCompEmpty#1#2#3{\long\def\@tempa{}\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa#2\else#3\fi}
 
 \begingroup
 \catcode`"=12

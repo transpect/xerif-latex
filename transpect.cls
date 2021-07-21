@@ -51,9 +51,8 @@
 \DeclareOptionX{book}{\global\collectionfalse\global\@articlefalse}
 \DeclareOptionX{article}{\global\collectionfalse\global\@articletrue}
 \DeclareOptionX{collection}{\global\collectiontrue\global\@articlefalse}
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
-
+\DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
+\DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
 \ProcessOptionsX
 \if@article
   \LoadClass[10pt,a4paper]{article}
