@@ -61,7 +61,7 @@
     \tpUseProperty{heading-par}%
     \tpUseProperty{before-heading}%
     \everypar{}%
-    \tp@create@labels{#3}% label facility
+    \tp@hdg@create@labels{#3}% label facility
     \tp@format@number{}{}{\tp@heading@level}% Calculate number width
     \tp@make@run% Running headers
     \tp@make@toc% ToC entries
@@ -111,7 +111,7 @@
      \fi}{}
 }
 
-\def\tp@create@labels#1{%
+\def\tp@hdg@create@labels#1{%
   \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
     \Hy@MakeCurrentHrefAuto{#1}%
     \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
@@ -125,6 +125,238 @@
     }{}%
   \fi
   \global\let\label\ltx@label}
+\def\tp@make@toc{%
+  \tp@toc@check@empty{Title}%
+  \tp@toc@check@empty{Number}%
+  \tp@toc@check@empty{Subtitle}%
+  \tp@toc@check@empty{Author}%
+  \expandafter\ifx\csname tp@heading@attr@notoc\endcsname\@empty\else
+    \edef\tp@heading@toc@entry{%
+      \tpIfComp{TocTitle}{\string\tpTocTitle{\expandonce{\tp@heading@TocTitle}}}{}%
+      \tpIfComp{TocNumber}{\string\tpTocNumber{\expandonce{\tp@heading@TocNumber}}}{}%
+      \tpIfComp{TocAuthor}{\string\tpTocAuthor{\expandonce{\tp@heading@TocAuthor}}}{}%
+      \tpIfComp{TocSubtitle}{\string\tpTocSubtitle{\expandonce{\tp@heading@TocSubtitle}}}{}%
+    }%
+    \tpIfProp{toc-level}{\edef\tp@heading@name{\tpUseProperty{toc-level}}}{}%
+    \addcontentsline{toc}{\tp@heading@name}{\expandonce{\tp@heading@toc@entry}}\relax
+  \fi}
+\def\tp@toc@check@empty#1{%
+  \tpIfComp{Toc#1}
+    {\tpIfCompEmpty{Toc#1}
+      {\expandafter\global\expandafter\let\csname tp@heading@Toc#1\endcsname\relax}
+      {}}
+    {\tpIfComp{#1}
+      {\expandafter\expandafter\expandafter\let\expandafter\csname tp@heading@Toc#1\expandafter\endcsname\csname tp@heading@#1\endcsname}
+      {}}}
+\def\tp@init@l@#1#2{%
+  \ifnum #1>\c@tocdepth
+    \expandafter\let\csname l@#2\endcsname\@gobbletwo
+  \else
+    \tp@restore@init{tp-heading-toc-number-#1-maxwd}%
+    \tp@restore@init{tp-heading-toc-number-#1-indent}%
+    \expandafter\gdef\csname l@#2\endcsname##1##2{%
+      \bgroup
+        \tp@toc@extract@data{#1}{#2}{##1}{##2}%
+        \tp@toc@print@entry
+      \egroup
+    }%
+  \fi}
+\def\tp@toc@extract@data#1#2#3#4{%
+  \tpNamespace{heading}%
+  \tpCascadeProps{#2}{heading}%
+  \tpProvideComp{tpTocPage}{}{}{TocPage}%
+  \tpTocPage{#4}%
+  \tpProvideComp{tpTocTitle}{}{}{TocTitle}%
+  \tpProvideComp{tpTocSubtitle}{}{}{TocSubtitle}%
+  \tpProvideComp{tpTocNumber}{}{}{TocNumber}%
+  \tpProvideComp{tpTocAuthor}{}{}{TocAuthor}%
+  \let\tpTocLink\Hy@tocdestname%
+  \expandonce#3%% expand toc-specific macros from heading; \expandonce is necessary because of hyperref...
+  \tp@format@number{toc-}{Toc}{#1}}
+\def\tp@toc@print@entry{%
+  \bgroup
+    \tpUseProperty{toc-before-entry}%
+    %\hskip\tpUseProperty{toc-indent}%
+    \tpUseProperty{toc-heading}%
+    \tpUseProperty{toc-after-entry}%
+  \egroup}
+\def\tp@set@hang#1{%
+  \tpSetProperty{#1hang-number}{\tpUseProperty{#1formatted-number}}
+  \tpIfProp{#1indent}
+    {\ifdim\tpUseProperty{#1indent}<\z@
+        \tpSetProperty{#1hang-number}{%
+          \hbox to -\tpUseProperty{#1indent}{%
+            \tpIfPropVal{#1number-align}{left}{}{\hss}%
+            \tpUseProperty{#1formatted-number}%
+            \tpIfPropVal{#1number-align}{right}{}{\hss}}}%
+      \fi}{}}
+\def\tp@store@maxwd#1#2{%
+  \expandafter\ifx\csname tp-\tp@namespace-#1\endcsname\relax
+    \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space tp-\tp@namespace-#1\string\endcsname{#2}}
+    \expandafter\xdef\csname tp-\tp@namespace-#1\endcsname{#2}%
+  \else
+    \expandafter\ifdim\csname tp-\tp@namespace-#1\endcsname<#2\relax
+      \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space tp-\tp@namespace-#1\string\endcsname{#2}}%
+      \expandafter\xdef\csname tp-\tp@namespace-#1\endcsname{#2}%
+    \fi
+  \fi}
+\def\tp@det@prev@indent#1#2{%
+  \@tempcnta\numexpr#2-1\relax
+  \ifdim\tpUseProperty{#1indent}<\z@\relax
+    \@tempdimb=-\tpUseProperty{#1indent}\relax
+  \else
+    \@tempdimb=\tpUseProperty{#1indent}\relax
+  \fi
+  \expandafter\ifx\csname tp-\tp@namespace-#1\the\@tempcnta-indent\endcsname\relax
+    \@tempdima=\@tempdimb\relax%
+  \else
+    \@tempdima\dimexpr \csname tp-\tp@namespace-#1\the\@tempcnta-indent\endcsname+\@tempdimb\relax
+  \fi
+  \tp@store@maxwd{#1#2-indent}{\the\@tempdima}%
+  \tpSetProperty{#1margin-left}{\csname tp-\tp@namespace-#1#2-indent\endcsname}}
+\def\tp@get@indent#1#2{%
+  \expandafter\let\expandafter\tp@tmp@numwd\csname tp-\tp@namespace-#1number-#2-maxwd\endcsname\relax
+  \tpIfPropVal{#1margin-left}{auto-global}
+    {\tpSetProperty{#1indent}{-\csname tp-\tp@namespace-#1number-maxwd\endcsname}%
+     \tpSetProperty{#1margin-left}{\csname tp-\tp@namespace-#1number-maxwd\endcsname}}
+    {\tpIfPropVal{#1margin-left}{auto}
+       {\tpIfPropVal{#1indent}{auto}
+          {\tpSetProperty{#1indent}{-\tp@tmp@numwd}}
+          {\tpIfProp{#1indent}
+             {}
+             {\tpSetProperty{#1indent}{\z@}}}%
+        \tp@det@prev@indent{#1}{#2}}
+       {\tpIfProp{#1margin-left}
+          {\tpIfPropVal{#1indent}{auto}
+            {\tpSetProperty{#1indent}{-\tp@tmp@numwd}}
+            {\tpIfProp{#1indent}
+               {}
+               {\tpSetProperty{#1indent}{\z@}}}}
+         {\tpIfPropVal{#1indent}{auto}
+            {\tpSetProperty{#1margin-left}{\tp@tmp@numwd}%
+             \tpSetProperty{#1indent}{-\tp@tmp@numwd}}
+            {\tpIfProp{#1indent}
+               {\tpSetProperty{#1margin-left}{\z@}}
+               {\tpSetProperty{#1indent}{\z@}%
+                \tpSetProperty{#1margin-left}{\z@}}}}}}}
+\def\tp@make@run{%
+  \tpIfComp{RunTitle}{}{\tpIfComp{Title}{\let\tp@heading@RunTitle\tp@heading@Title}{}}%
+  \tpIfComp{RunNumber}{}{\tpIfComp{Number}{\let\tp@heading@RunNumber\tp@heading@Number}{}}%
+  \tpIfComp{RunAuthor}{}{\tpIfComp{Author}{\let\tp@heading@RunAuthor\tp@heading@Author}{}}%
+  \tpIfComp{RunSubTitle}{}{\tpIfComp{Subtitle}{\let\tp@heading@RunSubtitle\tp@heading@Subtitle}{}}%
+  \tpIfProp{running-level}
+    {\expandafter\let\expandafter\tp@mark@name\csname\tpUseProperty{running-level}mark\endcsname}
+    {\expandafter\let\expandafter\tp@mark@name\csname\tp@heading@name mark\endcsname}%
+  \ifx\tp@mark@name\relax\ifx\tp@heading@parent\@undefined\else
+      \expandafter\let\expandafter\tp@mark@name\csname\tp@inherit@name mark\endcsname%
+    \fi\fi
+  \ifx\tp@mark@name\relax\else
+    \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@running-heading\endcsname}%
+    \expandafter\tp@mark@name\expandafter{\@tempa}%
+  \fi}
+\def\tp@make@bookmarks{%
+  \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@bookmark\endcsname}%
+  \tpIfProp{bookmark-level}{\edef\Hy@toclevel{\tpUseProperty{bookmark-level}}}{}%
+  \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}}
+\def\tp@format@number#1#2#3{%
+  \tpSetProperty{#1formatted-number}{}%
+  \tpIfComp{#2Number}{%
+    \tpSetProperty{#1formatted-number}{%
+      \bgroup
+        \tpUseProperty{#1title-format}%
+        \tpUseProperty{#1number-format}%
+        \tpUseComp{#2Number}%
+        \tpUseProperty{#1number-sep}%
+      \egroup}%
+    \sbox\z@{\tpUseProperty{#1formatted-number}}%
+    \tp@store@maxwd{#1number-#3-maxwd}{\the\wd\z@}%
+    \tpSetValProp{#1number-width-level-max}{\csname tp-heading-#1number-#3-maxwd\endcsname}%
+    \tp@store@maxwd{#1number-maxwd}{\the\wd\z@}%
+    \tpSetValProp{#1number-width-max}{\csname tp-heading-#1number-#3-maxwd\endcsname}%
+    \tpSetValProp{#1number-width}{\the\wd\z@}%
+    \tp@get@indent{#1}{#3}%
+    \tp@set@hang{#1}%
+  }{%
+    \tp@prop@dimen{#1margin-left}{\z@}%
+    \tp@prop@dimen{#1margin-right}{\@flushglue}%
+    \tp@prop@dimen{#1indent}{\z@}}}
+\def\tp@restore@init#1{%
+  \AtBeginDocument{\expandafter\ifx\csname #1\endcsname\relax\else
+      \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space #1\string\endcsname{\csname #1\endcsname}}%
+    \fi}}
+\tp@restore@init{tp-heading-toc-number-maxwd}
+\tp@restore@init{tp-heading-number-maxwd}
+
+\def\tp@inline@heading{%
+  \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
+  \tpIfProp{interline-para}
+    {\global\setbox\@tempboxa\hbox{\@svsec}}
+    {\global\setbox\@tempboxa\hbox{\ifvoid\@tempboxa\else\unhbox\@tempboxa\tpUseProperty{interline-para-sep}\fi\@svsec}}%
+  \@nobreakfalse
+  \global\@noskipsectrue
+  \gdef\next{%
+    \global\everypar{%
+      \if@noskipsec
+        \global\@noskipsecfalse
+        {\setbox\z@\lastbox}%
+        \clubpenalty\@M
+        \begingroup \unhbox\@tempboxa \endgroup
+        \unskip
+        \hskip -\@tempskipa
+      \else
+        \clubpenalty \@clubpenalty
+        \global\setbox\@tempboxa\box\voidb@x
+        \everypar{}%
+      \fi}%
+    \ignorespaces}}
+\def\tp@block@heading{%
+  \@svsec
+  \par \nobreak
+  \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
+  \gdef\next{%
+    \vskip \@tempskipa
+    \@afterheading}}
+\def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
+\DeclareRobustCommand{\TitleBreak}{\hfill\break}
+\def\@heading[#1]#2{%
+  \tp@heading@reserve
+  \tpParseAttributes{heading}{#1}%
+  \edef\tp@heading@name{#2}%
+  \tp@heading@load@props%
+  \tp@provide@hd@macros{Author}%
+  \tp@provide@hd@macros{Title}%
+  \tp@provide@hd@macros{Subtitle}%
+  \tp@provide@hd@macros{Number}%
+  \tpProvideComp{tpQuote}{}{}{Quote}%
+  \tpProvideComp{tpQuoteSource}{}{}{QuoteSource}}
+\def\tp@heading@load@props{\csname tp@heading@\tp@heading@name @properties\endcsname}
+\def\tp@provide@hd@macros#1{%
+  \tpProvideComp{tp#1}{}{}{#1}%
+  \tpProvideComp{tpToc#1}{}{}{Toc#1}%
+  \tpProvideComp{tpRun#1}{}{}{Run#1}}
+\def\endheading{%
+  \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
+    \PackageError{transpect.cls}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
+  \else
+    \afterfi\csname tpUseHeading\tp@heading@name\endcsname%
+  \fi
+  \tp@heading@reset
+  \nopagebreak
+}
+\def\tp@heading@reserve{%
+  \tpNamespace{heading}%
+  \let\ltx@dbl@backslash\\
+  \let\\\TitleBreak
+  \let\ltx@label\label
+  \let\tp@heading@label\relax
+  \let\tp@notoc\@empty}
+\def\tp@heading@reset{%
+  \let\tp@namespace\relax
+  \let\\\ltx@dbl@backslash
+  \let\label\ltx@label
+  \let\tp@heading@name\relax
+  \let\tp@heading@label\relax
+  \let\tp@notoc\@empty}
 
 \tpAddToDefault{heading}{%
   \tpSetProperty{interline-para}{}%
@@ -211,270 +443,6 @@
     \tpIfComp{TocTitle}{\tpUseComp{TocTitle}}{\tpUseComp{Title}}%
   }%
 }
-
-\def\tp@toc@check@empty#1{%
-  \tpIfComp{Toc#1}
-    {\tpIfCompEmpty{Toc#1}
-      {\expandafter\global\expandafter\let\csname tp@heading@Toc#1\endcsname\relax}
-      {}}
-    {\tpIfComp{#1}
-      {\expandafter\expandafter\expandafter\let\expandafter\csname tp@heading@Toc#1\expandafter\endcsname\csname tp@heading@#1\endcsname}
-      {}}}
-
-\def\tp@make@toc{%
-  \tp@toc@check@empty{Title}%
-  \tp@toc@check@empty{Number}%
-  \tp@toc@check@empty{Subtitle}%
-  \tp@toc@check@empty{Author}%
-  \expandafter\ifx\csname tp@heading@attr@notoc\endcsname\@empty\else
-    \edef\tp@heading@toc@entry{%
-      \tpIfComp{TocTitle}{\string\tpTocTitle{\expandonce{\tp@heading@TocTitle}}}{}%
-      \tpIfComp{TocNumber}{\string\tpTocNumber{\expandonce{\tp@heading@TocNumber}}}{}%
-      \tpIfComp{TocAuthor}{\string\tpTocAuthor{\expandonce{\tp@heading@TocAuthor}}}{}%
-      \tpIfComp{TocSubtitle}{\string\tpTocSubtitle{\expandonce{\tp@heading@TocSubtitle}}}{}%
-    }%
-    \tpIfProp{toc-level}{\edef\tp@heading@name{\tpUseProperty{toc-level}}}{}%
-    \addcontentsline{toc}{\tp@heading@name}{\expandonce{\tp@heading@toc@entry}}\relax
-  \fi
-}
-\def\tp@init@l@#1#2{%
-  \ifnum #1>\c@tocdepth
-    \expandafter\let\csname l@#2\endcsname\@gobbletwo
-  \else
-    \tp@restore@init{tp-heading-toc-number-#1-maxwd}%
-    \tp@restore@init{tp-heading-toc-number-#1-indent}%
-    \expandafter\gdef\csname l@#2\endcsname##1##2{%
-      \bgroup
-        \tp@toc@extract@data{#1}{#2}{##1}{##2}%
-        \tp@toc@print@entry
-      \egroup
-    }%
-  \fi
-}
-\def\tp@toc@extract@data#1#2#3#4{%
-  \tpNamespace{heading}%
-  \tpCascadeProps{#2}{heading}%
-  \tpProvideComp{tpTocPage}{}{}{TocPage}%
-  \tpTocPage{#4}%
-  \tpProvideComp{tpTocTitle}{}{}{TocTitle}%
-  \tpProvideComp{tpTocSubtitle}{}{}{TocSubtitle}%
-  \tpProvideComp{tpTocNumber}{}{}{TocNumber}%
-  \tpProvideComp{tpTocAuthor}{}{}{TocAuthor}%
-  \let\tpTocLink\Hy@tocdestname%
-  \expandonce#3%% expand toc-specific macros from heading; \expandonce is necessary because of hyperref...
-  \tp@format@number{toc-}{Toc}{#1}%
-}
-\def\tp@toc@print@entry{%
-  \bgroup
-    \tpUseProperty{toc-before-entry}%
-    %\hskip\tpUseProperty{toc-indent}%
-    \tpUseProperty{toc-heading}%
-    \tpUseProperty{toc-after-entry}%
-  \egroup
-}
-
-\def\tp@set@hang#1{%
-  \tpSetProperty{#1hang-number}{\tpUseProperty{#1formatted-number}}
-  \tpIfProp{#1indent}
-    {\ifdim\tpUseProperty{#1indent}<\z@
-        \tpSetProperty{#1hang-number}{%
-          \hbox to -\tpUseProperty{#1indent}{%
-            \tpIfPropVal{#1number-align}{left}{}{\hss}%
-            \tpUseProperty{#1formatted-number}%
-            \tpIfPropVal{#1number-align}{right}{}{\hss}}}%
-      \fi}{}}
-\def\tp@store@maxwd#1#2{%
-  \expandafter\ifx\csname tp-\tp@namespace-#1\endcsname\relax
-    \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space tp-\tp@namespace-#1\string\endcsname{#2}}
-    \expandafter\xdef\csname tp-\tp@namespace-#1\endcsname{#2}%
-  \else
-    \expandafter\ifdim\csname tp-\tp@namespace-#1\endcsname<#2\relax
-      \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space tp-\tp@namespace-#1\string\endcsname{#2}}%
-      \expandafter\xdef\csname tp-\tp@namespace-#1\endcsname{#2}%
-    \fi
-  \fi}
-
-\def\tp@det@prev@indent#1#2{%
-  \@tempcnta\numexpr#2-1\relax
-  \ifdim\tpUseProperty{#1indent}<\z@\relax
-    \@tempdimb=-\tpUseProperty{#1indent}\relax
-  \else
-    \@tempdimb=\tpUseProperty{#1indent}\relax
-  \fi
-  \expandafter\ifx\csname tp-\tp@namespace-#1\the\@tempcnta-indent\endcsname\relax
-    \@tempdima=\@tempdimb\relax%
-  \else
-    \@tempdima\dimexpr \csname tp-\tp@namespace-#1\the\@tempcnta-indent\endcsname+\@tempdimb\relax
-  \fi
-  \tp@store@maxwd{#1#2-indent}{\the\@tempdima}%
-  \tpSetProperty{#1margin-left}{\csname tp-\tp@namespace-#1#2-indent\endcsname}%
-}
-\def\tp@get@indent#1#2{%
-  \expandafter\let\expandafter\tp@tmp@numwd\csname tp-\tp@namespace-#1number-#2-maxwd\endcsname\relax
-  \tpIfPropVal{#1margin-left}{auto-global}
-    {\tpSetProperty{#1indent}{-\csname tp-\tp@namespace-#1number-maxwd\endcsname}%
-     \tpSetProperty{#1margin-left}{\csname tp-\tp@namespace-#1number-maxwd\endcsname}}
-    {\tpIfPropVal{#1margin-left}{auto}
-       {\tpIfPropVal{#1indent}{auto}
-          {\tpSetProperty{#1indent}{-\tp@tmp@numwd}}
-          {\tpIfProp{#1indent}
-             {}
-             {\tpSetProperty{#1indent}{\z@}}}%
-        \tp@det@prev@indent{#1}{#2}}
-       {\tpIfProp{#1margin-left}
-          {\tpIfPropVal{#1indent}{auto}
-            {\tpSetProperty{#1indent}{-\tp@tmp@numwd}}
-            {\tpIfProp{#1indent}
-               {}
-               {\tpSetProperty{#1indent}{\z@}}}}
-         {\tpIfPropVal{#1indent}{auto}
-            {\tpSetProperty{#1margin-left}{\tp@tmp@numwd}%
-             \tpSetProperty{#1indent}{-\tp@tmp@numwd}}
-            {\tpIfProp{#1indent}
-               {\tpSetProperty{#1margin-left}{\z@}}
-               {\tpSetProperty{#1indent}{\z@}%
-                \tpSetProperty{#1margin-left}{\z@}}}}}}}%
-
-\def\tp@make@run{%
-  \tpIfComp{RunTitle}{}{\tpIfComp{Title}{\let\tp@heading@RunTitle\tp@heading@Title}{}}%
-  \tpIfComp{RunNumber}{}{\tpIfComp{Number}{\let\tp@heading@RunNumber\tp@heading@Number}{}}%
-  \tpIfComp{RunAuthor}{}{\tpIfComp{Author}{\let\tp@heading@RunAuthor\tp@heading@Author}{}}%
-  \tpIfComp{RunSubTitle}{}{\tpIfComp{Subtitle}{\let\tp@heading@RunSubtitle\tp@heading@Subtitle}{}}%
-  \tpIfProp{running-level}
-    {\expandafter\let\expandafter\tp@mark@name\csname\tpUseProperty{running-level}mark\endcsname}
-    {\expandafter\let\expandafter\tp@mark@name\csname\tp@heading@name mark\endcsname}%
-  \ifx\tp@mark@name\relax\ifx\tp@heading@parent\@undefined\else
-      \expandafter\let\expandafter\tp@mark@name\csname\tp@inherit@name mark\endcsname%
-    \fi\fi
-  \ifx\tp@mark@name\relax\else
-    \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@running-heading\endcsname}%
-    \expandafter\tp@mark@name\expandafter{\@tempa}%
-  \fi}
-\def\tp@make@bookmarks{%
-  \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@bookmark\endcsname}%
-  \tpIfProp{bookmark-level}{\edef\Hy@toclevel{\tpUseProperty{bookmark-level}}}{}%
-  \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}
-}
-
-\def\tp@format@number#1#2#3{%
-  \tpSetProperty{#1formatted-number}{}%
-  \tpIfComp{#2Number}{%
-    \tpSetProperty{#1formatted-number}{%
-      \bgroup
-        \tpUseProperty{#1title-format}%
-        \tpUseProperty{#1number-format}%
-        \tpUseComp{#2Number}%
-        \tpUseProperty{#1number-sep}%
-      \egroup}%
-    \sbox\z@{\tpUseProperty{#1formatted-number}}%
-    \tp@store@maxwd{#1number-#3-maxwd}{\the\wd\z@}%
-    \tpSetValProp{#1number-width-level-max}{\csname tp-heading-#1number-#3-maxwd\endcsname}%
-    \tp@store@maxwd{#1number-maxwd}{\the\wd\z@}%
-    \tpSetValProp{#1number-width-max}{\csname tp-heading-#1number-#3-maxwd\endcsname}%
-    \tpSetValProp{#1number-width}{\the\wd\z@}%
-    \tp@get@indent{#1}{#3}%
-    \tp@set@hang{#1}%
-  }{%
-    \tp@prop@dimen{#1margin-left}{\z@}%
-    \tp@prop@dimen{#1margin-right}{\@flushglue}%
-    \tp@prop@dimen{#1indent}{\z@}%
-  }%
-}
-\def\tp@restore@init#1{%
-  \AtBeginDocument{\expandafter\ifx\csname #1\endcsname\relax\else
-      \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space #1\string\endcsname{\csname #1\endcsname}}%
-    \fi}}
-\tp@restore@init{tp-heading-toc-number-maxwd}
-\tp@restore@init{tp-heading-number-maxwd}
-
-\def\tp@inline@heading{%
-  \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
-  \tpIfProp{interline-para}
-    {\global\setbox\@tempboxa\hbox{\@svsec}}
-    {\global\setbox\@tempboxa\hbox{\ifvoid\@tempboxa\else\unhbox\@tempboxa\tpUseProperty{interline-para-sep}\fi\@svsec}}%
-  \@nobreakfalse
-  \global\@noskipsectrue
-  \gdef\next{%
-    \global\everypar{%
-      \if@noskipsec
-        \global\@noskipsecfalse
-        {\setbox\z@\lastbox}%
-        \clubpenalty\@M
-        \begingroup \unhbox\@tempboxa \endgroup
-        \unskip
-        \hskip -\@tempskipa
-      \else
-        \clubpenalty \@clubpenalty
-        \global\setbox\@tempboxa\box\voidb@x
-        \everypar{}%
-      \fi}%
-    \ignorespaces
-  }}
-
-\def\tp@block@heading{%
-  \@svsec
-  \par \nobreak
-  \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
-  \gdef\next{%
-    \vskip \@tempskipa
-    \@afterheading}}
-
-\def\tp@provide@hd@macros#1{%
-  \tpProvideComp{tp#1}{}{}{#1}%
-  \tpProvideComp{tpToc#1}{}{}{Toc#1}%
-  \tpProvideComp{tpRun#1}{}{}{Run#1}%
-}
-
-\def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
-\DeclareRobustCommand{\TitleBreak}{\hfill\break}
-
-\def\@heading[#1]#2{%
-  \tp@heading@reserve
-  \tpParseAttributes{heading}{#1}%
-  \edef\tp@heading@name{#2}%
-  \tp@heading@load@props%
-  \tp@provide@hd@macros{Author}%
-  \tp@provide@hd@macros{Title}%
-  \tp@provide@hd@macros{Subtitle}%
-  \tp@provide@hd@macros{Number}%
-  \tpProvideComp{tpQuote}{}{}{Quote}%
-  \tpProvideComp{tpQuoteSource}{}{}{QuoteSource}%
-}
-\def\tp@heading@load@props{%
-  \csname tp@heading@\tp@heading@name @properties\endcsname
-}
-\def\endheading{%
-  \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
-    \PackageError{transpect.cls}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
-  \else
-    \afterfi\csname tpUseHeading\tp@heading@name\endcsname%
-  \fi
-  \tp@heading@reset
-  \nopagebreak
-}
-\def\tp@heading@reserve{%
-  \tpNamespace{heading}%
-  \let\ltx@dbl@backslash\\
-  \let\\\TitleBreak
-  \let\ltx@label\label
-  \let\tp@heading@label\relax
-  \let\tp@notoc\@empty
-}
-\def\tp@heading@reset{%
-  \let\tp@namespace\relax
-  \let\\\ltx@dbl@backslash
-  \let\label\ltx@label
-  \let\tp@heading@name\relax
-  \let\tp@heading@label\relax
-  \let\tp@notoc\@empty
-}
-
-
-
-
-
-
-
 
 
 \endinput
