@@ -92,7 +92,7 @@
   \tpSetProperty{sub-float-sep}{\tp@subflt@sep}
   \tpSetProperty{left-skip}{\z@}
   \tpSetProperty{right-skip}{\z@}
-  \tpSetProperty{number}{auto}
+  \tpSetProperty{numbering}{auto}
 }
 
 \tpDeclareFloat{tpFigure}{figure}{lof}{%
@@ -391,7 +391,7 @@
   }
 
 \def\tp@flt@create@labels{%
-  \tpIfPropVal{number}{auto}{%
+  \tpIfPropVal{numbering}{auto}{%
     \ifnum\tp@subflts=\z@\relax
        \tpIfComp{lbl-0}
          {}%
