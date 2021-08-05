@@ -299,12 +299,12 @@
     \fi}}
 \tp@restore@init{tp-heading-toc-number-maxwd}
 \tp@restore@init{tp-heading-number-maxwd}
-
+\newbox\tp@inline@heading@box
 \def\tp@inline@heading{%
   \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
   \tpIfProp{interline-para}
-    {\global\setbox\@tempboxa\hbox{\@svsec}}
-    {\global\setbox\@tempboxa\hbox{\ifvoid\@tempboxa\else\unhbox\@tempboxa\tpUseProperty{interline-para-sep}\fi\@svsec}}%
+    {\global\setbox\tp@inline@heading@box\hbox{\@svsec}}
+    {\global\setbox\tp@inline@heading@box\hbox{\ifvoid\tp@inline@heading@box\else\unhbox\tp@inline@heading@box\tpUseProperty{interline-para-sep}\fi\@svsec}}%
   \@nobreakfalse
   \global\@noskipsectrue
   \gdef\next{%
@@ -313,12 +313,12 @@
         \global\@noskipsecfalse
         {\setbox\z@\lastbox}%
         \clubpenalty\@M
-        \begingroup \unhbox\@tempboxa \endgroup
+        \begingroup \unhbox\tp@inline@heading@box \endgroup
         \unskip
         \hskip -\@tempskipa
       \else
         \clubpenalty \@clubpenalty
-        \global\setbox\@tempboxa\box\voidb@x
+        \global\setbox\tp@inline@heading@box\box\voidb@x
         \everypar{}%
       \fi}%
     \ignorespaces}}
