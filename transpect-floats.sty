@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.101}%
-\def\filedate{2021-07-21}%
+\def\fileversion{0.102}%
+\def\filedate{2021-08-10}%
 
 %%
 %% module for le-tex transpect.cls that extends floating objects.
@@ -494,7 +494,7 @@
 
 
 \def\tp@reserve@tabular{%
-  %\@tp@reserve@tab{}% TODO: tabularx(und y) nutzen tabular, es kann also nicht (pauschal) überdefiniert werden…
+  %\@tp@reserve@tab{}% TODO: tabularx(and y) use tabular, so we can't re-define it
   \@tp@reserve@tab{x}%
   \@tp@reserve@tab{y}%
 }
@@ -567,22 +567,22 @@
   \tpSetProperty{sub-number-sep}{\,}%% when sub-captions, this is placed between the float counter and the sub-float counter
   \tpSetProperty{sub-number-style}{alph}%% counting style of subcaption counters
   \tpSetProperty{sub-number-format}{\bfseries}%% format of subcaption counters
-  \tpSetProperty{sub-number-block}{\tpUseProperty{float-number}\tpUseProperty{sub-number-sep}\tpUseProperty{sub-number})}%% Format of sub numbers
+  \tpSetProperty{sub-number-block}{\tpUseProperty{float-number}\tpUseProperty{sub-number-sep}(\tpUseProperty{sub-number})}%% Format of sub numbers
   \tpSetProperty{list-of-block}{\tpUseComp{Caption}}% list-of-float appearance
 }
 
 \tpDeclareFloat{tpFigure}{figure}{lof}{%
   \tpSetProperty{subfloat-same-height}{true}% if true, the subfloat must/can be adjusted to the same heights
   \tpSetProperty{content-handler}{\tpFigureHandler}%
-  \tpSetProperty{float-block}{\tpFigureFloat}
-  \tpSetProperty{subfloat-block}{\tpFigureSubFloat}
+  \tpSetProperty{float-block}{\tpFigureFloat}%
+  \tpSetProperty{subfloat-block}{\tpFigureSubFloat}%
 }
 
 \tpDeclareFloat{tpTable}{table}{lot}{%
-  \tpSetProperty{sub-caption-valign-top}{b}
-  \tpSetProperty{content-handler}{\tpTableHandler}
-  \tpSetProperty{float-block}{\tpTableFloat}
-  \tpSetProperty{subfloat-block}{\tpTableFloat}
+  \tpSetProperty{sub-caption-valign-top}{b}%
+  \tpSetProperty{content-handler}{\tpTableHandler}%
+  \tpSetProperty{float-block}{\tpTableFloat}%
+  \tpSetProperty{subfloat-block}{\tpTableFloat}%
 }
 
  % %    \end{macrocode}
