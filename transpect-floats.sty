@@ -33,8 +33,12 @@
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{transpect-floats}
     [\filedate \fileversion le-tex transpect floats module]
+\DeclareOptionX{nofigs}{\global\let\tp@nofigs\relax}
+\ProcessOptionsX
 \RequirePackage{transpect-common}
 \RequirePackage{rotating}
+\RequirePackage{grffile}
+
 \def\topfraction{0.9}
 \def\textfraction{0.1}
 \def\bottomfraction{0.8}
@@ -63,6 +67,9 @@
 
 \AtBeginDocument{%
   \global\let\ltx@label\label
+  \ifx\tp@nofigs\relax
+    \renewcommand\includegraphics[2][]{}%
+  \fi
   \global\let\ltx@includegraphics\includegraphics
   \@ifpackageloaded{htmltabs}{\global\let\tp@uses@htmltabs\relax}{}%
 }%

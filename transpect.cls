@@ -53,6 +53,7 @@
 \DeclareOptionX{collection}{\global\collectiontrue\global\@articlefalse}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
+\DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{transpect-floats}}
 \ProcessOptionsX
 \if@article
   \LoadClass[10pt,a4paper]{article}
