@@ -70,11 +70,12 @@
 %% packages.
 \RequirePackage{etoolbox}
 \def\tpDeclareHook#1{\expandafter\global\expandafter\let\csname tp@hook@\tp@namespace @#1\endcsname\@empty}
-\def\tpAddToHook#1#2{%
+\def\tpAddToHook{\@ifnextchar [{\tp@add@to@hook}{\tp@add@to@hook[\tp@namespace]}}%]
+\def\tp@add@to@hook[#1]#2#3{%
   \expandafter\ifx\csname tp@hook@\tp@namespace @#1\endcsname\relax
-    \tpDeclareHook{#1}%
+    \tpDeclareHook{#1@#2}%
   \fi
-  \csgappto{tp@hook@\tp@namespace @#1}{#2}%
+  \csgappto{tp@hook@#1@#2}{#3}%
 }
 \def\tpUseHook#1{\expandafter\ifx\csname tp@hook@\tp@namespace @#1\endcsname\relax\else\csname tp@hook@\tp@namespace @#1\endcsname\fi}
 \def\tpProvideComp#1#2#3#4{%
@@ -112,6 +113,7 @@
 
 \DeclareRobustCommand{\tpSetProperty}[2]{\expandafter\long\expandafter\protect\expandafter\def\csname tp@\tp@namespace @#1\endcsname{#2}}
 \DeclareRobustCommand{\tpSetValProp}[2]{\def\@tempa{\tpSetProperty{#1}}\expandafter\@tempa\expandafter{#2}}
+\DeclareRobustCommand{\tpSetPropertyX}[2]{\expandafter\long\expandafter\protect\expandafter\edef\csname tp@\tp@namespace @#1\endcsname{#2}}
 \def\tpUseProperty#1{\csname tp@\tp@namespace @#1\endcsname}
 \DeclareRobustCommand{\tpIfProp}[3]{\long\def\@tempa{}%
   \expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa#3\else#2\fi\ignorespaces}

@@ -40,10 +40,11 @@
 
 \long\def\@tpDeclareHeading[#1]#2#3#4{%
   \tpNamespace{heading}%
-  \expandafter\def\csname heading@#3@name\endcsname{#3}%
+  \expandafter\def\csname tp@heading@name\endcsname{#3}%
   %
   \if!#1!\else\expandafter\protect\expandafter\def\csname tp@heading@#3@parent\endcsname{#1}\fi%
   \expandafter\protect\expandafter\def\csname tp@heading@#3@properties\endcsname{#4}%
+  \tp@init@hooks{#3}%
   \tp@init@l@{#2}{#3}%
   \tp@init@cnt{#2}{#3}%
   \tp@restore@init{tp-heading-number-#2-maxwd}%
@@ -59,6 +60,7 @@
     \def\Hy@toclevel{#2}%
     \tp@auto@number{#2}{#3}%
     \tpUseProperty{heading-par}%
+    \tpUseHook{before-hook-\tp@heading@name}%
     \tpUseProperty{before-heading}%
     \everypar{}%
     \tp@hdg@create@labels{#3}% label facility
@@ -81,7 +83,11 @@
     \fi
     \aftergroup\next%
   }}
-
+\def\tp@init@hooks#1{%
+  \tpDeclareHook{toc-before-hook-#1}%
+  \tpDeclareHook{toc-after-hook-#1}%
+  \tpDeclareHook{before-hook-#1}%
+}
 \def\tp@init@cnt#1#2{%
   \tpIfPropVal{numbering}{auto}
     {\expandafter\ifx\csname c@#2\endcsname\relax \expandafter\newcount\csname c@#2\endcsname \fi
@@ -147,7 +153,7 @@
     \expandafter\gdef\csname l@#2\endcsname##1##2{%
       \bgroup
         \tp@toc@extract@data{#1}{#2}{##1}{##2}%
-        \tp@toc@print@entry
+        \tp@toc@print@entry{#2}%
       \egroup
     }%
   \fi}
@@ -173,10 +179,12 @@
     \expandonce#1%
   \fi}
 
-\def\tp@toc@print@entry{%
+\def\tp@toc@print@entry#1{%
   \bgroup
+    \tpUseHook{toc-before-hook-#1}%
     \tpUseProperty{toc-before-entry}%
     \tpUseProperty{toc-heading}%
+    \tpUseHook{toc-after-hook-#1}%
     \tpUseProperty{toc-after-entry}%
   \egroup}
 \def\tp@set@hang#1{%
@@ -215,30 +223,34 @@
     \fi
   \fi}
 \def\tp@get@indent#1#2{%
+  \tpSetPropertyX{int-#1margin-left}{\tpUseProperty{#1margin-left}}%
+  \tpSetPropertyX{int-#1indent}{\tpUseProperty{#1indent}}%
   \expandafter\let\expandafter\tp@tmp@numwd\csname tp-\tp@namespace-#1number-#2-maxwd\endcsname\relax
-  \tpIfPropVal{#1margin-left}{auto-global}
+  \tpIfPropVal{int-#1margin-left}{auto-global}
     {\tpSetProperty{#1indent}{-\csname tp-\tp@namespace-#1number-maxwd\endcsname}%
      \tpSetProperty{#1margin-left}{\csname tp-\tp@namespace-#1number-maxwd\endcsname}}
-    {\tpIfPropVal{#1margin-left}{auto}
-       {\tpIfPropVal{#1indent}{auto}
+    {\tpIfPropVal{int-#1margin-left}{auto}
+       {\tpIfPropVal{int-#1indent}{auto}
           {\tpSetProperty{#1indent}{-\tp@tmp@numwd}}
-          {\tpIfProp{#1indent}
-             {}
+          {\tpIfProp{int-#1indent}
+             {\tpSetPropertyX{#1indent}{\tpUseProperty{int-#1indent}}}
              {\tpSetProperty{#1indent}{\z@}}}%
         \tp@det@prev@indent{#1}{#2}}
-       {\tpIfProp{#1margin-left}
-          {\tpIfPropVal{#1indent}{auto}
+       {\tpIfProp{int-#1margin-left}
+          {\tpIfPropVal{int-#1indent}{auto}
             {\tpSetProperty{#1indent}{-\tp@tmp@numwd}}
-            {\tpIfProp{#1indent}
-               {}
+            {\tpIfProp{int-#1indent}
+               {\tpSetPropertyX{#1indent}{\tpUseProperty{int-#1indent}}}
                {\tpSetProperty{#1indent}{\z@}}}}
-         {\tpIfPropVal{#1indent}{auto}
+         {\tpIfPropVal{int-#1indent}{auto}
             {\tpSetProperty{#1margin-left}{\tp@tmp@numwd}%
              \tpSetProperty{#1indent}{-\tp@tmp@numwd}}
-            {\tpIfProp{#1indent}
-               {\tpSetProperty{#1margin-left}{\z@}}
+            {\tpIfProp{int-#1indent}
+               {\tpSetPropertyX{#1indent}{\tpUseProperty{int-#1indent}}%
+                \tpSetProperty{#1margin-left}{\z@}}
                {\tpSetProperty{#1indent}{\z@}%
-                \tpSetProperty{#1margin-left}{\z@}}}}}}}
+                \tpSetProperty{#1margin-left}{\z@}}}}}}
+    }
 \def\tp@make@run{%
   \tp@check@empty{Title}{Run}%
   \tp@check@empty{Number}{Run}%
@@ -255,9 +267,10 @@
     \expandafter\tp@mark@name\expandafter{\@tempa}%
   \fi}
 \def\tp@make@bookmarks{%
-  \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@bookmark\endcsname}%
   \tpIfProp{bookmark-level}{\edef\Hy@toclevel{\tpUseProperty{bookmark-level}}}{}%
-  \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}}
+  \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@bookmark\endcsname}%
+  \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}%
+}
 \def\tp@format@number#1#2#3{%
   \tpSetProperty{#1formatted-number}{}%
   \tpIfComp{#2Number}{%
