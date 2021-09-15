@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.23}%
-\def\filedate{2021-02-12}%
+\def\fileversion{0.1.25}%
+\def\filedate{2021-09-15}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1491,7 +1491,11 @@
 
 \def\HTBeginTable{%
   \@ht@final@renderfalse
-  \global\ht@init@pagegoal=\dimexpr\pagegoal-\pagetotal-\baselineskip\relax
+  \ifdim\pagegoal=\maxdimen
+    \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip\relax
+  \else
+    \global\ht@init@pagegoal=\dimexpr\pagegoal-\pagetotal-\baselineskip\relax
+  \fi
   \ifdim\ht@init@pagegoal<\z@\relax
     \expandafter\global\ht@init@pagegoal\expandafter\dimexpr\pagegoal-(\pagetotal-\pagegoal)-\baselineskip\relax\fi
   \bgroup
@@ -1501,8 +1505,9 @@
   \hfuzz\maxdimen
   \hbadness=\@M
   \advance\ht@h@offset\leftskip
-  \advance\linewidth-\rightskip
   \advance\ht@h@offset\@totalleftmargin
+  \advance\linewidth-\rightskip
+  %\advance\linewidth-\leftskip %% TP-spezifisch!
   \leftskip\z@ \rightskip\z@
   \global\advance\ht@curtab\@ne
   \HTResetInternal
@@ -2215,14 +2220,14 @@
   \endgroup
   \ignorespaces}%
 \def\ht@HTcol[#1]{%
-  \ifx\ht@Col@attr@colspan\@undefined
-    \global\let\htColSpan\@ne
-  \else
-    \global\let\htColSpan\ht@Col@attr@colspan
-  \fi
   \begingroup
     \def\ht@ltx@cur@env{Col}%
     \ht@parse@attributes #1,,\@nil
+    \ifx\ht@Col@attr@colspan\@undefined
+      \global\let\htColSpan\@ne
+    \else
+      \global\let\htColSpan\ht@Col@attr@colspan
+    \fi
     \ht@ltx@reg@style@and@class%
     \expandafter\let\expandafter\htColWidth\csname ht@Col@attr@width\endcsname%
     \HTCol{\htColWidth}%
