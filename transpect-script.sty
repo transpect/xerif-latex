@@ -78,7 +78,17 @@
     Path=\NotoCJKPath,%
     BoldFont = NotoSansCJKsc-Bold.otf,%
     WordSpace = 1.25]{NotoSansMonoCJKsc-Regular.otf}
-  \DeclareTextFontCommand\chin{\selectlanguage{chinese}}
+  \DeclareTextFontCommand\chin{\foreignlanguage{chinese}}
+\fi
+\ifx\use@script@japanese\relax
+  \def\NotoJPPath{./fonts/Noto/Japanese/}
+  \message{^^J  [transpect-script Loaded Script: Japanese]^^J}
+  \babelprovide{japanese}
+  \babelfont[japanese]{rm}[%
+    Path=\NotoJPPath,%
+    BoldFont = NotoSansJP-Bold.otf,%
+    WordSpace = 1.25]{NotoSansJP-Regular.otf}
+  \DeclareTextFontCommand\japanese{\foreignlanguage{japanese}}
 \fi
 \ifx\use@script@hebrew\relax
   \message{^^J  [transpect-script Loaded Script: Hebrew]^^J}
@@ -97,7 +107,7 @@
     BoldFont = NotoSansHebrew-Bold.ttf,%
     Contextuals=Alternate%
     ]{NotoSansHebrew-Regular.ttf}
-  \DeclareTextFontCommand\hebrew{\selectlanguage{hebrew}}
+  \DeclareTextFontCommand\hebrew{\foreignlanguage{hebrew}}
 \fi
 
 \ifx\use@script@arabic\relax
@@ -107,7 +117,7 @@
   \babelfont[arabic]{rm}[BoldFont = NotoNaskhArabic-Bold.ttf,%
     Path = \NotoArabPath,%
     ]{NotoNaskhArabic-Regular.ttf}%
-  \DeclareTextFontCommand\arab{\selectlanguage{arabic}}
+  \DeclareTextFontCommand\arab{\foreignlanguage{arabic}}
 \fi
 
 \endinput
