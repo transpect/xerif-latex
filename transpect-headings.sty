@@ -242,6 +242,10 @@
     \expandafter\tp@mark@name\expandafter{\@tempa}%
   \fi}
 \def\tp@make@bookmarks{%
+  \tp@check@empty[Toc]{heading}{Title}{BM}%
+  \tp@check@empty[Toc]{heading}{Number}{BM}%
+  \tp@check@empty[Toc]{heading}{Author}{BM}%
+  \tp@check@empty[Toc]{heading}{Subtitle}{BM}%
   \tpIfProp{bookmark-level}{\edef\Hy@toclevel{\tpUseProperty{bookmark-level}}}{}%
   \protected@edef\@tempa{\expandafter\@empty\csname tp@heading@bookmark\endcsname}%
   \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}%
@@ -328,8 +332,10 @@
 }
 \def\tp@provide@hd@macros#1{%
   \tpProvideComp{tp#1}{}{}{#1}%
-  \tpProvideComp{tpToc#1}{}{}{Toc#1}%
-  \tpProvideComp{tpRun#1}{}{}{Run#1}}
+  \tpProvideComp{tpToc#1}{}{}{Toc#1}% toc overrides
+  \tpProvideComp{tpRun#1}{}{}{Run#1}% running overrides
+  \tpProvideComp{tpBM#1}{}{}{BM#1}% bookmark overrides
+}
 \def\endheading{%
   \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
     \PackageError{transpect.cls}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
@@ -447,8 +453,8 @@
   %% PDF-Bookmarks
   \tpSetProperty{bookmark-level}{}% override heading level for PDF bookmarks, numeric!
   \tpSetProperty{bookmark}{%
-    \tpIfComp{TocNumber}{\tpUseComp{TocNumber}\space}{}%
-    \tpIfComp{TocTitle}{\tpUseComp{TocTitle}}{\tpUseComp{Title}}%
+    \tpIfComp{BMNumber}{\tpUseComp{BMNumber}\space}{}%
+    \tpUseComp{BMTitle}%
   }%
 }
 
