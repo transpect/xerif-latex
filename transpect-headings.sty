@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.110}%
-\def\filedate{2021-10-13}%
+\def\fileversion{0.111}%
+\def\filedate{2021-10-18}%
 
 %%
 %% module for le-tex transpect.cls that extends heading objects.
@@ -120,10 +120,10 @@
       \edef\@tempa{\expandonce{\tp@heading@Number}}%
       \let\@currentlabel\@tempa\relax
       \let\@currentlabelname\tp@heading@Title
-      \expandafter\ltx@label\expandafter{\tp@heading@attr@label}%
+      \expandafter\tpltx@label\expandafter{\tp@heading@attr@label}%
     }{}%
   \fi
-  \global\let\label\ltx@label}
+  \global\let\label\tpltx@label}
 \def\tp@make@toc{%
   \tp@check@empty{heading}{Title}{Toc}%
   \tp@check@empty{heading}{Number}{Toc}%
@@ -346,15 +346,15 @@
 }
 \def\tp@heading@reserve{%
   \tpNamespace{heading}%
-  \let\ltx@dbl@backslash\\
+  \let\tpltx@dbl@backslash\\
   \let\\\TitleBreak
-  \let\ltx@label\label
+  \let\tpltx@label\label
   \let\tp@heading@label\relax
   \let\tp@notoc\@empty}
 \def\tp@heading@reset{%
   \let\tp@namespace\relax
-  \let\\\ltx@dbl@backslash
-  \let\label\ltx@label
+  \let\\\tpltx@dbl@backslash
+  \let\label\tpltx@label
   \let\tp@heading@name\relax
   \let\tp@heading@label\relax
   \let\tp@notoc\@empty}
