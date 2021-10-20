@@ -43,6 +43,7 @@
 \RequirePackage{transpect-common}
 \PassOptionsToPackage{cmyk}{xcolor}
 \PassOptionsToPackage{shorthands=off}{babel}
+\DeclareOptionX{ennotoc}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \DeclareOptionX{endnotes}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \DeclareOptionX{endnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}

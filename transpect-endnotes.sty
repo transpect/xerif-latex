@@ -35,6 +35,7 @@
     [\filedate \fileversion le-tex transpect endnotes module]
 \newif\ifendnotes \endnotesfalse
 \DeclareOption{endnotes}{\global\endnotestrue}
+\DeclareOption{ennotoc}{\global\let\tp@ennotoc\relax}
 \DeclareOption{resetnotesperchapter}{\global\let\reset@notes@per@chapter\relax}
 \DeclareOption{endnoteswithchapters}{\global\endnotestrue\global\let\endnotes@with@chapters\relax}
 \ProcessOptions
@@ -46,7 +47,7 @@
   \let\footnote=\endnote
   \def\enotesize{\normalsize}%
   \def\enoteformat{\leavevmode\hskip-2em\hb@xt@2em{\@theenmark\hss}}%
-  \def\enoteheading{%
+  \gdef\enoteheading{%
     \leftskip2em
   }%
   \def\printnotes{%
@@ -80,8 +81,8 @@
       \addtoendnotes{%
         \noexpand\expandafter\noexpand\ifx\noexpand\csname enotes@in@\the\realchap\noexpand\endcsname\noexpand\@empty
           \bgroup
-            \leftskip\z@
-            \noexpand\begin{heading}[notoc]{section}
+            \noexpand\leftskip\noexpand\z@
+            \noexpand\begin{heading}\ifx\tp@ennotoc\relax[notoc]\fi{section}
               \noexpand\tpTitle{\tpUseComp{TocTitle}}
             \noexpand\end{heading}
           \egroup
