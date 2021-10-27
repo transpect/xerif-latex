@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.25}%
-\def\filedate{2021-09-15}%
+\def\fileversion{0.1.26}%
+\def\filedate{2021-10-27}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -632,14 +632,35 @@
 
 \def\ht@border@style@solid#1#2{%
   \ifx\ht@is@vert\relax
-    \rlap{\vbox to \dimexpr#2\relax{\vrule width#1 height\dimexpr#2\relax}}\hskip#1%
+    \rlap{\vbox to \dimexpr#2\relax{\vrule \@width#1 \@height\dimexpr#2\relax}}\hskip#1%
   \else
-    \vrule width#2 height#1\relax
+    \vrule \@width#2 \@height#1\relax
   \fi}
+
+\def\ht@border@style@double#1#2{{%
+  \@tempdimc=#1\relax%
+  \ifx\ht@is@vert\relax
+    \rlap{\smash{\lower\@tempdimc\vbox to \dimexpr#2+2\@tempdimc\relax{%
+          \vrule
+            \@width0.33333\@tempdimc
+            \@height\dimexpr#2+\ifx\ht@is@left\relax2\fi\@tempdimc\relax
+            \ifx\ht@is@left\relax\else\@depth-\@tempdimc\fi
+        \hskip0.33333\@tempdimc
+        \vrule
+          \@width0.33333\@tempdimc
+          \@height\dimexpr#2+\ifx\ht@is@left\relax\else2\fi\@tempdimc\relax
+          \ifx\ht@is@left\relax\@depth-\@tempdimc\fi
+      }}}\hskip\@tempdimc%
+  \else
+    \raise.66667\@tempdimc\hb@xt@#2{%
+      \rlap{\ifx\ht@is@top\relax\else\hskip0.66667\@tempdimc\fi\vrule \@width\dimexpr#2\ifx\ht@is@top\relax\else-1.33333\@tempdimc\fi\relax \@height0.33333\@tempdimc}%
+      \rlap{\lower\dimexpr0.66667\@tempdimc\relax\hbox{\ifx\ht@is@top\relax\hskip0.66667\@tempdimc\fi\vrule \@width\dimexpr#2\ifx\ht@is@top\relax-1.33333\@tempdimc\fi\relax \@height0.33333\@tempdimc}}%
+    }%
+  \fi}}
 
 \def\ht@border@style@dotted#1#2{%
   \ht@tempdimc=#1\relax
-  \def\ht@border@rule{\vrule width\ht@tempdimc height\ht@tempdimc}%
+  \def\ht@border@rule{\vrule \@width\ht@tempdimc \@height\ht@tempdimc}%
   \ifx\ht@is@vert\relax
     \rlap{\lower\dimexpr-\ht@tempdimc\relax\vbox to \dimexpr#2+\ht@tempdimc\relax{\xleaders \vbox to \dimexpr 3\ht@tempdimc\relax{\vss\ht@border@rule\vss}\vfill}}\hskip\ht@tempdimc%
   \else
@@ -650,9 +671,9 @@
 \def\ht@border@style@dashed#1#2{%
   \ht@tempdimc=#1\relax
   \ifx\ht@is@vert\relax
-    \rlap{\vbox to \dimexpr#2\relax{\xleaders \vbox to \dimexpr8\ht@tempdimc\relax{\vss\vrule width\ht@tempdimc height5\ht@tempdimc\vss}\vfill}}\hskip\ht@tempdimc%
+    \rlap{\vbox to \dimexpr#2\relax{\xleaders \vbox to \dimexpr8\ht@tempdimc\relax{\vss\vrule \@width\ht@tempdimc \@height5\ht@tempdimc\vss}\vfill}}\hskip\ht@tempdimc%
   \else
-    \hb@xt@#2{\xleaders \hb@xt@\dimexpr 8\ht@tempdimc\relax{\hss\vrule width5\ht@tempdimc height\ht@tempdimc\hss}\hfill}%
+    \hb@xt@#2{\xleaders \hb@xt@\dimexpr 8\ht@tempdimc\relax{\hss\vrule \@width5\ht@tempdimc \@height\ht@tempdimc\hss}\hfill}%
   \fi
   }
 
@@ -661,6 +682,7 @@
     \PackageWarning{htmltabs}{\ht@scope-border-style fuer tab-\the\ht@curtab\space ist `none',\ht@debugbrk aber \ht@scope-border-width ist #1!}%
   \fi}
 \def\ht@border@top#1#2#3{{%
+  \let\ht@is@top\relax
   \rlap{\raise\dimexpr\vsize\relax\hbox{#2%
       \csname ht@border@style@#3\endcsname{#1}{\dimexpr\hsize\relax}}}}}%
 
@@ -675,6 +697,7 @@
 
 \def\ht@border@left#1#2#3{{%
   \let\ht@is@vert\relax
+  \let\ht@is@left\relax
   \hbox{%
     #2\csname ht@border@style@#3\endcsname{#1}{\dimexpr\vsize\relax}}}}%
 \def\ht@halign{%
@@ -1494,7 +1517,13 @@
   \ifdim\pagegoal=\maxdimen
     \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip\relax
   \else
-    \global\ht@init@pagegoal=\dimexpr\pagegoal-\pagetotal-\baselineskip\relax
+    \edef\ht@measurepage{\the\dimexpr\pagegoal-\pagetotal-\baselineskip\relax}%
+    \ifdim\ht@measurepage<2\baselineskip
+      \goodbreak
+      \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip\relax
+    \else
+      \global\ht@init@pagegoal=\ht@measurepage\relax
+    \fi
   \fi
   \ifdim\ht@init@pagegoal<\z@\relax
     \expandafter\global\ht@init@pagegoal\expandafter\dimexpr\pagegoal-(\pagetotal-\pagegoal)-\baselineskip\relax\fi
@@ -1916,11 +1945,11 @@
             \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax>\numexpr\ht@min@p@rows\relax\relax
               \ifdim\ht@table@height<\dimexpr\ht@init@pagegoal-\baselineskip\relax
               \else
-                \ifdim\rowHeight>2\baselineskip\relax
-                  \IfPropText{table}{allow-cell-breaks}{true}{\ht@find@row@break@point}{\ht@find@row@break@point}%
-                \else
-                  \ht@find@row@break@point
-                \fi
+                % \ifdim\rowHeight>2\baselineskip\relax
+                %   \IfPropText{table}{allow-cell-breaks}{true}{\ht@find@row@break@point}{\ht@find@row@break@point}%
+                % \else
+                \ht@find@row@break@point
+                % \fi
               \fi
             \else
               \ifdim\ht@table@height<\ht@init@pagegoal\relax\else
@@ -1982,8 +2011,8 @@
   \ifvoid\htCaptionBox\else
     \IfPropText{caption}{caption-side}{top}{%
       \global\advance\ht@add@to@top\dimexpr
-         \ht\htTheadBox
-        +\dp\htTheadBox
+         \ht\htCaptionBox
+        +\dp\htCaptionBox
       \relax}{}%
   \fi
   \ifvoid\htTheadBox\else
@@ -1998,8 +2027,8 @@
     \IfTablePropText{repeat-caption}{true}{%
       \IfPropText{caption}{caption-side}{top}{%
         \global\advance\ht@add@to@top\dimexpr
-           \ht\htTheadBox
-          +\dp\htTheadBox
+           \ht\htCaptionBox
+          +\dp\htCaptionBox
         \relax}{}%
     }{}%
   \fi
