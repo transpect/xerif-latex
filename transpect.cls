@@ -48,16 +48,21 @@
 \DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \DeclareOptionX{endnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \newif\ifcollection \collectionfalse
-\newif\if@article \@articlefalse
-\DeclareOptionX{book}{\global\collectionfalse\global\@articlefalse}
-\DeclareOptionX{article}{\global\collectionfalse\global\@articletrue}
-\DeclareOptionX{collection}{\global\collectiontrue\global\@articlefalse}
+\newif\ifarticle   \articlefalse
+\define@choicekey{transpect.cls}{pubtype}[\tp@pubtype\nr]{collection,article,mono}{%
+  \ifcase\nr\relax% collection
+    \global\collectiontrue
+  \or%
+    \global\articletrue
+  \else% mono
+  \fi
+}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
 \DeclareOptionX{usescript}{\PassOptionsToPackage{\CurrentOption}{transpect-script}}
 \DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{transpect-floats}}
 \ProcessOptionsX
-\if@article
+\ifarticle
   \LoadClass[10pt,a4paper]{article}
 \else
   \LoadClass[10pt,a4paper]{book}
@@ -76,7 +81,7 @@
 }
 \def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
     \hbox{}\thispagestyle{empty}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
-\if@article\else
+\ifarticle\else
   \newif\if@frontmatter  \@frontmatterfalse
   \renewcommand\frontmatter{%
     \cleardoublepage
