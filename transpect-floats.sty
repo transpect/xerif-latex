@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.114}%
-\def\filedate{2021-11-04}%
+\def\fileversion{0.115}%
+\def\filedate{2021-11-05}%
 
 %%
 %% module for le-tex transpect.cls that extends floating objects.
@@ -325,9 +325,13 @@
       {\csname Listof#1\endcsname{}}}}
 
 \long\def\tp@flt@cond{%
-  \long\def\tpIfComp##1##2##3{\expandafter\let\expandafter\@tempa\csname tp@\tp@namespace @##1\endcsname\relax\expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi}%
-  \long\def\tpIfCompEmpty##1##2##3{\expandafter\let\expandafter\@tempa\csname tp@\tp@namespace @##1\endcsname\relax\expandafter\expandafter\expandafter\ifx\@tempa\relax##2\else##3\fi}%
-}
+  \long\def\tpIfComp##1##2##3{%
+    \expandafter\let\expandafter\@tempa\csname tp@\tp@namespace @##1\endcsname\relax
+    \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi}%
+  \long\def\tpIfCompEmpty##1##2##3{%
+    \long\def\@tempa{}%
+    \expandafter\let\expandafter\@tempb\csname tp@\tp@namespace @##1\endcsname\relax
+    \expandafter\expandafter\expandafter\ifx\@tempb\@tempa ##2\else ##3\fi}}
 \def\tp@flt@create@counters{%
   \expandafter\ifx\csname tp@\tp@captype @attr@nonumber\endcsname\relax
     \tpIfPropVal{numbering}{auto}{%

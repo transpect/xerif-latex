@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.114}%
-\def\filedate{2021-11-04}%
+\def\fileversion{0.115}%
+\def\filedate{2021-11-05}%
 
 
 \message{le-tex transpect package version \fileversion\space (\filedate)^^J}
