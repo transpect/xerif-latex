@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.26}%
-\def\filedate{2021-10-27}%
+\def\fileversion{0.1.27}%
+\def\filedate{2021-11-09}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1875,13 +1875,13 @@
   }}
 \def\htBuildTableBox{%
   \global\setbox\htTableBox\vbox{%
-    \addvspace{\TabMarginTop}%
+    \ifdim\TabMarginTop=\z@\else\addvspace{\TabMarginTop}\fi%
     \htOutputCaption{top}%
     \unvcopy\htTheadBox\nobreak\nointerlineskip
     \unvbox\htTbodyBox\nobreak\nointerlineskip
     \unvcopy\htTfootBox
     \htOutputCaption{bottom}%
-    \addvspace{\TabMarginBot}%
+    \ifdim\TabMarginBot=\z@\else\addvspace{\TabMarginBot}\fi%
   }}
 \def\ht@RenderCaption{%
   \GetScopedProp{CaptionWidth}{caption}{width}%
