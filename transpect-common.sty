@@ -331,7 +331,14 @@
                {\tpSetProperty{#1indent}{\z@}%
                 \tpSetProperty{#1margin-left}{\z@}}}}}}
     }
-
+\newdimen\tpnewparskip \AtBeginDocument{\ifdim\tpnewparskip=\z@\relax \tpnewparskip=1\baselineskip\relax\fi}
+\def\tpNewPar{\@ifnextchar[{\@tpnewpar}{\@tpnewpar[\the\tpnewparskip]}}%]
+\def\@tpnewpar[#1]{%
+  \ifhmode\par\fi
+  \message{1: `#1'}%
+  \vskip#1\relax
+  \@afterheading
+}
 \endinput
 %%
 %% End of file `transpect-common.sty'.
