@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.27}%
-\def\filedate{2021-11-09}%
+\def\fileversion{0.1.28}%
+\def\filedate{2021-11-11}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1518,7 +1518,8 @@
     \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip\relax
   \else
     \edef\ht@measurepage{\the\dimexpr\pagegoal-\pagetotal-\baselineskip\relax}%
-    \ifdim\ht@measurepage<2\baselineskip
+    \expandafter\@tempdima\expandafter\dimexpr\ht@min@b@rows\baselineskip+2\baselineskip\relax
+    \ifdim\ht@measurepage<\@tempdima
       \goodbreak
       \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip\relax
     \else
