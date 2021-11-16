@@ -42,6 +42,8 @@
 \RequirePackage{xkeyval}
 \RequirePackage{transpect-common}
 \PassOptionsToPackage{cmyk}{xcolor}
+\DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
+\DeclareOptionX{newtitle}{\PassOptionsToPackage{\CurrentOption}{transpect-title}}%% Temporär!
 \PassOptionsToPackage{shorthands=off}{babel}
 \DeclareOptionX{ennotoc}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \DeclareOptionX{endnotes}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
@@ -102,11 +104,12 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{soul}
+\RequirePackage{transpect-script}
 \PassOptionsToPackage{breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
 \RequirePackage{transpect-headings}
 \RequirePackage{transpect-floats}
+\RequirePackage{transpect-title}
 \RequirePackage{transpect-endnotes}
- % \RequirePackage{transpect-title}
 \RequirePackage{index}
 \makeindex
 \RequirePackage{hyperref}

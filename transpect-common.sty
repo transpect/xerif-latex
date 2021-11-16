@@ -34,6 +34,9 @@
 \ProvidesPackage{transpect-common}
     [\filedate \fileversion le-tex transpect common module]
 \RequirePackage{iftex}
+\def\tp@str@default{default}
+\def\tp@str@table{table}
+\def\tp@str@figure{figure}
 \def\afterfi#1\fi{\fi#1}
 \def\@afterbox{%
   \everypar{%
@@ -81,7 +84,10 @@
 \def\tpUseHook#1{\expandafter\ifx\csname tp@hook@\tp@namespace @#1\endcsname\relax\else\csname tp@hook@\tp@namespace @#1\endcsname\fi}
 \def\tpProvideComp#1#2#3#4{%
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@\tp@namespace @#4\endcsname\relax
-  \expandafter\long\expandafter\def\csname #1\endcsname##1{#2\expandafter\long\expandafter\def\csname tp@\tp@namespace @#4\endcsname{##1}\ignorespaces#3}}
+  \expandafter\long\expandafter\def\csname #1\endcsname##1{%
+    %\message{^^J==> defining: tp@\tp@namespace @#4}%
+    #2\expandafter\long\expandafter\def\csname tp@\tp@namespace @#4\endcsname{##1}\ignorespaces#3}%
+}
 \def\tpNamespace#1{\def\tp@namespace{#1}}
 \def\tpUseComp#1{\csname tp@\tp@namespace @#1\endcsname}
 \long\def\tpIfComp#1#2#3{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
@@ -164,10 +170,6 @@
     \expandafter\tpUseClass\expandafter{\csname tp@#2@class@#1@parent\endcsname}{#2}%
   \fi
   \csname tp@#2@class@#1\endcsname}
-
-\def\tp@str@default{default}
-\def\tp@str@table{table}
-\def\tp@str@figure{figure}
 \def\@xminusvskip{%
   \ifdim\lastskip<\@tempskipb
   \else
@@ -331,14 +333,26 @@
                {\tpSetProperty{#1indent}{\z@}%
                 \tpSetProperty{#1margin-left}{\z@}}}}}}
     }
-\newdimen\tpnewparskip \AtBeginDocument{\ifdim\tpnewparskip=\z@\relax \tpnewparskip=1\baselineskip\relax\fi}
-\def\tpNewPar{\@ifnextchar[{\@tpnewpar}{\@tpnewpar[\the\tpnewparskip]}}%]
-\def\@tpnewpar[#1]{%
-  \ifhmode\par\fi
-  \message{1: `#1'}%
-  \vskip#1\relax
-  \@afterheading
-}
+\def\tp@str@german{german}
+\def\tp@str@english{english}
+
+\def\tpSetBabelLabel#1#2#3{%
+  \def\@lang{#1}%
+  \expandafter\def\expandafter\@tempa\expandafter{\expandafter\def\csname #2name\endcsname{#3}}%
+  \ifx\@lang\tp@str@german
+    \expandafter\addto\expandafter\captionsgerman\expandafter{\@tempa}%
+    \expandafter\addto\expandafter\captionsngerman\expandafter{\@tempa}%
+  \else
+    \ifx\@lang\tp@str@english
+      \expandafter\addto\expandafter\captionsbritish\expandafter{\@tempa}%
+      \expandafter\addto\expandafter\captionsUKenglish\expandafter{\@tempa}%
+      \expandafter\addto\expandafter\captionsenglish\expandafter{\@tempa}%
+      \expandafter\addto\expandafter\captionsamerican\expandafter{\@tempa}%
+      \expandafter\addto\expandafter\captionsUSenglish\expandafter{\@tempa}%
+    \else
+    \fi
+  \fi}
+
 \endinput
 %%
 %% End of file `transpect-common.sty'.
