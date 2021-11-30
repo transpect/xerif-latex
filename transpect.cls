@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.115}%
-\def\filedate{2021-11-05}%
+\def\fileversion{0.116}%
+\def\filedate{2021-11-30}%
 
 
 \message{le-tex transpect package version \fileversion\space (\filedate)^^J}
@@ -104,7 +104,11 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{soul}
+\ifLuaTeX
 \RequirePackage{transpect-script}
+\else
+\RequirePackage{babel}
+\fi
 \PassOptionsToPackage{breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
 \RequirePackage{transpect-headings}
 \RequirePackage{transpect-floats}

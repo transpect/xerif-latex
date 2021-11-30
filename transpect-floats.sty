@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.115}%
-\def\filedate{2021-11-05}%
+\def\fileversion{0.116}%
+\def\filedate{2021-11-30}%
 
 %%
 %% module for le-tex transpect.cls that extends floating objects.
@@ -39,6 +39,8 @@
 \RequirePackage{rotating}
 \RequirePackage{grffile}
 \RequirePackage[Export]{adjustbox}
+\usepackage{stfloats}
+\setcounter{dblbotnumber}{5}
 
 \def\topfraction{0.9}
 \def\textfraction{0.1}
@@ -54,6 +56,7 @@
 \newcount\tpSubFloatCnt       \tpSubFloatCnt=\z@\relax
 \newcount\tp@subfloat@row     \tp@subfloat@row\z@
 \newcount\tp@subfloat@col     \tp@subfloat@col\z@
+\newcount\tp@int@flt@cnt \tp@int@flt@cnt\z@
 
 \newdimen\tp@subflt@maxheight \tp@subflt@maxheight=\z@\relax
 \newdimen\tp@subflt@sep       \tp@subflt@sep=\fboxsep\relax
@@ -135,7 +138,7 @@
     \let\tp@b@float\relax
     \let\tp@e@float\relax
   \else
-    \def\@tempa{h}\ifx\tp@fps\@tempa\def\tp@fps{htpb}\fi
+    \def\@tempa{h}\ifx\tp@fps\@tempa\def\tp@fps{hbt!}\fi
     \let\tp@b@float\tp@captype%
     \expandafter\ifx\csname tp@\tp@captype @attr@orientation\endcsname\tp@str@landscape\relax
       \ifx\tp@b@float\tp@str@table
@@ -821,19 +824,19 @@
 \def\tp@make@anchors{\tp@iterate{\@tempcnta}{\z@}{\tpSubFloatCnt}{\tp@make@anchor{\the\@tempcnta}}}
 \def\tp@make@anchor#1{%
   \bgroup
+    \global\advance\tp@int@flt@cnt\@ne
     \tpSubFloatCnt#1\relax
-    \tpIfComp{Label}{%
-      \expandafter\let\expandafter\@currentlabel\csname tp@\tp@namespace @number-\the\tpSubFloatCnt\endcsname
-      \expandafter\H@refstepcounter\expandafter{\tp@captype}%
-      \expandafter\hyper@makecurrent\expandafter{\tp@captype}%
-      \let\Hy@tempa\Hy@float@caption
-      \expandafter\hyper@@anchor\expandafter{%
-        \@currentHref
-      }{\relax}%
-      \expandafter\let\expandafter\@currentlabel\csname tp@\tp@namespace @number-\the\tpSubFloatCnt\endcsname
-      \edef\@tempa{\tpUseComp{Label}}%
-      \expandafter\tpltx@label\expandafter{\@tempa}%
-    }{}%
+    \tpIfComp{Label}
+      {\expandafter\let\expandafter\@currentlabel\csname tp@\tp@namespace @number-\the\tpSubFloatCnt\endcsname}
+      {\edef\@currentlabel{tp-\tp@namespace-number-\the\tp@int@flt@cnt}}%
+    \expandafter\H@refstepcounter\expandafter{\tp@captype}%
+    \expandafter\hyper@makecurrent\expandafter{\tp@captype}%
+    \let\Hy@tempa\Hy@float@caption
+    \expandafter\hyper@@anchor\expandafter{\@currentHref}{\relax}%
+    \tpIfComp{Label}
+      {\expandafter\let\expandafter\@currentlabel\csname tp@\tp@namespace @number-\the\tpSubFloatCnt\endcsname
+       \edef\@tempa{\tpUseComp{Label}}%
+       \expandafter\tpltx@label\expandafter{\@tempa}}{\relax}%
   \egroup}
 
 
