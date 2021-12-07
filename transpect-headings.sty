@@ -22,7 +22,8 @@
 %% in the same archive or directory.)
 \def\fileversion{0.116}%
 \def\filedate{2021-11-30}%
-
+\message{le-tex transpect package version \fileversion\space (\filedate)^^J}
+\def\includeDTX#1{\input src/#1.dtx}
 %%
 %% module for le-tex transpect.cls that extends heading objects.
 %%
@@ -37,7 +38,6 @@
 \RequirePackage{bookmark}
 \hypersetup{bookmarksdepth=-999}
 \long\def\tpDeclareHeading{\@ifnextchar[{\@tpDeclareHeading}{\@tpDeclareHeading[]}}%]
-
 \long\def\@tpDeclareHeading[#1]#2#3#4{%
   \tpNamespace{heading}%
   \expandafter\def\csname tp@heading@name\endcsname{#3}%
@@ -112,7 +112,6 @@
           \expandafter\tpNumber\expandafter{\@tempa}}
      \fi}{}
 }
-
 \def\tp@hdg@create@labels#1{%
   \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
     \Hy@MakeCurrentHrefAuto{#1}%
@@ -155,7 +154,6 @@
   \tp@expand@l@contents{#3}{heading}{Toc}{Title}%%
   \tp@format@number{toc-}{Toc}{#1}%
 }
-
 \def\tp@toc@print@entry#1{%
   \bgroup
     \tpUseHook{toc-before-hook-#1}%
@@ -275,7 +273,6 @@
   \let\tp@heading@name\relax
   \let\tp@heading@label\relax
   \let\tp@notoc\@empty}
-
 \tpAddToDefault{heading}{%
   \tpSetProperty{interline-para}{}%
   \tpSetProperty{interline-para-sep}{\space}
@@ -382,7 +379,6 @@
   \vskip#1\relax
   \@afterheading
 }
-
 \endinput
 %%
 %% End of file `transpect-headings.sty'.

@@ -22,7 +22,8 @@
 %% in the same archive or directory.)
 \def\fileversion{0.116}%
 \def\filedate{2021-11-30}%
-
+\message{le-tex transpect package version \fileversion\space (\filedate)^^J}
+\def\includeDTX#1{\input src/#1.dtx}
 %%
 %% module for le-tex transpect.cls that handles footnote/endnote switching.
 %%
@@ -73,7 +74,6 @@
   \newcount\c@endnote \c@endnote\z@
   \let\printnotes\relax
 \fi
-
 \newcount\realchap \realchap\z@
 \ifx\endnotes@with@chapters\relax
   \AtBeginDocument{%
@@ -95,7 +95,6 @@
     }%
   }
 \fi
-
 \ifx\reset@notes@per@chapter\relax
   \AtBeginDocument{%
     \tpAddToHook[heading]{before-hook-chapter}{%
@@ -104,7 +103,6 @@
     }%
   }%
 \fi
-
 \long\def\fn@fntext#1{%
   \ifx\ifmeasuring@\@@undefined%
     \expandafter\@secondoftwo\else\expandafter\@iden%
@@ -124,7 +122,6 @@
     }%
   }%
 }
-
 \endinput
 %%
 %% End of file `transpect-endnotes.sty'.

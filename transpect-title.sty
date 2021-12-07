@@ -22,7 +22,8 @@
 %% in the same archive or directory.)
 \def\fileversion{0.116}%
 \def\filedate{2021-11-30}%
-
+\message{le-tex transpect package version \fileversion\space (\filedate)^^J}
+\def\includeDTX#1{\input src/#1.dtx}
 %%
 %% module for le-tex transpect.cls for maketitle.
 %%
@@ -35,12 +36,9 @@
     [\filedate \fileversion le-tex transpect title module]
 \DeclareOptionX{newtitle}{\global\let\tp@newtitle\relax}%% TEMP
 \ProcessOptionsX%% TEMP
-
 \newif\ifdocopydisclaimer  \docopydisclaimertrue%% TEMP
 \newif\ifprintpublinfo     \printpublinfotrue%% TEMP
-
 \ifx\tp@newtitle\relax%% TEMP
-
 \long\def\tpDeclareTitlepage#1{%
   \gdef\tp@titlepage{%
     \tpNamespace{titlepage}%
@@ -48,7 +46,6 @@
     #1%
   }%
 }
-
 \def\tpMeta{%
   \tpNamespace{titlepage}%
   \tp@title@simple@comps
@@ -59,7 +56,6 @@
   \AtBeginDocument{\tp@maketitle}%
   \let\tp@namespace\@empty
 }
-
 \def\tp@prov@num@comp#1#2#3{%
   \tpProvideComp{#2}{\expandafter\global}{}{\expandafter\the\csname #1-Cnt\endcsname-#3}%
 }
@@ -84,17 +80,14 @@
   \let\tp@namespace\tp@prev@namespace
   %%
 }
-
 \def\tp@title@eval@corresp#1#2{%
   \expandafter\ifx\csname tp@#1-#2@attr@corresp\endcsname\relax\else\tpUseProperty{corresp-mark}\fi}
-
 \def\tp@eval@name@attrs#1{%
   \tp@iterate{\@tempcnta}{\@ne}{\expandafter\the\csname #1-Cnt\endcsname}{%
     \expandafter\ifx\csname tp@title@#1-\the\@tempcnta @attrs\endcsname\relax\else
       \tpParseAttributes{#1-\the\@tempcnta }{\csname tp@title@#1-\the\@tempcnta @attrs\endcsname}%
     \fi
   }}
-
 \def\tp@title@name@eval#1{%
   \tpNamespace{titlepage}%
   \expandafter\xdef\csname tp@titlepage@#1-count\endcsname{\the\csname #1-Cnt\endcsname}%
@@ -125,15 +118,12 @@
   \fi
   \expandafter\csname tp#1String\expandafter\endcsname\expandafter{\@tempa}%
 }%
-
 \def\tp@title@names#1{%
   \csname tp@title@name@#1\endcsname{Author}%
   \csname tp@title@name@#1\endcsname{Editor}%
   \csname tp@title@name@#1\endcsname{SeriesEditor}%
 }
-
 \def\tp@title@macro#1{\tpProvideComp{tp#1}{\expandafter\global}{}{#1}}
-
 \def\tp@title@simple@comps{%
   %% Cover
   \tp@title@macro{Cover}%       Path to Cover Image(!)
@@ -181,7 +171,6 @@
   \tp@title@macro{Copyright}%     Copyright Description
   \tp@title@macro{CopyrightDisclaimer}% Copyright Disclaimer
 }
-
 \def\tp@maketitle{%
   \tpNamespace{titlepage}%
   \csname tp@titlepage\endcsname
@@ -204,7 +193,6 @@
       }%
   \fi
 }
-
 \def\tp@titlepage@default{%
   \tpSetProperty{article-title}{}%
   % Title page hooks
@@ -330,13 +318,10 @@
   \tpSetProperty{name-sep}{,\space}%
   \tpSetProperty{corresp-mark}{*}%
 }
-
 \tpDeclareTitlepage{}
-
 \else%% TEMP
 %%%%%%%%%%
 %%%%%%%%%%
-
 \def\@tempa{%
   \def\lectoratename{Lectorate: }%
   \def\qualificationname{Qualification: }%
@@ -365,7 +350,6 @@
 \expandafter\addto\expandafter\captionsenglish\expandafter{\@tempa}
 \expandafter\addto\expandafter\captionsamerican\expandafter{\@tempa}
 \expandafter\addto\expandafter\captionsUSenglish\expandafter{\@tempa}
-
 \def\@tempa{%
   \def\lectoratename{Lektorat: } \def\translatorname{Übersetzer: }%
   \def\qualificationname{Qualifikationsnachweis: }%
@@ -388,7 +372,6 @@
   \def\cctextname{Dieses Werk ist lizenziert unter der Creative Commons Attribution-NonCommercial-NoDerivs 4.0 Lizenz (BY-NC-ND). Diese Lizenz erlaubt die private Nutzung, gestattet aber keine Bearbeitung und keine kommerzielle Nutzung. Weitere Informationen finden Sie unter \url{https://creativecommons.org/licenses/by-nc-nd/4.0/deed.de}\\
     Um Genehmigungen für Adaptionen, Übersetzungen, Derivate oder Wiederverwendung zu kommerziellen Zwecken einzuholen, wenden Sie sich bitte an \@publweb\\
     Die Bedingungen der Creative-Commons-Lizenz gelten nur für Originalmaterial. Die Wiederverwendung von Material aus anderen Quellen (gekennzeichnet mit Quellenangabe) wie z.B. Schaubilder, Abbildungen, Fotos und Textauszüge erfordert ggf. weitere Nutzungsgenehmigungen durch den jeweiligen Rechteinhaber.}  } \expandafter\addto\expandafter\captionsgerman\expandafter{\@tempa} \expandafter\addto\expandafter\captionsngerman\expandafter{\@tempa}
-
 \def\the@authorinfos{}
 \let\authormark\@empty
 \def\authorinfo#1#2{\expandafter\def\expandafter\the@authorinfos\expandafter{\the@authorinfos{\bfseries #1} #2\par}}
@@ -407,7 +390,6 @@
  \def\publyear#1{\def\@publyear{#1}}               \publyear{}
  \def\place#1{\def\@place{#1}}                     \place{}
 \long\def\editorial#1{\long\def\@editorial{#1}}  \editorial{}
-
  \def\copyrightDisclaimer#1{\def\@copyrightDiscl{#1}}
  \copyrightDisclaimer{\copyrightDisclaimername}
  \def\environmentDisclaimer#1{\def\@envdiscl{#1}} \environmentDisclaimer{Gedruckt auf alterungsbeständigem Papier mit chlorfrei gebleichtem Zellstoff.}
@@ -435,7 +417,6 @@
  \def\cctext#1{\def\cctextname{#1}}               \AtBeginDocument{\cctext{\cctextname}}
 \def\grantlogo#1{\def\@grantlogo{#1}}            \grantlogo{}
 \def\granttext#1{\def\@granttext{#1}}            \granttext{}
-
  \def\maketitle{%
   \bgroup
     %% Seite i

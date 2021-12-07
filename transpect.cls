@@ -22,12 +22,8 @@
 %% in the same archive or directory.)
 \def\fileversion{0.116}%
 \def\filedate{2021-11-30}%
-
-
 \message{le-tex transpect package version \fileversion\space (\filedate)^^J}
-
 \def\includeDTX#1{\input src/#1.dtx}
-
 %%
 %% Common document class for le-tex Transpect projects.
 %%
@@ -90,12 +86,10 @@
     \@mainmatterfalse
     \@frontmattertrue
     \pagenumbering{arabic}}
-
   \renewcommand\mainmatter{%
     \cleardoublepage
     \@frontmatterfalse
     \@mainmattertrue}
-
   \renewcommand\backmatter{%
     \cleardoublepage
     \@mainmatterfalse
@@ -117,7 +111,6 @@
 \RequirePackage{index}
 \makeindex
 \RequirePackage{hyperref}
-
 \endinput
 %%
 %% End of file `transpect.cls'.

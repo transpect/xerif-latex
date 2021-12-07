@@ -22,7 +22,8 @@
 %% in the same archive or directory.)
 \def\fileversion{0.116}%
 \def\filedate{2021-11-30}%
-
+\message{le-tex transpect package version \fileversion\space (\filedate)^^J}
+\def\includeDTX#1{\input src/#1.dtx}
 %% module for le-tex transpect.cls that handles script switching.
 %%
 %% Maintainer: p.schulz@le-tex.de
@@ -35,7 +36,6 @@
 \let\usescript\relax
 \define@key{transpect-script.sty}{usescript}{\def\usescript{#1}}
 \ProcessOptionsX
-
 \RequirePackage{fontspec}
 \RequirePackage[bidi=basic,silent]{babel}
 \def\parse@script#1,#2,\relax{%
@@ -45,15 +45,11 @@
   \ifx\@argii\@empty\else
     \def\next{\parse@script#2,\relax}%
   \fi\next}
-
 \ifx\usescript\relax\else
   \def\tp@script@callback#1{\expandafter\global\expandafter\let\csname use@script@#1\endcsname\@empty}%
   \expandafter\parse@script\usescript,,\relax
 \fi
-
 \message{^^J  [transpect-script Fonts loaded: \meaning\usescript]^^J}
-
-
 \newfontfamily\fallbackfont{NotoSerif-Regular.ttf}%
 [BoldFont = NotoSerif-Bold.ttf,%
  ItalicFont = NotoSerif-Italic.ttf,%
@@ -68,7 +64,6 @@
  WordSpace = 1.25]
 \DeclareTextFontCommand\textfallback{\fallbackfont}
 \DeclareTextFontCommand\textsffallback{\sffallbackfont}
-
 \def\tpDeclareBabelFont#1#2#3{%
   \expandafter\ifx\csname use@script@#1\endcsname\@empty
     \babelprovide{#1}%
@@ -86,7 +81,6 @@
     \fi
   \fi
 }
-
 \def\tpBabelAlias#1#2{%
   \ifx\usescript\relax\else
     \def\tp@script@callback##1{%
@@ -105,7 +99,6 @@
       \fi}%
     \expandafter\parse@script\usescript,,\relax
   \fi}
-
 \ifx\use@script@armenian\@empty
   \message{^^J  [transpect-script Loaded Script: Armenian]^^J}
   \def\NotoArmenianPath{./fonts/Noto/Armenian/}
@@ -125,7 +118,6 @@
     BoldFont = NotoSansSC-Bold.otf,%
     WordSpace = 1.25]{NotoSansSC-Regular.otf}%
   }
-
 \tpDeclareBabelFont{japanese}{[%
     Path=./fonts/Noto/Japanese/,
     BoldFont = NotoSerifJP-Bold.otf,%
@@ -146,7 +138,6 @@
     Ligatures=TeX,%
     BoldFont = NotoSansHebrew-Bold.ttf]{NotoSansHebrew-Regular.ttf}%
 }
-
 \tpDeclareBabelFont{arabic}{[%
     BoldFont = NotoNaskhArabic-Bold.ttf,%
     Path = ./fonts/Noto/Arabic/%
@@ -156,7 +147,6 @@
     Path = ./fonts/Noto/Arabic/%
     ]{NotoSansArabic-Regular.ttf}%
   }
-
 \endinput
 %%
 %% End of file `transpect-script.sty'.

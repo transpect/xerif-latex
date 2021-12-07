@@ -22,7 +22,8 @@
 %% in the same archive or directory.)
 \def\fileversion{0.116}%
 \def\filedate{2021-11-30}%
-
+\message{le-tex transpect package version \fileversion\space (\filedate)^^J}
+\def\includeDTX#1{\input src/#1.dtx}
 %%
 %% module for le-tex transpect.cls that extends floating objects.
 %%
@@ -41,7 +42,6 @@
 \RequirePackage[Export]{adjustbox}
 \usepackage{stfloats}
 \setcounter{dblbotnumber}{5}
-
 \def\topfraction{0.9}
 \def\textfraction{0.1}
 \def\bottomfraction{0.8}
@@ -57,20 +57,16 @@
 \newcount\tp@subfloat@row     \tp@subfloat@row\z@
 \newcount\tp@subfloat@col     \tp@subfloat@col\z@
 \newcount\tp@int@flt@cnt \tp@int@flt@cnt\z@
-
 \newdimen\tp@subflt@maxheight \tp@subflt@maxheight=\z@\relax
 \newdimen\tp@subflt@sep       \tp@subflt@sep=\fboxsep\relax
 \newdimen\tp@total@flt@width  \tp@total@flt@width=\textwidth\relax
-
 \newdimen\tp@flt@marg@r       \tp@flt@marg@r=\z@\relax
 \newdimen\tp@flt@marg@l       \tp@flt@marg@l=\z@\relax
-
 \def\tp@str@landscape{landscape}
 \def\tp@str@figure{figure}
 \def\tp@str@table{table}
 \def\tp@str@bottom{bottom}
 \def\tp@str@top{top}
-
 \AtBeginDocument{%
   \global\let\tpltx@label\label
   \ifx\tp@nofigs\relax
@@ -79,15 +75,12 @@
   \global\let\tpltx@includegraphics\includegraphics
   \@ifpackageloaded{htmltabs}{\global\let\tp@uses@htmltabs\relax}{}%
 }%
-
-
 \def\tp@reset@components#1{%
   \@tempcnta=#1\relax
   \@tp@reset@components
   \global\let\@tp@reset@components\relax
 }
 \global\let\@tp@reset@components\relax
-
 \def\tp@reset@defaults#1#2{%
   \global\tpSubFloatCnt=\z@
   \global\let\tp@has@capt@top\@undefined
@@ -132,7 +125,6 @@
   \else
     \tp@set@top@sep
   \fi}
-
 \def\tp@set@flt@pos{%
   \ifx\tp@fps\@empty
     \let\tp@b@float\relax
@@ -158,14 +150,12 @@
       \fi
     \fi
   \fi}
-
 \def\tp@set@top@sep{%
   \ifx\tp@fps\@empty
     \expandafter\addvspace\expandafter{\tpUseProperty{intext-skip-top}}%
   \else
     \expandafter\addvspace\expandafter{\tpUseProperty{float-skip-top}}%
   \fi}
-
 \def\tp@set@bot@sep{%
   \expandafter\ifx\csname tp@\tp@captype @attr@orientation\endcsname\tp@str@landscape\else
     \ifx\tp@fps\@empty
@@ -174,7 +164,6 @@
       \expandafter\addvspace\expandafter{\tpUseProperty{float-skip-bottom}}%
     \fi
   \fi}
-
 \def\tpMakeFltComp#1#2#3{%
   \tpProvideComp{#1}
     {\bgroup\ifx\tp@is@subflt\relax\else\tpSubFloatCnt=\z@\relax\fi\expandafter\global}
@@ -189,11 +178,9 @@
   \expandafter\long\expandafter\def\csname tp@\tp@namespace @#3\endcsname{\csname tp@\tp@namespace @#2-\the\tpSubFloatCnt\endcsname}%
   \csgappto{@tp@reset@components}{\csname tp@\tp@namespace @#3\endcsname}%
 }
-
 \def\tpMakeFltCompL#1#2{%
   \tpMakeFltComp{tp#1}{#2}{#1}%
   \tpMakeFltComp{tpListof#1}{list-of-#2}{Listof#1}}
-
 \def\tp@set@caption@comps{%
   \tpMakeFltCompL{Caption}{caption}%
   \tpMakeFltCompL{Legend}{legend}%
@@ -201,15 +188,12 @@
   \tpMakeFltCompL{Number}{number}%
   \tpMakeFltComp{label}{label}{Label}%
 }
-
-
 \def\tp@iterate@mp#1#2{%
   \@tempcnta=\z@\relax
   \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
     \ifnum\@tempcnta>\@ne\relax\hfill\fi
     \tp@create@mp{#1}{#2}{\csname tp@\tp@namespace @res@width-\the\@tempcnta\endcsname}%
   }}
-
 \def\tp@create@mp#1#2#3{%
   \ifx\tp@fps\@empty\savenotes\fi
     \begin{minipage}[#2][][t]{#3}%
@@ -218,7 +202,6 @@
   \end{minipage}%
   \ifx\tp@fps\@empty\spewnotes\fi
 }
-
 \def\tp@make@caption#1#2{%
   \bgroup
     \tpSubFloatCnt#1\relax
@@ -239,7 +222,6 @@
     \fi
   \egroup
 }
-
 \def\tp@flt@set@hsize{%
   \tp@total@flt@width=\hsize\relax
   \expandafter\tp@flt@marg@r\tpUseProperty{margin-right}\relax
@@ -247,7 +229,6 @@
   \expandafter\tp@flt@marg@l\tpUseProperty{margin-left}\relax
   \ifdim\tp@flt@marg@l>\z@\relax\advance\tp@total@flt@width-\tp@flt@marg@l\relax\fi
   }
-
 \def\tpDeclareFloat{\@ifnextchar[{\@tpDeclareFloat}{\@tpDeclareFloat[]}}%]
 \def\@tpDeclareFloat[#1]#2#3#4#5{%
   \def\tp@float@name{#2}%
@@ -322,14 +303,12 @@
     \fi
   }%
 }
-
 \def\tp@flt@check@empty#1#2{%
   \tpIfComp{Listof#1}
     {}
     {\tpIfComp{#1}
       {\expandafter\expandafter\expandafter\let\expandafter\csname tp@\tp@namespace @list-of-#2-\the\tpSubFloatCnt\expandafter\endcsname\csname tp@\tp@namespace @#2-\the\tpSubFloatCnt\endcsname}
       {\csname Listof#1\endcsname{}}}}
-
 \long\def\tp@flt@cond{%
   \long\def\tpIfComp##1##2##3{%
     \expandafter\let\expandafter\@tempa\csname tp@\tp@namespace @##1\endcsname\relax
@@ -358,7 +337,6 @@
             }}%
       \fi}{}%
   \fi}
-
 \def\tp@set@label#1{%
   \expandafter\expandafter\expandafter\edef\expandafter\csname tp@\tp@namespace @number-#1\expandafter\endcsname\expandafter{\csname the\tp@captype\endcsname}%
 }
@@ -373,8 +351,6 @@
     \endgroup}%
   \expandafter\expandafter\expandafter\edef\expandafter\csname tp@\tp@namespace @number-#1\expandafter\endcsname\expandafter{\tpUseProperty{sub-number-block}}%
 }
-
-
 \def\tp@float[#1]#2#3#4{%
   \begingroup
     \tpNamespace{#4}%
@@ -389,7 +365,6 @@
     \tp@set@flt@pos
     \ifx\tp@fps\@empty\else\savenotes\fi
 }
-
 \def\endtp@float{%
     \tp@b@float
     \tp@test@caption{0}{capt}{top}%
@@ -402,14 +377,12 @@
   \endgroup
   \global\let\tp@current@class\relax
 }
-
 \def\tp@test@caption#1#2#3{%
   \setbox\tp@tempboxa\hbox{\let\footnote\@gobbleopt\tpSubFloatCnt#1\relax\tpUseProperty{caption-#3}\relax}%
   \setbox\tp@tempboxb\hbox{\let\footnote\@gobbleopt\tpSubFloatCnt\m@ne\relax\tpUseProperty{caption-#3}\relax}%
   \ifdim\wd\tp@tempboxa>\wd\tp@tempboxb\relax
     \expandafter\let\csname tp@has@#2@#3\endcsname\relax
   \fi}
-
 \def\tp@flt@calc@sameheight{%
   \@tempdima=\z@\relax
   \@tempcnta=\z@\relax
@@ -431,7 +404,6 @@
     \tp@test@caption{\the\@tempcnta}{subcapt}{bottom}%
   }%
 }
-
 \def\tp@flt@process@sameheight{%
   \tp@flt@calc@sameheight
   \hskip\tp@flt@marg@l
@@ -439,13 +411,10 @@
     \tpUseProperty{subfloat-block}%
   }%
 }
-
 \def\tp@flt@process@sub{%
   \hskip\tp@flt@marg@l
   \tpUseProperty{subfloat-block}%
 }
-
-
 \def\tp@flt@process{%
   \bgroup
     \ifnum\tpSubFloatCnt=\z@\relax
@@ -459,12 +428,10 @@
     \fi
   \egroup
 }
-
 \def\tp@make@full@caption#1{%
   \hskip\tp@flt@marg@l
   \tp@create@mp{\tp@make@caption{0}{#1}}{t}{\tp@total@flt@width}%
 }
-
 \def\tp@flt@compose{%
   \hsize\tp@total@flt@width
   \ifx\tp@has@capt@top\relax
@@ -493,7 +460,6 @@
     \csname tp@make@listof@\tp@captype\endcsname{\tp@captype}% single float
   \fi
   \ifhmode\@@par\fi}
-
 \def\tpSubFloat{%
   \ifx\tp@is@subflt\relax
     \PackageError{transpect-floats.sty}{Nested tpSubFloats detected!}{You cannot nest a `tpSubFloat' environment into another `tpSubFloat' environment! Use the `tpSubFloatRow' and `tpSubFloatCol' environments to create more complex structures, instead.}%
@@ -502,9 +468,7 @@
     \global\advance\tpSubFloatCnt\@ne
     \ignorespaces
   \fi}
-
 \def\tp@flt@create@natural{\tpUseComp{Content}}
-
 \def\endtpSubFloat{%
   \ifx\tp@nofigs\relax
     \setbox\tp@subfltbox\hbox{\rule{1pt}{1pt}}
@@ -543,7 +507,6 @@
   \setbox\tp@subfltbox\box\voidb@x
   \let\tp@is@subflt\@undefined
 }
-
 \def\tpSubFloatRow{%
   \advance\tp@subfloat@row\@ne
   \let\tp@subfloat@prev@parent\tp@subfloat@parent
@@ -554,7 +517,6 @@
 \def\endtpSubFloatRow{%
   \let\tp@subfloat@parent\tp@subfloat@prev@parent
 }
-
 \def\tpSubFloatCol{%
   \advance\tp@subfloat@col\@ne
   \let\tp@subfloat@prev@parent\tp@subfloat@parent
@@ -564,15 +526,11 @@
 \def\endtpSubFloatCol{%
   \let\tp@subfloat@parent\tp@subfloat@prev@parent
 }
-
-
 \def\tpFigureHandler{\tpMakeFltComp{tpFig}{figure}{Content}}
-
 \def\tpFigureFloat{%
   \let\includegraphics\tp@includesubgraphics
   \tp@create@mp{\csname tp@\tp@namespace @figure-0\endcsname\nobreak}{t}{\the\tp@total@flt@width}%
 }
-
 \def\tpFigureSubFloat{%
   \ifx\tp@has@subcapt@top\relax
     \tp@iterate@mp{\tp@make@caption{\the\@tempcnta}{top}}{\tpUseProperty{sub-caption-valign-top}}%
@@ -584,7 +542,6 @@
     \tp@iterate@mp{\tp@make@caption{\the\@tempcnta}{bottom}}{\tpUseProperty{sub-caption-valign-bottom}}%%
   \fi
 }
-
 \def\tp@includesubgraphics{\@ifnextchar [\@tp@includesubgraphics{\@tp@includesubgraphics[]}}%]
 \def\@tp@includesubgraphics[#1]#2{%
   \ifx\tp@current@class\relax
@@ -597,21 +554,17 @@
   \fi
   \expandafter\tpltx@includegraphics\expandafter[\@igopts]{#2}%
 }
-
-
 \def\tp@reserve@tabular{%
   %\@tp@reserve@tab{}% TODO: tabularx(and y) use tabular, so we can't re-define it
   \@tp@reserve@tab{x}%
   \@tp@reserve@tab{y}%
 }
-
 \def\@tp@reserve@tab#1{%
   \expandafter\expandafter\expandafter\let\expandafter\csname orig@tabular#1\expandafter\endcsname\csname tabular#1\endcsname
   \expandafter\expandafter\expandafter\let\expandafter\csname orig@endtabular#1\expandafter\endcsname\csname endtabular#1\endcsname
   \expandafter\def\csname tabular#1\endcsname{\global\setbox\tp@floatbox\vbox\bgroup\csname orig@tabular#1\endcsname}%
   \expandafter\def\csname endtabular#1\endcsname{\csname orig@endtabular#1\endcsname\egroup}%
 }
-
 \def\tpTableHandler{%
   \tpMakeFltComp{tpContent}{content}{Content}%
   \tp@reserve@tabular
@@ -620,7 +573,6 @@
     \global\setbox\htTableBox\box\voidb@x
     \let\htOutputTable\relax
   \fi}
-
 \def\tpTableFloat{%
   \ifx\htTableBox\@undefined
     \tpContent{\unvbox\tp@floatbox}%
@@ -633,12 +585,8 @@
   \fi
   \tpUseComp{Content}%
 }
-
-
 \def\tpGenericFloat{\tpUseComp{Content}}
-
 \def\tpGenericHandler{\tpMakeFltComp{tpContent}{content}{Content}}
-
 \tpAddToDefault{float}{%
   \tpSetProperty{intext-skip-top}{\z@}%% non-float sep top
   \tpSetProperty{intext-skip-bottom}{\z@}%% non-float sep bottom
@@ -706,21 +654,18 @@
   }% list-of-float appearance
   \tpSetProperty{list-of-after-entry}{\par}% list-of-float appearance
 }
-
 \tpDeclareFloat{tpFigure}{figure}{lof}{%
   \tpSetProperty{subfloat-same-height}{true}% if true, the subfloat must/can be adjusted to the same heights
   \tpSetProperty{content-handler}{\tpFigureHandler}%
   \tpSetProperty{float-block}{\tpFigureFloat}%
   \tpSetProperty{subfloat-block}{\tpFigureSubFloat}%
 }
-
 \tpDeclareFloat{tpTable}{table}{lot}{%
   \tpSetProperty{sub-caption-valign-top}{b}%
   \tpSetProperty{content-handler}{\tpTableHandler}%
   \tpSetProperty{float-block}{\tpTableFloat}%
   \tpSetProperty{subfloat-block}{\tpTableFloat}%
 }
-
  % %    \end{macrocode}
  % % Internal macros for generalized floating environments. They provide
  % % the macros used to compose floats to make sure they are used only
@@ -731,7 +676,6 @@
  % % \item[float-pos] \LaTeX's float position, e.g. \lstinline{h}, \lstinline{t}, etc.\\
  % % \item[class] class\\
  % % \end{description}
-
  % \def\tp@float[#1]#2#3#4{%
  %   \savenotes
  %   \begingroup
@@ -788,7 +732,6 @@
  %       \fi
  %     \fi
  %   }
-
  % %    \end{macrocode}
  % % 1st iteration: only reading. This step happens when the contents of the float environment are read.
  % \RequirePackage{rotating}
@@ -820,7 +763,6 @@
  %   \endgroup
  %   \global\let\tp@current@class\relax
  %   \spewnotes}
-
 \def\tp@make@anchors{\tp@iterate{\@tempcnta}{\z@}{\tpSubFloatCnt}{\tp@make@anchor{\the\@tempcnta}}}
 \def\tp@make@anchor#1{%
   \bgroup
@@ -838,8 +780,6 @@
        \edef\@tempa{\tpUseComp{Label}}%
        \expandafter\tpltx@label\expandafter{\@tempa}}{\relax}%
   \egroup}
-
-
 \def\tablefont{\small}
 \def\arraystretch{1.3}
 \def\@tabular{%
@@ -859,7 +799,6 @@
   \endarray
   $\egroup}%$
 \expandafter\let\csname endtabular*\endcsname=\endtabular
-
 \endinput
 %%
 %% End of file `transpect-floats.sty'.
