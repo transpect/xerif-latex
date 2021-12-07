@@ -22,12 +22,6 @@
 %% in the same archive or directory.)
 \def\fileversion{0.116}%
 \def\filedate{2021-11-30}%
-<<<<<<< Updated upstream
-\def\includeDTX#1{\input src/#1.dtx}
-%% @marcush: beign yourCode
-%% @marcush: end yourCode
-=======
-
 %%
 %% module for le-tex transpect.cls that handles lists.
 %%
@@ -43,14 +37,12 @@
 \ifx\labelitemfont\@undefined\let\labelitemfont\relax\fi
 \renewcommand\labelitemi  {\labelitemfont \textendash}
 \setlength\leftmargini{\parindent}%
-
 \def\@listi{%
   \leftmargin\leftmargini
   \parsep \z@
   \listparindent\parindent
   \topsep .5\baselineskip
   \itemsep\z@}
-
 \def\@listii {\leftmargin\leftmarginii
               \labelwidth\leftmarginii
               \advance\labelwidth-\labelsep
@@ -64,7 +56,6 @@
               \parsep    \z@
               \partopsep \z@
               \itemsep   \topsep}
-
 \def\@@enum@[#1]{%
   \@enLab{}\let\@enThe\@enQmark
   \@enloop#1\@enum@
@@ -74,7 +65,6 @@
   \expandafter\let\csname the\@enumctr\endcsname\@enThe
   \csname c@\@enumctr\endcsname7
   \@enum@}
-
 \def\@enum@{%
   \list{\csname label\@enumctr\endcsname}%
   {%
@@ -82,7 +72,6 @@
     \labelsep\z@
     \labelwidth\leftmargin
     \def\makelabel##1{\hb@xt@\leftmargin{##1\hss}}}}
-
 \def\itemize{%
   \ifnum \@itemdepth >\thr@@\@toodeep\else
     \advance\@itemdepth\@ne
@@ -95,20 +84,17 @@
        \labelwidth\leftmargin
        \def\makelabel##1{\hb@xt@\leftmargin{##1\hss}}}%
   \fi}
-
 \let\orig@doendpe\@doendpe
 \def\endenumerate{\endlist
   \gdef\@doendpe{%
     \@endpetrue
     \everypar{{\setbox\z@\lastbox}\everypar{}\@endpefalse}%
     \global\let\@doendpe\orig@doendpe}}
-
 \def\enditemize{\endlist
   \gdef\@doendpe{%
     \@endpetrue
     \everypar{{\setbox\z@\lastbox}\everypar{}\@endpefalse}%
     \global\let\@doendpe\orig@doendpe}}
-
 \renewenvironment{description}[1][]{%
   \small
   \settowidth\@tempdima{#1}%
@@ -136,8 +122,6 @@
     \@endpetrue
     \everypar{{\setbox\z@\lastbox}\everypar{}\@endpefalse}%
     \global\let\@doendpe\orig@doendpe}}
-
->>>>>>> Stashed changes
 \endinput
 %%
 %% End of file `transpect-lists.sty'.
