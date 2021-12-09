@@ -89,6 +89,7 @@
 }
 \def\tpNamespace#1{\def\tp@namespace{#1}}
 \def\tpUseComp#1{\csname tp@\tp@namespace @#1\endcsname}
+\def\tpGetComp#1{\tpIfComp{#1}{\tpUseComp{#1}\par}{}}
 \long\def\tpIfComp#1#2#3{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
 \long\def\tpIfCompEmpty#1#2#3{\long\def\@tempa{}\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\@tempa#2\else#3\fi}
 \def\tp@check@empty{\@ifnextchar[\@tp@check@empty{\@tp@check@empty[]}}%]
