@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.116}%
-\def\filedate{2021-11-30}%
+\def\fileversion{0.117}%
+\def\filedate{2021-12-10}%
 %%
 %% Common document class for le-tex Transpect projects.
 %%
