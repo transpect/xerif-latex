@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.28}%
-\def\filedate{2021-11-11}%
+\def\fileversion{0.1.29}%
+\def\filedate{2021-12-13}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1536,8 +1536,8 @@
   \hbadness=\@M
   \advance\ht@h@offset\leftskip
   \advance\ht@h@offset\@totalleftmargin
+  % \advance\linewidth-\leftskip%% TP-spezifisch!
   \advance\linewidth-\rightskip
-  %\advance\linewidth-\leftskip %% TP-spezifisch!
   \leftskip\z@ \rightskip\z@
   \global\advance\ht@curtab\@ne
   \HTResetInternal
@@ -1927,7 +1927,7 @@
 }
 \def\ht@determine@break@points{%
   \ifnum\ht@maxrow>\numexpr\ht@min@b@rows\relax
-    \ht@calculate@top
+    \ht@calculate@add@to@top
     \ht@calculate@add@to@bottom
     \global\ht@table@height=\dimexpr
        \ht@add@to@top
@@ -1991,7 +1991,7 @@
   \ht@expand@macro@borders
   \SetRowProp{do-break}{true}%
   \ht@calculate@add@to@top
-  \ht@calculate@bottom
+  \ht@calculate@add@to@bottom
   \global\ht@table@height=\dimexpr
      \ht@add@to@top
     +\ht@add@to@bottom
@@ -2007,21 +2007,6 @@
   \ht@Iterate{\ht@curcol}{1}{\the\ht@maxcol}{\SetCellProp{is-upper}{true}}%
   \@ht@CalculateRowHeights
 }}
-\def\ht@calculate@top{%
-  \global\ht@add@to@top=\z@\relax
-  \ifvoid\htCaptionBox\else
-    \IfPropText{caption}{caption-side}{top}{%
-      \global\advance\ht@add@to@top\dimexpr
-         \ht\htCaptionBox
-        +\dp\htCaptionBox
-      \relax}{}%
-  \fi
-  \ifvoid\htTheadBox\else
-    \global\advance\ht@add@to@top\dimexpr
-       \ht\htTheadBox
-      +\dp\htTheadBox
-    \relax
-  \fi}
 \def\ht@calculate@add@to@top{%
   \global\ht@add@to@top=\z@\relax
   \ifvoid\htCaptionBox\else
@@ -2059,22 +2044,6 @@
           +\dp\htCaptionBox
         \relax
       }{}%
-    }{}%
-  \fi}
-\def\ht@calculate@bottom{%
-  \global\ht@add@to@bottom=\z@\relax
-  \ifvoid\htTfootBox\else
-    \global\advance\ht@add@to@bottom\dimexpr
-       \ht\htTfootBox
-      +\dp\htTfootBox
-    \relax
-  \fi
-  \ifvoid\htCaptionBox\else
-    \IfPropText{caption}{caption-side}{bottom}{%
-      \global\advance\ht@add@to@bottom\dimexpr
-         \ht\htCaptionBox
-        +\dp\htCaptionBox
-      \relax
     }{}%
   \fi}
 \def\htOutputCaption#1{%
