@@ -88,6 +88,20 @@
     #2\expandafter\long\expandafter\def\csname tp@\tp@namespace @#4\endcsname{##1}\ignorespaces#3}%
 }
 \def\tpNamespace#1{\def\tp@namespace{#1}}
+\def\tpProvideCountedComp#1#2#3#4#5#6{%
+  \tpProvideComp{#1}
+    {\bgroup#5\expandafter\global}
+    {\def\@tempa{{@tp@reset@components}}%
+     \edef\@tempb{%
+       \noexpand\ltx@LocalExpandAfter\noexpand\global\noexpand\expandafter\noexpand\let
+         \noexpand\csname tp@\noexpand\tp@namespace @#2-\the#4\noexpand\endcsname
+         \noexpand\relax}%
+     \expandafter\expandafter\expandafter\csgappto\expandafter\@tempa\expandafter{\@tempb}%
+     \egroup}
+    {#2-\the#4}%
+  #6\expandafter\long\expandafter\def\csname tp@\tp@namespace @#3\endcsname{\csname tp@\tp@namespace @#2-\the#4\endcsname}%
+  \csgappto{@tp@reset@components}{\csname tp@\tp@namespace @#3\endcsname}%
+}
 \def\tpUseComp#1{\csname tp@\tp@namespace @#1\endcsname}
 \def\tpGetComp#1{\tpIfComp{#1}{\tpUseComp{#1}\par}{}}
 \long\def\tpIfComp#1#2#3{\expandafter\ifx\csname tp@\tp@namespace @#1\endcsname\relax#3\else#2\fi}
