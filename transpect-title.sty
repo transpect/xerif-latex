@@ -71,7 +71,6 @@
         \tpIfComp{Cover}{%
           \tpUseProperty{coverpage}%
         }{}%
-        \null
         \tpUseProperty{before-titlepage-roman}%
         \tpUseProperty{titlepage-roman}%
         \tpUseProperty{after-titlepage}%
@@ -240,7 +239,7 @@
     \pagestyle{empty}%
     \parindent\z@
     \parskip\z@
-    \raggedright
+    %\raggedright
   }%
   \tpSetProperty{after-titlepage}{\pagestyle{headings}}%
   % Pages of title
@@ -259,11 +258,11 @@
   }%
   \tpSetProperty{titlepage-roman}{%
     \tpUseProperty{titlepage-i}%
-    \clearpage\null
+    \clearpage
     \tpUseProperty{titlepage-ii}%
-    \clearpage\null
+    \clearpage
     \tpUseProperty{titlepage-iii}%
-    \clearpage\null
+    \clearpage
     \tpUseProperty{titlepage-iv}%
     \clearpage
   }%
@@ -316,7 +315,6 @@
   }%
   \tpSetProperty{titlepage-ii}{%
     \tpGerComp{Editorial}%
-    \null
     \vfill
     \tpUseProperty{bio-block}%
   }%
@@ -336,7 +334,6 @@
     \clearpage
   }%
   \tpSetProperty{titlepage-iv}{%
-    \null
     \tpGetComp{Dedication}%   Dedication
     \tpUseProperty{imprint-format}%
     \tpUseProperty{funding-block}%
