@@ -51,6 +51,9 @@
       {\setbox\z@\lastbox}%
       \everypar{}%
     \fi}}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\DeclareGraphicsRule{.EPS}{eps}{.EPS}{}
 \def\CalcRatio#1#2{\strip@pt\dimexpr\number\numexpr\number\dimexpr#1\relax*65536/\number\dimexpr#2\relax\relax sp}
 \newcount\tpModulo
 \def\CalcModulo#1#2{\tpModulo=\numexpr#1-(#1/#2)*#2\relax}

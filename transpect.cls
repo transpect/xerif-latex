@@ -34,8 +34,8 @@
     [\filedate \fileversion le-tex transpect]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
-\RequirePackage{transpect-common}
 \PassOptionsToPackage{cmyk}{xcolor}
+\RequirePackage{transpect-common}
 \DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
 \PassOptionsToPackage{shorthands=off}{babel}
 \DeclareOptionX{ennotoc}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
@@ -92,8 +92,6 @@
     \@mainmatterfalse
     \@frontmatterfalse}
 \fi
-\usepackage{xcolor}
-\usepackage{graphicx}
 \usepackage{soul}
 \ifLuaTeX
 \RequirePackage{transpect-script}
