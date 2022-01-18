@@ -20,7 +20,7 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.31}%
+\def\fileversion{0.1.32}%
 \def\filedate{2022-01-18}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
@@ -192,6 +192,7 @@
 \newcount\ht@tbodyrows          \ht@tbodyrows=\z@\relax
 \newcount\ht@firstrow           \ht@firstrow=\z@\relax
 \newcount\ht@lastrow            \ht@lastrow=\z@\relax
+\newcount\ht@last@break@row     \ht@last@break@row=\z@\relax
 
 \newdimen\ht@tabwidth          \ht@tabwidth\z@
 \newdimen\ht@framewidth        \ht@framewidth\z@
@@ -246,6 +247,7 @@
   \global\ht@tbodyrows\z@
   \global\ht@theadrows\z@
   \global\ht@tfootrows\z@
+  \global\ht@last@break@row\z@
   \global\setbox\htTheadBox\box\voidb@x
   \global\setbox\htTbodyBox\box\voidb@x
   \global\setbox\htTfootBox\box\voidb@x
@@ -1560,10 +1562,12 @@
   \bgroup
     \ht@eval@props{table}%
     \IfTablePropText{break-table}{true}{\global\@ht@break@tabletrue}{}%
-    \ifx\htTableWidth\@empty
+    \expandafter\ifx\csname htTableWidth\endcsname\relax
       \GetScopedProp{htTableWidth}{table}{width}%
       \ifnum\ifx\htTableWidth\ht@str@auto1\else\ifx\htTableWidth\relax1\else0\fi\fi=1\relax
         \global\let\htTableWidth\@empty
+      \else
+        \ht@parse@width{\htTableWidth}{htTableWidth}%
       \fi
     \fi
     % \ifx\htTableWidth\@empty\else%
@@ -1996,11 +2000,14 @@
   \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax=\@ne\relax
     \global\ht@currow\numexpr\ht@tempcnta+\@ne\relax
   \else
-    \ht@prepare@break
+    \ifnum\ht@currow=\ht@last@break@row\else
+      \ht@prepare@break
+    \fi
   \fi
 }
 
 \def\ht@prepare@break{%
+  \global\ht@last@break@row\ht@currow%
   \ht@eval@props{tr-\the\ht@currow}%
   \GetRowProp{rowHeight}{height}%
   \ht@expand@macro@borders
@@ -2169,6 +2176,18 @@
   \let\HTth\HTtd
 }
 \def\htmltab{\@ifnextchar [{\ht@htmltab}{\ht@htmltab[]}}%]
+\def\ht@parse@width#1#2{%
+  \edef\ht@tmp@wd{#1}%
+  \expandafter\edef\expandafter\ht@wdt@arg{\strippercent{#1}}%
+  \ifx\ht@tmp@wd\ht@wdt@arg
+    \edef\ht@wdt@arg{\the\dimexpr\ht@tmp@wd\relax}%
+  \else
+    \expandafter\edef\expandafter\ht@wdt@arg{\CalcRatio{\ht@wdt@arg pt}{100pt}\relax}%
+    \ht@tempdimb=\ht@wdt@arg\linewidth\relax
+    \edef\ht@wdt@arg{\the\ht@tempdimb}%
+  \fi
+  \expandafter\xdef\csname #2\endcsname{\ht@wdt@arg}%
+}
 \def\ht@htmltab[#1]{%
   \begingroup
     \def\ht@ltx@cur@env{Table}%
@@ -2180,8 +2199,10 @@
       \expandafter\let\expandafter\HTCurrentTableId\csname ht@Table@attr@id\endcsname
     \fi
     \ht@ltx@reg@style@and@class
-    \expandafter\let\expandafter\htTableWidth\csname ht@Table@attr@width\endcsname%
-    \ifx\htTableWidth\relax\edef\htTableWidth{\linewidth}\fi
+    \expandafter\ifx\csname ht@Table@attr@width\endcsname\relax\else
+      \expandafter\ht@parse@width\expandafter{\csname ht@Table@attr@width\endcsname}{htTableWidth}%
+      \ifx\htTableWidth\relax\edef\htTableWidth{\the\linewidth}\fi
+    \fi
     \HTBeginTable
   }
 \def\endhtmltab{%
