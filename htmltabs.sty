@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.29}%
-\def\filedate{2021-12-13}%
+\def\fileversion{0.1.31}%
+\def\filedate{2022-01-18}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -90,12 +90,17 @@
 \ExplSyntaxOn
 \cs_new_eq:NN \ht@trimspaces \tl_trim_spaces:n
 \ExplSyntaxOff
+\ifx\xmltexversion\@undefined
+\gdef\@strippercent#1\%#2\@nil{#1}
+\gdef\strippercent#1{\expandafter\@strippercent#1\%\@nil}
+\else
 \begingroup
 \catcode`\%=\active
 \let%\relax
 \gdef\@strippercent#1%#2\@nil{#1}
 \gdef\strippercent#1{\expandafter\@strippercent#1%\@nil}
 \endgroup
+\fi
 \gdef\@stripstar#1*#2\@nil{#1}
 \def\ht@callback@semicolon#1;#2;\@nil#3\@nil{%
   \let\next\relax%
@@ -203,6 +208,7 @@
 \newif\if@ht@final@render   \@ht@final@rendertrue
 \newif\if@ht@break@table    \@ht@break@tablefalse
 \newif\if@ht@no@final@strut \@ht@no@final@strutfalse
+\newif\if@ht@no@init@strut  \@ht@no@init@strutfalse
 \gdef\ht@tempa{}
 \newcount\ht@tempcnta          \ht@tempcnta=\z@\relax
 \newcount\ht@tempcntb          \ht@tempcntb=\z@\relax
@@ -1259,6 +1265,7 @@
 \HTRegisterCSSProperty{td}{colspan}{}
 \HTRegisterCSSProperty{td}{rowspan}{}
 \HTRegisterCSSProperty{td}{addheight}{}
+\HTRegisterCSSProperty{td}{no-strut}{none}
 \HTRegisterCSSProperty{col}{col-type}{}
 \HTRegisterCSSProperty{col}{max-width}{}
 \HTRegisterCSSProperty{col}{is-variable}{}
@@ -1267,7 +1274,6 @@
 \HTRegisterCSSProperty{tr}{width}{}
 \HTRegisterCSSProperty{tr}{has-rowspan}{}
 
-\newif\if@ht@no@final@strut \@ht@no@final@strutfalse
 \def\HTEvalCellProps{%
   \ht@debugmsg{verbose}{Render properties:\ht@debugbrk
  from table: \expandafter\meaning\csname table-props\endcsname\ht@debugbrk
@@ -1280,12 +1286,18 @@
   \ht@eval@props{tr-\the\ht@currow}%
   \ht@eval@props{col-\the\ht@curcol}%
   \ht@eval@props{td-\ht@thecell}}
+\def\ht@eval@no@strut{%
+  \IfCellPropText{no-strut}{both}
+    {\@ht@no@final@struttrue\@ht@no@init@struttrue}
+    {\IfCellPropText{no-strut}{bottom}{\@ht@no@final@struttrue}{}%
+     \IfCellPropText{no-strut}{top}{\@ht@no@init@struttrue}{}}}
 \def\ht@RenderCell{{%
   \GetRowProp{ht@parent}{parent}%
   \HTEvalCellProps
   \GetCellContent{CellContent}%
   \GetCellPropDefault{colspan}{colspan}{1}%
   \GetFont{CellFont}%
+  \ht@eval@no@strut
   \ifx\CellFont\relax\else\ht@debugmsg{font}{Using font \meaning\CellFont}\fi%
   \if@ht@nat@calc
     \ht@protect@fragile
@@ -1385,7 +1397,7 @@
         \linewidth\hsize
         \hbox{\ht@valign@box{\ht@halign #2}}%
       \else
-        #2%
+        \IfCellPropEmpty{virtual}{#2}{}%
       \fi}%
       \vskip\csname internal-#1-padding-bottom\endcsname
     }%
@@ -1777,7 +1789,10 @@
   \ht@debugmsg{rowspan}{Setting contents of cell \ht@thecell.}%
   \ht@debugmsg{colspan}{Setting contents of cell \ht@thecell.}%
   \SetCellProp{class}{\htTdClass}%
-  \SetCellContent{\strut\ignorespaces#1\if@ht@no@final@strut\else\strut\fi}%
+  \SetCellContent{%
+    \if@ht@no@init@strut\strut\hrule \@height\z@\vskip-\baselineskip\vskip\z@skip\else\strut\fi
+    \ignorespaces#1%
+    \if@ht@no@final@strut\else\strut\fi}%
   \@tempswafalse
   \ifnum\htCellColspan>1\relax\@tempswatrue\fi
   \ifnum\htCellRowspan>1\relax\@tempswatrue\fi
