@@ -286,7 +286,7 @@
   \tp@set@hang{#1}%
 }
 \def\tp@set@hang#1{%
-  \tpSetProperty{#1hang-number}{\tpUseProperty{#1formatted-number}}
+  \tpSetProperty{#1hang-number}{\tpUseProperty{#1formatted-number}}%
   \tpIfProp{#1indent}
     {\ifdim\tpUseProperty{#1indent}<\z@
         \tpSetProperty{#1hang-number}{%
@@ -347,7 +347,7 @@
                {\tpSetPropertyX{#1indent}{\tpUseProperty{int-#1indent}}%
                 \tpSetProperty{#1margin-left}{\z@}}
                {\tpSetProperty{#1indent}{\z@}%
-                \tpSetProperty{#1margin-left}{\z@}}}}}}
+                \tpSetProperty{#1margin-left}{\z@}}}}}}%
     }
 \def\tp@str@german{german}
 \def\tp@str@english{english}
