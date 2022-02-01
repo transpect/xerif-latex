@@ -212,7 +212,7 @@
     \let\includegraphics\tp@includesubgraphics
     #1%
   \end{minipage}%
-  \ifx\tp@fps\@empty\spewnotes\fi
+  \ifx\tp@fps\@empty\spewnotes\fi\nopagebreak
 }
 \def\tp@make@caption#1#2{%
   \bgroup
@@ -616,8 +616,9 @@
       \tpContent{\unvbox\htTableBox}%
     \fi
   \fi
-  \ifx\tp@fps\@empty\par\vskip-\ht\strutbox\fi%
+  \vskip-\tpUseProperty{float-v-offset}%
   \tpUseComp{Content}%
+  \vskip\tpUseProperty{float-v-offset}%
 }
 \def\tpGenericFloat{\tpUseComp{Content}}
 \def\tpGenericHandler{\tpMakeFltComp{tpContent}{content}{Content}}
