@@ -21,7 +21,7 @@
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
 \def\fileversion{0.1.0}%
-\def\filedate{2021-01-27}%
+\def\filedate{2022-01-27}%
 %%
 %% module for le-tex transpect.cls for maketitle.
 %%
@@ -135,6 +135,7 @@
 \def\tp@iterate@cnts#1#2{%
   \edef\tp@iterate@res{%
     \noexpand\def\noexpand\tpTotalCount{\the\csname #1-Cnt\endcsname}%
+    \noexpand\bgroup
     \noexpand\tp@flt@cond
     \noexpand\def\noexpand\tp@cnt@grp{#1}}%
   \expandafter\@tempcntb\csname #1-Cnt\endcsname
@@ -149,6 +150,7 @@
     \expandafter\expandafter\expandafter\tp@iterate@res
     \expandafter\expandafter\expandafter{\expandafter\tp@iterate@res\@tempb}%
   }%
+  \expandafter\def\expandafter\tp@iterate@res\expandafter{\tp@iterate@res\noexpand\egroup}%
 }
 \def\tp@title@name@eval#1#2{{%
     \tpNamespace{titlepage}%
