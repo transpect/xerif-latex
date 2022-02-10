@@ -98,15 +98,6 @@
 \renewenvironment{description}[1][]{%
   \small  
   \settowidth\@tempdima{#1}%
-    %\directlua{%
-    %  local s_in = string.gsub("#1", "\\", "n")
-    %  local s_out = ""
-    %  i_max = math.floor(0.8 * string.len(s_in))
-    %  for i = 1, i_max do
-    %    s_out = s_out.."n"
-    %  end
-    %  tex.sprint(s_out)}%
-    %}
   \ifdim\@tempdima=\z@\relax
     \@tempdima\parindent
   \fi
