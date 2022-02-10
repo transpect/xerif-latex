@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.32}%
-\def\filedate{2022-01-18}%
+\def\fileversion{0.1.33}%
+\def\filedate{2022-02-10}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -774,18 +774,22 @@
 \expandafter\def\csname ht@font-family@sans-serif\endcsname{\ht@apply@prop{internal-font-family}{\sffamily}}
 \expandafter\def\csname ht@font-family@serif\endcsname{\ht@apply@prop{internal-font-family}{\rmfamily}}
 \expandafter\def\csname ht@font-family@monospace\endcsname{\ht@apply@prop{internal-font-family}{\ttfamily}}
+\expandafter\def\csname ht@font-family@inherit\endcsname{\ht@apply@prop{internal-font-family}{}}
 
 \expandafter\def\csname ht@font-weight@bold\endcsname{\ht@apply@prop{internal-font-weight}{\bfseries}}
 \expandafter\def\csname ht@font-weight@semi-bold\endcsname{\ht@apply@prop{internal-font-weight}{\sbseries}}
 \expandafter\def\csname ht@font-weight@extra-bold\endcsname{\ht@apply@prop{internal-font-weight}{\ebseries}}
 \expandafter\def\csname ht@font-weight@normal\endcsname{\ht@apply@prop{internal-font-weight}{\normalfont}}
 \expandafter\def\csname ht@font-weight@lighter\endcsname{\ht@apply@prop{internal-font-weight}{\lfseries}}
+\expandafter\def\csname ht@font-weight@inherit\endcsname{\ht@apply@prop{internal-font-weight}{}}
 
 \expandafter\def\csname ht@font-style@normal\endcsname{\ht@apply@prop{internal-font-style}{\upshape}}
 \expandafter\def\csname ht@font-style@italic\endcsname{\ht@apply@prop{internal-font-style}{\itshape}}
+\expandafter\def\csname ht@font-style@inherit\endcsname{\ht@apply@prop{internal-font-style}{}}
 
 \expandafter\def\csname ht@font-variant@normal\endcsname{\ht@apply@prop{internal-font-variant}{\upshape}}
 \expandafter\def\csname ht@font-variant@small-caps\endcsname{\ht@apply@prop{internal-font-variant}{\scshape}}
+\expandafter\def\csname ht@font-variant@inherit\endcsname{\ht@apply@prop{internal-font-variant}{}}
 
 \expandafter\def\csname ht@font-size@normal\endcsname{\ht@apply@prop{internal-font-size}{\normalsize}}
 \expandafter\def\csname ht@font-size@large\endcsname{\ht@apply@prop{internal-font-size}{\large}}
@@ -794,6 +798,7 @@
 \expandafter\def\csname ht@font-size@small\endcsname{\ht@apply@prop{internal-font-size}{\small}}
 \expandafter\def\csname ht@font-size@x-small\endcsname{\ht@apply@prop{internal-font-size}{\footnotesize}}
 \expandafter\def\csname ht@font-size@xx-small\endcsname{\ht@apply@prop{internal-font-size}{\tiny}}
+\expandafter\def\csname ht@font-size@inherit\endcsname{\ht@apply@prop{internal-font-size}{}}
 
 \def\ht@CalculateColumnWidths{%
   \global\let\has@relative@cells\@undefined
