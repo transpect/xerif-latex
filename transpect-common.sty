@@ -61,9 +61,10 @@
 \newbox\tp@tempboxb
 \def\@gobbleopt#1#{\@gobble}
 \def\tpGobble{%
-  \let\footnote\@gobbleopt%
-  \let\label\@gobble%
-  \let\index\@gobbleopt}%
+  \renewcommand\footnote[2][]{\@textsuperscript{##1}}%
+  \renewcommand\label[1]{}%
+  \renewcommand\index[2][]{}%
+}%
 \long\def\tp@iterate#1#2#3#4{%
   \advance#1\@ne\relax
   #1=#2\relax%

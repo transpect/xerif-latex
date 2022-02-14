@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.33}%
-\def\filedate{2022-02-10}%
+\def\fileversion{0.1.34}%
+\def\filedate{2022-02-14}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -171,12 +171,15 @@
     \fi
   \fi
 \fi
+\long\def\ht@gobbleopt{\@ifnextchar[\@ht@gobbleopt{\@ht@gobbleopt[]}}%]
+\long\def\@ht@gobbleopt[#1]#2{}%
+
 \def\ht@protect@fragile{%
+  \let\index\ht@gobbleopt
+  \let\glossary\ht@gobbleopt
+  \let\footnote\ht@gobbleopt
+  \let\marginpar\ht@gobbleopt
   \let\label\@gobble
-  \let\index\@gobble
-  \let\glossary\@gobble
-  \let\footnote\@gobble
-  \let\marginpar\@gobble
 }
 
 \newcount\ht@curtab            \ht@curtab=\z@\relax
@@ -1553,10 +1556,7 @@
   \parskip\z@
   \hfuzz\maxdimen
   \hbadness=\@M
-  \advance\ht@h@offset\leftskip
-  \advance\ht@h@offset\@totalleftmargin
-  % \advance\linewidth-\leftskip%% TP-spezifisch!
-  \advance\linewidth-\rightskip
+  \ht@adjust@linewidth
   \leftskip\z@ \rightskip\z@
   \global\advance\ht@curtab\@ne
   \HTResetInternal
@@ -1609,6 +1609,12 @@
   \let\leftskip\ltx@leftskip \let\rightskip\ltx@rightskip
   \ht@debugmsg{info}{Done with table \the\ht@curtab}%
   \@ht@final@rendertrue
+}
+\def\ht@adjust@linewidth{%
+  \advance\ht@h@offset\leftskip
+  \advance\ht@h@offset\@totalleftmargin
+  \advance\linewidth-\leftskip
+  \advance\linewidth-\rightskip
 }
 \def\HTCol#1{\relax
   \ht@tempcnta\@ne

@@ -96,8 +96,16 @@
     \everypar{{\setbox\z@\lastbox}\everypar{}\@endpefalse}%
     \global\let\@doendpe\orig@doendpe}}
 \renewenvironment{description}[1][]{%
-  \small  
+  \small
   \settowidth\@tempdima{#1}%
+    %\directlua{%
+    %  local s = ""
+    %  i_max = math.floor(0.8 * string.len("#1"))
+    %  for i = 1, i_max do
+    %    s = s.."n"
+    %  end
+    %  tex.sprint(s)}%
+    %}
   \ifdim\@tempdima=\z@\relax
     \@tempdima\parindent
   \fi
