@@ -37,6 +37,7 @@
 \def\tp@str@table{table}
 \def\tp@str@figure{figure}
 \def\afterfi#1\fi{\fi#1}
+\def\tp@topstrut{\vrule\@width\z@\@height\topskip\@depth\dimexpr\baselineskip-\topskip\relax}
 \def\@afterbox{%
   \everypar{%
     \if@nobreak
@@ -63,11 +64,11 @@
 \long\def\@gobbleopt{\@ifnextchar[\@@gobbleopt{\@@gobbleopt[]}}%]
 \long\def\@@gobbleopt[#1]#2{}%
 \def\tpGobble{%
-  \let\footnote\@gobbleopt
-  \let\index\@gobbleopt
+  \renewcommand\footnote[2][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark}%
+  \renewcommand\index[2][]{}%
+  \renewcommand\marginpar[2][]{}%
+  \renewcommand\glossary[2][]{}%
   \let\label\@gobble
-  \let\marginpar\@gobbleopt
-  \let\glossary\@gobbleopt
 }%
 \long\def\tp@iterate#1#2#3#4{%
   \advance#1\@ne\relax
