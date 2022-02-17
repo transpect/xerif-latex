@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.34}%
-\def\filedate{2022-02-14}%
+\def\fileversion{0.1.35}%
+\def\filedate{2022-02-17}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -175,10 +175,10 @@
 \long\def\@ht@gobbleopt[#1]#2{}%
 
 \def\ht@protect@fragile{%
-  \let\index\ht@gobbleopt
-  \let\glossary\ht@gobbleopt
-  \let\footnote\ht@gobbleopt
-  \let\marginpar\ht@gobbleopt
+  \renewcommand\footnote[2][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark}%
+  \renewcommand\index[2][]{}%
+  \renewcommand\marginpar[2][]{}%
+  \renewcommand\glossary[2][]{}%
   \let\label\@gobble
 }
 
@@ -227,6 +227,8 @@
 \newdimen\ht@tempdimf          \ht@tempdimf\z@
 
 \newdimen\ht@h@offset          \ht@h@offset=\z@\relax
+\newdimen\ht@cell@insert@ht    \ht@cell@insert@ht=\z@\relax
+\newdimen\ht@row@insert@ht     \ht@row@insert@ht=\z@\relax
 \newdimen\ht@cur@lower@dp      \ht@cur@lower@dp=\z@\relax
 \newdimen\ht@cur@upper@dp      \ht@cur@upper@dp=\z@\relax
 \newdimen\ht@cur@upper@ht      \ht@cur@upper@ht=\z@\relax
@@ -938,6 +940,7 @@
     \global\ht@max@lower@dp\z@
     \global\ht@max@upper@dp\z@
     \global\ht@max@upper@ht\z@
+    \global\ht@row@insert@ht\z@
     %% 1. Durchlauf: nat. Höhen berechnen
     \ht@Iterate{\ht@curcol}{1}{\the\ht@maxcol}{{%
       \HTEvalCellProps
@@ -949,6 +952,7 @@
       \IfCellPropEmpty{virtual}{% ¬ virtuell
         \@ht@height@calctrue
         \ht@RenderCell
+        \global\advance\ht@row@insert@ht\ht@cell@insert@ht
         \ifdim\ht@cur@lower@dp>\ht@max@lower@dp\relax\global\ht@max@lower@dp=\ht@cur@lower@dp\relax\fi
         \ifdim\ht@cur@upper@dp>\ht@max@upper@dp\relax\global\ht@max@upper@dp=\ht@cur@upper@dp\relax\fi
         \ifdim\ht@cur@upper@ht>\ht@max@upper@ht\relax\global\ht@max@upper@ht=\ht@cur@upper@ht\relax\fi
@@ -975,6 +979,8 @@
       \global\let\CurCellWidth\relax
     }}%/Iterate:cols:1
     \advance\ht@rowheight\ht@max@lower@dp\relax
+    \ht@debugmsg{footnote}{Calculated Footins-height: \the\ht@row@insert@ht}%
+    \SetRowProp{footins-height}{\the\ht@row@insert@ht}%
     \SetRowProp{height}{\the\ht@rowheight}%
     \SetRowProp{max-upper-height}{\the\ht@max@upper@ht}%
     \SetRowProp{max-upper-depth}{\the\ht@max@upper@dp}%
@@ -1205,6 +1211,7 @@
 \HTRegisterCSSProperty{table}{padding}{\z@}
 \HTRegisterCSSProperty{table}{background-color}{}
 \HTRegisterCSSProperty{table}{border-collapse}{collapse}
+\HTRegisterCSSProperty{table}{insert-tolerance}{2\baselineskip}
 \HTRegisterCSSProperty{caption}{caption-side}{top}%
 \HTRegisterCSSProperty{caption}{font}{}%
 \HTRegisterCSSProperty{caption}{text-align}{left}
@@ -1319,8 +1326,10 @@
     \GetColProp{CurColWidth}{max-width}%
     \GetCellPropDefault{CurCellWidth}{width}{\CurColWidth}%
     \if@ht@height@calc
-      \ht@protect@fragile
+      %\ht@protect@fragile
+      \ht@calc@savenotes
       \global\setbox\htCellBox\vbox{\hsize\CurCellWidth\ht@build@cell{\CellFont\CellContent}}%
+      \ht@calc@spewnotes
     \else% ¬ \if@ht@height@calc
       \GetRowProp{RowHeight}{height}%
       \GetRowProp{MaxUpperDepth}{max-upper-depth}%
@@ -1845,12 +1854,55 @@
   \global\HT@ftn\expandafter{\@tempa{#1}}}%
 \long\def\HT@xftntext[#1]#2{%
   \global\HT@ftn\expandafter{\the\HT@ftn\footnotetext[#1]{#2}}}
+
+
+\long\def\my@footnotetext#1{\global\setbox\@tempboxa\hbox{\unhbox\@tempboxa%
+    \reset@font\footnotesize
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+    \protected@edef\@currentlabel{%
+       \csname p@footnote\endcsname\@thefnmark
+    }%
+    \color@begingroup
+      \@makefntext{%
+        \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}%
+    \color@endgroup}}%
+
+\@ifpackageloaded{footnote}{}{\newif\if@savingnotes\@savingnotesfalse}
+
+\def\ht@savenotes{\if@savingnotes\else\let\@footnotetext\HT@ftntext\let\@xfootnotenext\HT@xftntext\fi}%
+\def\ht@spewnotes{\if@savingnotes\else\global\HT@ftn\expandafter{\expandafter}\the\HT@ftn\fi}%
+
+\def\ht@calc@savenotes{%
+  \renewcommand\index[2][]{}%
+  \renewcommand\marginpar[2][]{}%
+  \renewcommand\glossary[2][]{}%
+  \let\label\@gobble
+  \if@savingnotes
+    \renewcommand\footnote[2][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark}%
+  \else%
+    \renewcommand\footnote[1][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark\my@footnotetext}%
+    \global\setbox\@tempboxa\box\voidb@x
+  \fi%
+  \global\ht@cell@insert@ht\z@
+}%
+
+\def\ht@calc@spewnotes{%
+  \if@savingnotes\else%
+    \@tempdima\dimexpr\ht\@tempboxa+\dp\@tempboxa\relax
+    \global\ht@cell@insert@ht=\the\@tempdima\relax
+    \global\setbox\@tempboxa\box\voidb@x
+  \fi}
+
+
 \def\ht@build@rowbox{%
   \global\setbox\htRowBox\hb@xt@\dimexpr\htTableWidth+\ht@h@offset{%
     \hskip\ht@h@offset
     \ht@Iterate{\ht@curcol}{1}{\the\ht@maxcol}{%
       \@ht@final@rendertrue
-      \let\@footnotetext\HT@ftntext\let\@xfootnotenext\HT@xftntext
+      \ht@savenotes
       \ht@RenderCell%
       \box\htCellBox
       \@ht@final@renderfalse
@@ -1867,7 +1919,7 @@
           \nointerlineskip%
           \box\htRowBox\nopagebreak%
         }% /rowboxname
-        \global\HT@ftn\expandafter{\expandafter}\the\HT@ftn
+        \ht@spewnotes
     }}%
   \else
     \expandafter\global\expandafter\setbox\csname #1\endcsname\box\voidb@x
@@ -1888,7 +1940,7 @@
           \ht@insert@page@breakers
         }{}%
         \box\htRowBox%
-        \global\HT@ftn\expandafter{\expandafter}\the\HT@ftn
+        \ht@spewnotes
         \nopagebreak
       }% /htTbodyBox
     }}}
@@ -1932,7 +1984,7 @@
   \begingroup
     \hsize\wd\htCaptionBox
     \vsize\ht\htCaptionBox
-    \let\@footnotetext\HT@ftntext\let\@xfootnotenext\HT@xftntext
+    \ht@savenotes
     \GetScopedProp{CapMargL}{caption}{margin-left}%
     \expandafter\edef\csname caption-margin-left\endcsname{\the\dimexpr\CapMargL+\TabMarginLeft+\ht@h@offset\relax}%
     \global\setbox\htCaptionBox\vbox{\ht@build@frame{caption}{}{}{}{}{{\ht@align\CaptionFont\htCaptionContent}}}%
@@ -1963,6 +2015,7 @@
        \ht@add@to@top
       +\ht@add@to@bottom
     \relax
+    \global\let\ht@used@footins@tolerance\@undefined
     \ht@Iterate{\ht@currow}%
       {\the\numexpr\ht@theadrows+\ht@tfootrows+1\relax}%
       {\ht@maxrow}{{%
@@ -1971,8 +2024,17 @@
             \ht@prepare@break
           }{%
             \GetRowProp{rowHeight}{height}%
+            \GetRowProp{insertHt}{footins-height}%
             \GetRowProp{rowspan}{has-rowspan}%
-            \global\advance\ht@table@height\dimexpr\rowHeight\relax
+            \ht@debugmsg{footnote}{Adding Footins-height: \insertHt}%
+            \ifx\ht@used@footins@tolerance\@undefined
+              \ifdim\insertHt>\z@\relax
+                \GetScopedProp{insertTol}{table}{insert-tolerance}%
+                \global\advance\ht@table@height\dimexpr\insertTol\relax
+                \global\let\ht@used@footins@tolerance\relax
+              \fi
+            \fi
+            \global\advance\ht@table@height\dimexpr\rowHeight+\insertHt\relax
             \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax>\numexpr\ht@min@p@rows\relax\relax
               \ifdim\ht@table@height<\dimexpr\ht@init@pagegoal-\baselineskip\relax
               \else
@@ -1985,6 +2047,7 @@
             \else
               \ifdim\ht@table@height<\ht@init@pagegoal\relax\else
                 \global\ht@init@pagegoal=\textheight\relax
+                \global\let\ht@used@footins@tolerance\@undefined
               \fi
             \fi
           }%
@@ -2083,7 +2146,7 @@
   \ifx\htCaptionContent\relax\else
     \IfPropText{caption}{caption-side}{#1}{%
         \copy\htCaptionBox
-        \global\HT@ftn\expandafter{\expandafter}\the\HT@ftn
+        \ht@spewnotes
     }{}%
   \fi}
 \def\htOutputTable{%

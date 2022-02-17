@@ -38,7 +38,7 @@
 \DeclareOption{resetnotesperchapter}{\global\let\reset@notes@per@chapter\relax}
 \DeclareOption{endnoteswithchapters}{\global\endnotestrue\global\let\endnotes@with@chapters\relax}
 \ProcessOptions
-\usepackage{footnote}
+\RequirePackage{footnote}
 \newif\if@enotesopen
 \AtBeginDocument{\edef\tpfn@parindent{\the\parindent}}
 \ifendnotes
