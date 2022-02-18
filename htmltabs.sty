@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.35}%
-\def\filedate{2022-02-17}%
+\def\fileversion{0.1.36}%
+\def\filedate{2022-02-18}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -227,8 +227,6 @@
 \newdimen\ht@tempdimf          \ht@tempdimf\z@
 
 \newdimen\ht@h@offset          \ht@h@offset=\z@\relax
-\newdimen\ht@cell@insert@ht    \ht@cell@insert@ht=\z@\relax
-\newdimen\ht@row@insert@ht     \ht@row@insert@ht=\z@\relax
 \newdimen\ht@cur@lower@dp      \ht@cur@lower@dp=\z@\relax
 \newdimen\ht@cur@upper@dp      \ht@cur@upper@dp=\z@\relax
 \newdimen\ht@cur@upper@ht      \ht@cur@upper@ht=\z@\relax
@@ -237,6 +235,10 @@
 \newdimen\ht@max@upper@ht      \ht@max@upper@ht=\z@\relax
 \newdimen\ht@init@pagegoal     \ht@init@pagegoal=\z@\relax
 \newdimen\ht@table@height      \ht@table@height=\z@\relax
+\newdimen\ht@cell@insert@ht    \ht@cell@insert@ht=\z@\relax
+\newdimen\ht@row@insert@ht     \ht@row@insert@ht=\z@\relax
+\newdimen\ht@htTheadBox@fins@ht\ht@htTheadBox@fins@ht=\z@\relax
+\newdimen\ht@htTfootBox@fins@ht\ht@htTfootBox@fins@ht=\z@\relax
 \newbox\htCellBox    \global\setbox\htCellBox\box\voidb@x
 \newbox\htRowBox     \global\setbox\htRowBox\box\voidb@x
 \newbox\htTheadBox   \global\setbox\htTheadBox\box\voidb@x
@@ -252,6 +254,8 @@
   \global\ht@tbodyrows\z@
   \global\ht@theadrows\z@
   \global\ht@tfootrows\z@
+  \global\ht@htTheadBox@fins@ht\z@
+  \global\ht@htTfootBox@fins@ht\z@
   \global\ht@last@break@row\z@
   \global\setbox\htTheadBox\box\voidb@x
   \global\setbox\htTbodyBox\box\voidb@x
@@ -1200,6 +1204,7 @@
 \HTRegisterCSSProperty{table}{repeat-foot}{true}
 \HTRegisterCSSProperty{table}{repeat-caption}{false}
 \HTRegisterCSSProperty{table}{break-table}{false}
+\HTRegisterCSSProperty{table}{insert-tolerance}{2\baselineskip}
 \HTRegisterCSSProperty{table}{allow-cell-breaks}{false}
 \HTRegisterCSSProperty{tr}{do-break}{false}
 \DeclareRobustCommand{\doTableBreak}{\ht@tempcnta\numexpr\ht@therow+1\relax\ht@set@prop{tr}{tr-\the\ht@tempcnta}{do-break}{true}}
@@ -1211,7 +1216,6 @@
 \HTRegisterCSSProperty{table}{padding}{\z@}
 \HTRegisterCSSProperty{table}{background-color}{}
 \HTRegisterCSSProperty{table}{border-collapse}{collapse}
-\HTRegisterCSSProperty{table}{insert-tolerance}{2\baselineskip}
 \HTRegisterCSSProperty{caption}{caption-side}{top}%
 \HTRegisterCSSProperty{caption}{font}{}%
 \HTRegisterCSSProperty{caption}{text-align}{left}
@@ -1326,7 +1330,6 @@
     \GetColProp{CurColWidth}{max-width}%
     \GetCellPropDefault{CurCellWidth}{width}{\CurColWidth}%
     \if@ht@height@calc
-      %\ht@protect@fragile
       \ht@calc@savenotes
       \global\setbox\htCellBox\vbox{\hsize\CurCellWidth\ht@build@cell{\CellFont\CellContent}}%
       \ht@calc@spewnotes
@@ -1854,9 +1857,10 @@
   \global\HT@ftn\expandafter{\@tempa{#1}}}%
 \long\def\HT@xftntext[#1]#2{%
   \global\HT@ftn\expandafter{\the\HT@ftn\footnotetext[#1]{#2}}}
-
-
-\long\def\my@footnotetext#1{\global\setbox\@tempboxa\hbox{\unhbox\@tempboxa%
+\@ifpackageloaded{footnote}{}{\newif\if@savingnotes\@savingnotesfalse}
+\def\ht@savenotes{\if@savingnotes\else\let\@footnotetext\HT@ftntext\let\@xfootnotenext\HT@xftntext\fi}%
+\def\ht@spewnotes{\if@savingnotes\else\global\HT@ftn\expandafter{\expandafter}\the\HT@ftn\fi}%
+\long\def\ht@footnotetext#1{\global\setbox\@tempboxa\hbox{\unhbox\@tempboxa%
     \reset@font\footnotesize
     \interlinepenalty\interfootnotelinepenalty
     \splittopskip\footnotesep
@@ -1869,12 +1873,6 @@
       \@makefntext{%
         \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}%
     \color@endgroup}}%
-
-\@ifpackageloaded{footnote}{}{\newif\if@savingnotes\@savingnotesfalse}
-
-\def\ht@savenotes{\if@savingnotes\else\let\@footnotetext\HT@ftntext\let\@xfootnotenext\HT@xftntext\fi}%
-\def\ht@spewnotes{\if@savingnotes\else\global\HT@ftn\expandafter{\expandafter}\the\HT@ftn\fi}%
-
 \def\ht@calc@savenotes{%
   \renewcommand\index[2][]{}%
   \renewcommand\marginpar[2][]{}%
@@ -1883,20 +1881,17 @@
   \if@savingnotes
     \renewcommand\footnote[2][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark}%
   \else%
-    \renewcommand\footnote[1][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark\my@footnotetext}%
+    \renewcommand\footnote[1][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark\ht@footnotetext}%
     \global\setbox\@tempboxa\box\voidb@x
   \fi%
   \global\ht@cell@insert@ht\z@
 }%
-
 \def\ht@calc@spewnotes{%
   \if@savingnotes\else%
     \@tempdima\dimexpr\ht\@tempboxa+\dp\@tempboxa\relax
     \global\ht@cell@insert@ht=\the\@tempdima\relax
     \global\setbox\@tempboxa\box\voidb@x
   \fi}
-
-
 \def\ht@build@rowbox{%
   \global\setbox\htRowBox\hb@xt@\dimexpr\htTableWidth+\ht@h@offset{%
     \hskip\ht@h@offset
@@ -1914,12 +1909,14 @@
     \ht@Iterate{\ht@currow}{#2}{#3}{{%
         \ht@eval@props{tr-\the\ht@currow}%
         \ht@build@rowbox
+        \GetRowProp{insertHt}{footins-height}%
+        \expandafter\global\expandafter\advance\csname ht@#1@fins@ht\endcsname\insertHt\relax
         \expandafter\global\expandafter\setbox\csname #1\endcsname\vbox{%
           \expandafter\unvbox\csname #1\endcsname%
           \nointerlineskip%
-          \box\htRowBox\nopagebreak%
+          \box\htRowBox
+          \nopagebreak%
         }% /rowboxname
-        \ht@spewnotes
     }}%
   \else
     \expandafter\global\expandafter\setbox\csname #1\endcsname\box\voidb@x
@@ -1961,8 +1958,10 @@
     \ifdim\TabMarginTop=\z@\else\addvspace{\TabMarginTop}\fi%
     \htOutputCaption{top}%
     \unvcopy\htTheadBox\nobreak\nointerlineskip
+    \ht@spewnotes
     \unvbox\htTbodyBox\nobreak\nointerlineskip
     \unvcopy\htTfootBox
+    \ht@spewnotes
     \htOutputCaption{bottom}%
     \ifdim\TabMarginBot=\z@\else\addvspace{\TabMarginBot}\fi%
   }}
@@ -2014,7 +2013,14 @@
     \global\ht@table@height=\dimexpr
        \ht@add@to@top
       +\ht@add@to@bottom
+      +\ht@htTheadBox@fins@ht
     \relax
+    \IfTablePropText{repeat-foot}{true}{%
+      \ifdim\ht@htTfootBox@fins@ht>\z@\relax
+        \global\advance\ht@table@height\ht@htTfootBox@fins@ht
+      \fi
+      \global\ht@htTfootBox@fins@ht\z@}{}%
+    \global\ht@htTheadBox@fins@ht\z@
     \global\let\ht@used@footins@tolerance\@undefined
     \ht@Iterate{\ht@currow}%
       {\the\numexpr\ht@theadrows+\ht@tfootrows+1\relax}%
