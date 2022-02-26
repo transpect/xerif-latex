@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.0}%
-\def\filedate{2021-01-27}%
+\def\fileversion{0.1.1}%
+\def\filedate{2021-02-25}%
 %%
 %% module for le-tex transpect.cls that extends floating objects.
 %%
@@ -351,6 +351,7 @@
   \expandafter\expandafter\expandafter\edef\expandafter\csname tp@\tp@namespace @number-#1\expandafter\endcsname\expandafter{\tpUseProperty{sub-number-block}}%
 }
 \def\tp@float[#1]#2#3#4{%
+  \par
   \begingroup
     \tpNamespace{#4}%
     \tp@reset@defaults{#2}{#3}%
@@ -420,8 +421,8 @@
 }
 \def\tp@flt@process{%
   \tp@test@subcapt
+  \ifx\tp@has@capt@top\@empty\leavevmode\fi
   \tp@make@outer@caption{top}%
-  \ifhmode\else\leavevmode\fi\hskip\tp@flt@marg@l
   \ifnum\tpSubFloatCnt=\z@\relax
     \bgroup\advance\hsize-\tp@flt@marg@l
       \tpUseProperty{float-render}%
@@ -441,7 +442,6 @@
 \def\tp@flt@compose{%
   \bgroup
     \hsize\tp@total@flt@width
-    \leavevmode
     \tp@flt@process
     \tp@make@anchors%
     \csname tp@make@listof@\tp@captype\endcsname{\tp@captype}% single float
@@ -504,6 +504,7 @@
   \tp@capt@bottom@offset
 }
 \def\tp@make@outer@caption#1{%
+  \def\@argi{#1}%
   \expandafter\ifx\csname tp@has@capt@#1\endcsname\@empty
     \bgroup
       \savenotes
@@ -512,8 +513,9 @@
       \tp@make@caption{#1}{top}%
       \spewnotes
     \egroup
-    \nopagebreak
-  \fi}
+    \ifx\@argi\tp@str@top\nopagebreak\fi
+  \fi
+}
 \def\tpSubFloat{%
   \ifx\tp@is@subflt\relax
     \PackageError{transpect-floats.sty}{Nested tpSubFloats detected!}{You cannot nest a `tpSubFloat' environment into another `tpSubFloat' environment! Use the `tpSubFloatRow' and `tpSubFloatCol' environments to create more complex structures, instead.}%
@@ -646,10 +648,12 @@
 \def\tpFigureRender{%
   \bgroup
     \let\includegraphics\tp@includesubgraphics
+    \hskip\tp@flt@marg@l
     \strut\tpUseComp{Content}\strut
   \egroup%
 }%
 \def\tpSubFigureRender{%
+  \hskip\tp@flt@marg@l
   \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
     \tp@render@sub@floats{\the\@tempcnta}%
   }%
@@ -670,6 +674,7 @@
   \tp@reserve@tabular
   \ifx\tp@uses@htmltabs\relax
     \ifx\tp@fps\@empty\else\htAddStyle{break-table:false;}\fi
+    \htAddStyle{margin-left:\tp@flt@marg@l}%
     \global\setbox\htTableBox\box\voidb@x
     \let\htOutputTable\relax
   \fi}
@@ -688,15 +693,9 @@
 \def\tpTableRender{%
   \tpGetTableContent
   \tpContent{\unvbox\tp@floatbox}%
+  \tpUseComp{Content}%
   \par\nopagebreak
-  \ifx\tp@has@capt@top\relax
-    \vskip-\topskip
-  \else
-    \vskip-\baselineskip
-  \fi
-  \tpUseComp{Content}\strut
-  \par
-  \vskip-\baselineskip%
+  \vskip\dp\strutbox
 }
 \def\tpSubTableRender{%
   \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
@@ -706,8 +705,8 @@
   }%
 }
 \tpAddToDefault{float}{%
-  \tpSetProperty{intext-skip-top}{\z@}%% non-float sep top
-  \tpSetProperty{intext-skip-bottom}{\z@}%% non-float sep bottom
+  \tpSetProperty{intext-skip-top}{\intextsep}%% non-float sep top
+  \tpSetProperty{intext-skip-bottom}{\intextsep}%% non-float sep bottom
   \tpSetProperty{float-skip-top}{\z@}%% float sep top
   \tpSetProperty{float-skip-bottom}{\z@}%% float sep bottom
   \tpSetProperty{sub-float-sep}{\tp@subflt@sep}%% space between sub-floats

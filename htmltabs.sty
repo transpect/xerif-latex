@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.36}%
-\def\filedate{2022-02-18}%
+\def\fileversion{0.1.37}%
+\def\filedate{2022-02-26}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1560,6 +1560,8 @@
       \global\ht@init@pagegoal=\ht@measurepage\relax
     \fi
   \fi
+  \ht@get@footnoteheight
+  \global\advance\ht@init@pagegoal\ht@footnoteheight
   \ifdim\ht@init@pagegoal<\z@\relax
     \expandafter\global\ht@init@pagegoal\expandafter\dimexpr\pagegoal-(\pagetotal-\pagegoal)-\baselineskip\relax\fi
   \bgroup
@@ -1850,6 +1852,36 @@
   \SetCellProp{colspan}{\the\ht@tempcntb}%
   \SetCellProp{rowspan}{\the\ht@tempcnta}}
 
+\newdimen\ht@footnoteheight
+\def\ht@get@footnoteheight{%
+  \ht@footnoteheight\z@
+  \bgroup
+    \output{%
+      \global \setbox\@holdpg \vbox{%
+        \unvbox\@holdpg
+        \unvbox\@cclv
+        \setbox\@tempboxa \lastbox
+        \unskip
+      }%
+      \@pagedp \dp\@holdpg
+      \@pageht \ht\@holdpg
+      \unvbox \@holdpg
+      \ifvoid\footins \else
+        \global\advance \ht@footnoteheight \ht\footins
+        \global\advance \ht@footnoteheight \skip\footins
+        \global\advance \ht@footnoteheight \dp\footins
+      \fi
+      \ifvbox \@kludgeins
+        \ifdim \wd\@kludgeins=\z@
+          \global\advance \ht@footnoteheight \ht\@kludgeins
+        \fi
+      \fi
+      \@reinserts
+      \@addtocurcol
+    }%
+    \pagebreak
+  \egroup
+  }
 \newtoks\HT@ftn
 \long\def\HT@ftntext#1{%
   \edef\@tempa{\the\HT@ftn\noexpand\footnotetext
@@ -1860,7 +1892,8 @@
 \@ifpackageloaded{footnote}{}{\newif\if@savingnotes\@savingnotesfalse}
 \def\ht@savenotes{\if@savingnotes\else\let\@footnotetext\HT@ftntext\let\@xfootnotenext\HT@xftntext\fi}%
 \def\ht@spewnotes{\if@savingnotes\else\global\HT@ftn\expandafter{\expandafter}\the\HT@ftn\fi}%
-\long\def\ht@footnotetext#1{\global\setbox\@tempboxa\hbox{\unhbox\@tempboxa%
+\newbox\ht@footnotebox
+\long\def\ht@footnotetext#1{\global\setbox\ht@footnotebox\vbox{\unvbox\ht@footnotebox%
     \reset@font\footnotesize
     \interlinepenalty\interfootnotelinepenalty
     \splittopskip\footnotesep
@@ -1882,15 +1915,15 @@
     \renewcommand\footnote[2][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark}%
   \else%
     \renewcommand\footnote[1][\the\c@footnote]{\def\@thefnmark{##1}\@makefnmark\ht@footnotetext}%
-    \global\setbox\@tempboxa\box\voidb@x
+    \global\setbox\ht@footnotebox\box\voidb@x
   \fi%
   \global\ht@cell@insert@ht\z@
 }%
 \def\ht@calc@spewnotes{%
   \if@savingnotes\else%
-    \@tempdima\dimexpr\ht\@tempboxa+\dp\@tempboxa\relax
+    \@tempdima\dimexpr\ht\ht@footnotebox+\dp\ht@footnotebox\relax
     \global\ht@cell@insert@ht=\the\@tempdima\relax
-    \global\setbox\@tempboxa\box\voidb@x
+    \global\setbox\ht@footnotebox\box\voidb@x
   \fi}
 \def\ht@build@rowbox{%
   \global\setbox\htRowBox\hb@xt@\dimexpr\htTableWidth+\ht@h@offset{%
