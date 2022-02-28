@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.37}%
-\def\filedate{2022-02-26}%
+\def\fileversion{0.1.38}%
+\def\filedate{2022-02-28}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1561,7 +1561,7 @@
     \fi
   \fi
   \ht@get@footnoteheight
-  \global\advance\ht@init@pagegoal\ht@footnoteheight
+  \global\advance\ht@init@pagegoal-\ht@footnoteheight
   \ifdim\ht@init@pagegoal<\z@\relax
     \expandafter\global\ht@init@pagegoal\expandafter\dimexpr\pagegoal-(\pagetotal-\pagegoal)-\baselineskip\relax\fi
   \bgroup
@@ -1857,15 +1857,8 @@
   \ht@footnoteheight\z@
   \bgroup
     \output{%
-      \global \setbox\@holdpg \vbox{%
-        \unvbox\@holdpg
-        \unvbox\@cclv
-        \setbox\@tempboxa \lastbox
-        \unskip
-      }%
-      \@pagedp \dp\@holdpg
-      \@pageht \ht\@holdpg
-      \unvbox \@holdpg
+      \global\setbox\@holdpg\vbox{\unvbox\@holdpg\unvbox\@cclv}%
+      \unvbox\@holdpg
       \ifvoid\footins \else
         \global\advance \ht@footnoteheight \ht\footins
         \global\advance \ht@footnoteheight \skip\footins
@@ -1878,6 +1871,8 @@
       \fi
       \@reinserts
       \@addtocurcol
+      \addpenalty \interlinepenalty
+      \global \vsize \@colroom
     }%
     \pagebreak
   \egroup
