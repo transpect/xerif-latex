@@ -1870,7 +1870,7 @@
         \fi
       \fi
       \@reinserts
-      \@addtocurcol
+      \ifx\@currbox\@undefined\else\ifvoid\@currbox\else\@addtocurcol\fi\fi
       \addpenalty \interlinepenalty
       \global \vsize \@colroom
     }%
