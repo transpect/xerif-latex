@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.38}%
-\def\filedate{2022-02-28}%
+\def\fileversion{0.1.39}%
+\def\filedate{2022-03-10}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -58,7 +58,6 @@
 \def\convertMPtoPDF#1#2#3{}%verhindert, dass supp-pdf.mkii geladen wird, dass zusammen mit xmltex Probleme  bereiten kann (vgl. pdftex.def); thx to giovanni.
 \RequirePackage{xcolor}
 \RequirePackage{etoolbox}
-\RequirePackage{ragged2e}
 \RequirePackage{expl3}
 \def\includeDTX#1{\input src/#1.dtx}
 
@@ -515,7 +514,35 @@
     \csname ht@\ht@prop @#1\endcsname
   \fi
 }
-
+\def\ht@handle@name@transform{\ht@parse@transform}
+\def\ht@parse@transform{%
+  \ht@debugmsg{prop}{Parsing transform for \ifx\ht@apply\@undefined\else[\ht@apply]\fi{\ht@scope}{\ht@prop}; input: "\ht@val"}%
+  \ifx\ht@val\@empty\else
+    \edef\ht@val{\ht@val\space()}%
+    \expandafter\@ht@parse@transform\ht@val\@@
+  \fi
+}
+\def\@ht@parse@transform#1(#2) #3\@@{%
+  \ifx\csname @ht@parse@transform@#1\endcsname\relax
+    \ht@warnmsg{transformation "#1" not yet supported!}%
+  \else
+    \csname @ht@parse@transform@#1\endcsname{#2}%
+  \fi
+  \edef\@argiii{#3}\def\@tempa{()}%
+  \ifx\@argiii\@tempa\else
+    \expandafter\@ht@parse@transform\@argiii\@@
+  \fi
+}
+\def\ht@strip@deg#1deg\@@{#1}
+\def\@ht@parse@transform@rotate #1{%
+  \ht@debugmsg{prop}{transform rotates by "#1".}%
+  \def\ht@tempa{\ht@apply@prop{internal-rotate}}%
+  \expandafter\ht@tempa\expandafter{\ht@strip@deg#1\@@}%
+}
+\def\@ht@parse@transform@scale #1{%
+  \ht@debugmsg{prop}{transform scales by "#1".}%
+  \ht@apply@prop{internal-scale}{#1}%
+}
 \def\ht@parse@style#1{%
   \ht@callback@semicolon#1;;\@nil ht@parse@css\@nil
   \global\let\ht@cur@style\@undefined}%
@@ -729,7 +756,10 @@
   \parindent\z@
   \parfillskip\z@skip}
 \def\ht@halign@center@auto{%
-  \Centering}
+  \leftskip\@flushglue\relax
+  \rightskip\@flushglue\relax
+  \parfillskip\z@skip\relax
+  }
 \def\ht@halign@justified@auto{%
   \leftskip\z@\relax
   \rightskip\z@\relax}
@@ -738,12 +768,18 @@
   \leftskip\z@\relax
   \rightskip\z@\@plus1fill\relax}
 \def\ht@halign@left@auto{%
-  \RaggedRight}
+  \leftskip\z@skip\relax
+  \rightskip\@flushglue\relax
+  \parfillskip\@flushglue\relax
+}
 \def\ht@halign@right@none{%
   \leftskip\z@\@plus1fill\relax
   \rightskip\z@skip\relax}
 \def\ht@halign@right@auto{%
-  \RaggedLeft}
+  \leftskip\@flushglue\relax
+  \rightskip\z@skip\relax
+  \parfillskip\z@skip\relax
+}
 \def\ht@valign@box#1{%
   \GetCascCellProp{vAlign}{vertical-align}%
   \ht@debugmsg{align}{v-align for \ht@thecell: \vAlign}%
@@ -1072,8 +1108,8 @@
   \global\let\ht@add@style\@undefined
 }
 \def\ht@set@prop#1#2#3#4{%
-  \ht@debugmsg{prop}{Setting #1-#3 in #2-props to #4}%
   \def\@argiv{#4}%
+  \ht@debugmsg{prop}{Setting #1-#3 in #2-props to \meaning\@argiv}%
   \ifx\ht@no@expand\relax
     \edef\@tempa{\noexpand\expandafter\noexpand\def\noexpand\csname #1-#3\noexpand\endcsname{\expandafter\noexpand\@argiv}}%
     \let\ht@no@expand\@undefined
@@ -1274,6 +1310,7 @@
 \HTRegisterCSSProperty{td}{vertical-align}{top}
 \HTRegisterCSSProperty{td}{font}{}
 \HTRegisterCSSProperty{td}{hyphen}{none}
+\HTRegisterCSSProperty{td}{transform}{}
 \HTRegisterCSSProperty{}{class}{}
 \HTRegisterCSSProperty{}{virtual}{}
 \HTRegisterCSSProperty{}{parent}{}
@@ -1417,7 +1454,7 @@
       \vskip\csname internal-#1-padding-top\endcsname
       {\ifx\ht@scope\ht@str@td
         \linewidth\hsize
-        \hbox{\ht@valign@box{\ht@halign #2}}%
+        \hbox{\ht@valign@box{\ht@halign \ht@build@transform@box{#2}}}%
       \else
         \IfCellPropEmpty{virtual}{#2}{}%
       \fi}%
@@ -1501,22 +1538,23 @@
     +\csname internal-#1-padding-right\endcsname
   \relax
   \if@ht@nat@calc
-    \hskip\ht@framewidth\hbox{#6\ifhmode\strut\fi}%
+    \hskip\ht@framewidth
+    \IfCellPropEmpty{internal-rotate}
+      {\hbox{#6\ifhmode\strut\fi}}%
+      {\ht@build@transform@box{#6}\hskip-\z@}%
   \else
     \if@ht@height@calc
+      \advance\hsize-\ht@framewidth\relax%
       \ifx\ht@scope\ht@str@td
         \global\ht@cur@lower@dp=\z@\relax
         \global\ht@cur@upper@dp=\z@\relax
         \global\ht@cur@upper@ht=\z@\relax
-        \advance\hsize-\ht@framewidth\relax%
         \linewidth\hsize
-        \setbox\ht@tempboxa\vbox{\ht@halign #6}%
+        \setbox\ht@tempboxa\vbox{\ht@halign\ht@build@transform@box{#6}}%
         \global\ht@cur@lower@dp=\dimexpr\the\dp\ht@tempboxa\relax
         \setbox\z@\vtop{\unvcopy\ht@tempboxa}%
         \global\ht@cur@upper@ht=\dimexpr\the\ht\z@\relax
         \global\ht@cur@upper@dp=\dimexpr\the\dp\z@\relax
-      \else
-        \advance\hsize-\ht@framewidth\relax%
       \fi
       \vskip\dimexpr
          \csname internal-#1-margin-top\endcsname
@@ -1536,6 +1574,58 @@
       \ht@build@margin@box{#1}{#6}%
     \fi
   \fi}
+\RequirePackage{graphicx}%
+\long\def\ht@measure@parbox#1{%
+  \begingroup
+    \ht@protect@fragile
+    \def\htCellBreak{\noexpand\ht@cr}%
+    \protected@edef\@argi{#1}%
+    \global\ht@tempdimc\z@%% width
+    \global\ht@tempdimd\z@%% height+depth
+    \long\def\ht@mesure@line ##1\ht@cr##2\@nil{%
+      \if!##1!\else
+        \bgroup
+          \setbox\@tempboxa\hbox{##1}%
+          \ifdim\wd\@tempboxa>\ht@tempdimc\relax
+            \global\ht@tempdimc=\wd\@tempboxa
+          \fi
+          \global\advance\ht@tempdimd\ht\@tempboxa
+          \global\advance\ht@tempdimd\dp\@tempboxa
+        \egroup
+        \if!##2!\else
+          \ht@mesure@line##2\@nil
+        \fi
+      \fi
+    }%
+    \expandafter\ht@mesure@line\@argi\ht@cr\@nil
+  \endgroup
+  \SetCellProp{internal-parbox-width}{\the\ht@tempdimc}%
+  \SetCellProp{internal-parbox-height}{\the\ht@tempdimd}%
+}
+\def\htCellBreak{\break}
+\def\ht@build@transform@box#1{%
+  \ifx\ht@scope\ht@str@td
+    \IfCellPropEmpty{internal-rotate}{#1}{%
+      \GetCellProp{htRotate}{internal-rotate}%
+      \ht@tempdimc\z@\ht@tempdimd\z@
+      \IfCellPropEmpty{internal-parbox-width}{%
+        \if@ht@height@calc\leavevmode\fi
+        \ht@measure@parbox{#1}%
+      }{}%
+      \GetCellPropDefault{rotHt}{internal-parbox-width}{\the\ht@tempdimc}%
+      \GetCellPropDefault{rotWd}{internal-parbox-height}{\the\ht@tempdimd}%
+      \ifnum\htRotate>\z@\relax\def\ht@rot@orig{origin=lB}\else\def\ht@rot@orig{origin=rB}\fi
+      \expandafter\rotatebox\expandafter[\ht@rot@orig]{\htRotate}{%
+        \ifnum\htRotate<\z@\relax\hskip\dp\strutbox\fi
+        \vbox{\hsize\rotHt #1}%
+        \ifnum\htRotate=90\hskip\dp\strutbox\fi
+      }%
+      \ht@debugmsg{calcwidth}{dim rotatebox:  \rotHt\space x\space \rotWd}%
+    }%
+  \else
+    #1
+  \fi
+}%
 \def\ht@build@tab@frame#1{%
   \ht@build@frame{table}{is-leftmost}{is-topmost}{is-rightmost}{is-final}{%
     \GetRowProp{Parent}{parent}%
