@@ -227,6 +227,40 @@
 \let\Hack\@firstofone
 \let\hackfor\@gobble
 \let\Hackfor\@gobble
+\def\the@tp@thispage{}%
+\newcount\tp@abspage \tp@abspage\z@ \def\thetp@abspage{\the\tp@abspage}
+\newif\if@tp@odd \@tp@oddtrue
+\AtBeginDocument{%
+  \global\tp@abspage=\c@page\relax%
+  \g@addto@macro\@outputpage{\global\tp@abspage\c@page}%
+}
+\def\tp@test@page{%
+  \expandafter\ifx\csname the@tp@thispage\endcsname\@empty
+    \gdef\the@tp@atthispage{1}%
+  \else
+    \expandafter\ifnum \the@tp@thispage=\tp@abspage%
+      \begingroup
+        \@tempcnta\the@tp@atthispage\relax
+        \advance\@tempcnta\@ne\relax
+        \xdef\the@tp@atthispage{\the\@tempcnta}%
+      \endgroup
+    \else
+      \gdef\@tp@atthispage{1}%
+    \fi
+  \fi
+  \xdef\the@tp@thispage{\the\tp@abspage}%
+  \let\@tp@currpage\relax
+  \expandafter\ifx\csname \tp@namespace-\the@tp@thispage-\the@tp@atthispage\endcsname\relax
+    \ifodd\tp@abspage\relax\@tp@oddtrue\else\@tp@oddfalse\fi
+  \else
+    \edef\@tp@currpage{\expandafter\expandafter\expandafter\@firstofone\csname \tp@namespace-\the@tp@thispage-\the@tp@atthispage\endcsname}%
+    \ifodd\@tp@currpage\relax\@tp@oddtrue\else\@tp@oddfalse\fi
+  \fi
+}
+\def\tp@save@page{%
+  \protected@write\@auxout{\def\the@tp@namespace{\tp@namespace}\let\thetp@abspage\relax}{%
+    \string\expandafter\string\gdef\string\csname\space \tp@namespace-\the@tp@thispage-\the@tp@atthispage\string\endcsname{\thetp@abspage}}%
+}
 \def\tp@restore@init#1#2{%
   \AtBeginDocument{%
     \expandafter\ifx\csname tp-#1-#2\endcsname\relax\else
