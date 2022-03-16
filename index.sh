@@ -1,15 +1,6 @@
 #!/bin/bash
 
-XINDY=/usr/local/texlive/2019early/bin/x86_64-linux/xindy
-THISHOST=$(hostname -s)
-
-if [ -f "$XINDY" ]; then
-    XINDY=/usr/local/texlive/2019/bin/x86_64-linux/xindy
-fi
-
-if [ "$THISHOST" = "igor" ] ; then
-    XINDY=/usr/local/texlive/2017/bin/x86_64-linux/xindy
-fi
+source paths.sh
 
 if [ $# != 2 ]; then
     if [ $# != 1 ]; then
