@@ -34,14 +34,20 @@
     [\filedate \fileversion le-tex transpect lists module]
 \RequirePackage{transpect-common}
 \usepackage{enumerate}
+
+% Counter for the description lists.
 \newcount\tp@descriptionlist
+% Macro for saving the maximum label widths associated with the respective list;
+% 0pt as fallback value, if there is no *.aux file yet.
+\global\newdimen\tp@maxLabelWidth%
 \def\tp@getMaxLabelWidth{%
-  \global\newdimen\tp@maxLabelWidth%
   \global\tp@maxLabelWidth=0pt%
 }
+
 \ifx\labelitemfont\@undefined\let\labelitemfont\relax\fi
 \renewcommand\labelitemi  {\labelitemfont \textendash}
 \setlength\leftmargini{\parindent}%
+
 \def\@listi{%
   \leftmargin\leftmargini
   \parsep \z@
@@ -49,13 +55,14 @@
   \topsep .5\baselineskip % Hier Properties nutzen!
   \itemsep\z@}
 \let\@listI\@listi
+
 \def\@listii {\leftmargin\leftmarginii
               \labelwidth\leftmarginii
               \advance\labelwidth-\labelsep
               \topsep    \z@
               \parsep    \z@
               \itemsep   \parsep}
-
+              
 \def\@listiii{\leftmargin\leftmarginiii
               \labelwidth\leftmarginiii
               \advance\labelwidth-\labelsep
@@ -63,7 +70,7 @@
               \parsep    \z@
               \partopsep \z@
               \itemsep   \topsep}
-
+              
 \def\@@enum@[#1]{%
   \@enLab{}\let\@enThe\@enQmark
   \@enloop#1\@enum@
@@ -73,7 +80,7 @@
   \expandafter\let\csname the\@enumctr\endcsname\@enThe
   \csname c@\@enumctr\endcsname7
   \@enum@}
-
+  
 \def\@enum@{%
   \list{\csname label\@enumctr\endcsname}%
   {%
@@ -81,6 +88,7 @@
     \labelsep\z@
     \labelwidth\leftmargin
     \def\makelabel##1{\hb@xt@\leftmargin{##1\hss}}}}
+
 \def\itemize{%
   \ifnum \@itemdepth >\thr@@\@toodeep\else
     \advance\@itemdepth\@ne
@@ -93,17 +101,20 @@
        \labelwidth\leftmargin
        \def\makelabel##1{\hb@xt@\leftmargin{##1\hss}}}%
   \fi}
+
 \let\orig@doendpe\@doendpe
 \def\endenumerate{\endlist
   \gdef\@doendpe{%
     \@endpetrue
     \everypar{{\setbox\z@\lastbox}\everypar{}\@endpefalse}%
     \global\let\@doendpe\orig@doendpe}}
+
 \def\enditemize{\endlist
   \gdef\@doendpe{%
     \@endpetrue
     \everypar{{\setbox\z@\lastbox}\everypar{}\@endpefalse}%
     \global\let\@doendpe\orig@doendpe}}
+
 \renewenvironment{description}[1][]{%
   \small
   % Read and set maximum label width for this list from the *.aux file.
