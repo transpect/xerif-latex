@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.39}%
-\def\filedate{2022-03-10}%
+\def\fileversion{0.2.0}%
+\def\filedate{2022-03-30}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -203,7 +203,8 @@
 \newdimen\ht@rowheight         \ht@rowheight=\z@\relax
 \newdimen\ht@rowdepth          \ht@rowdepth=\z@\relax
 \newdimen\ht@add@to@bottom     \ht@add@to@bottom=\z@\relax
-\newdimen\ht@add@to@top        \ht@add@to@top=\z@\relax
+\newdimen\htAddToTop           \htAddToTop=\z@\relax
+\newdimen\ht@add@to@top        \ht@add@to@top=\htAddToTop\relax
 \def\ht@min@p@rows{2}%
 \def\ht@min@b@rows{6}%
 \newif\if@ht@nat@calc       \@ht@nat@calcfalse
@@ -265,7 +266,7 @@
   \global\let\htCaptionContent\relax
   \global\@ht@break@tablefalse
   \global\ht@add@to@bottom=\z@\relax
-  \global\ht@add@to@top=\z@\relax}
+  \global\ht@add@to@top=\htAddToTop\relax}
 \def\ht@str@collapse{collapse}
 \def\ht@str@content{content}
 \def\ht@str@caption{caption}
@@ -715,9 +716,15 @@
 \def\ht@border@style@dashed#1#2{%
   \ht@tempdimc=#1\relax
   \ifx\ht@is@vert\relax
-    \rlap{\vbox to \dimexpr#2\relax{\xleaders \vbox to \dimexpr8\ht@tempdimc\relax{\vss\vrule \@width\ht@tempdimc \@height5\ht@tempdimc\vss}\vfill}}\hskip\ht@tempdimc%
+    \rlap{\vbox to \dimexpr#2\relax{%
+        \xleaders \vbox to \dimexpr8\ht@tempdimc\relax{\vrule \@width\ht@tempdimc \@height5\ht@tempdimc\vss}\vfill
+        \vrule\@width\ht@tempdimc \@height5\ht@tempdimc
+      }}\hskip\ht@tempdimc%
   \else
-    \hb@xt@#2{\xleaders \hb@xt@\dimexpr 8\ht@tempdimc\relax{\hss\vrule \@width5\ht@tempdimc \@height\ht@tempdimc\hss}\hfill}%
+    \hb@xt@#2{%
+      \xleaders \hb@xt@\dimexpr 8\ht@tempdimc\relax{\vrule \@width5\ht@tempdimc \@height\ht@tempdimc\hss}\hfill
+      \vrule \@width5\ht@tempdimc \@height\ht@tempdimc
+    }%
   \fi
   }
 
@@ -1454,7 +1461,7 @@
       \vskip\csname internal-#1-padding-top\endcsname
       {\ifx\ht@scope\ht@str@td
         \linewidth\hsize
-        \hbox{\ht@valign@box{\ht@halign \ht@build@transform@box{#2}}}%
+        \hbox{\ht@transform@box{build}{#2}}%
       \else
         \IfCellPropEmpty{virtual}{#2}{}%
       \fi}%
@@ -1541,7 +1548,7 @@
     \hskip\ht@framewidth
     \IfCellPropEmpty{internal-rotate}
       {\hbox{#6\ifhmode\strut\fi}}%
-      {\ht@build@transform@box{#6}\hskip-\z@}%
+      {\ht@transform@box{calc}{#6}\hskip-\z@}%
   \else
     \if@ht@height@calc
       \advance\hsize-\ht@framewidth\relax%
@@ -1550,7 +1557,7 @@
         \global\ht@cur@upper@dp=\z@\relax
         \global\ht@cur@upper@ht=\z@\relax
         \linewidth\hsize
-        \setbox\ht@tempboxa\vbox{\ht@halign\ht@build@transform@box{#6}}%
+        \setbox\ht@tempboxa\vbox{\ht@transform@box{calc}{#6}}%
         \global\ht@cur@lower@dp=\dimexpr\the\dp\ht@tempboxa\relax
         \setbox\z@\vtop{\unvcopy\ht@tempboxa}%
         \global\ht@cur@upper@ht=\dimexpr\the\ht\z@\relax
@@ -1575,56 +1582,89 @@
     \fi
   \fi}
 \RequirePackage{graphicx}%
+\def\htCellBreak{\break}
 \long\def\ht@measure@parbox#1{%
   \begingroup
     \ht@protect@fragile
     \def\htCellBreak{\noexpand\ht@cr}%
     \protected@edef\@argi{#1}%
-    \global\ht@tempdimc\z@%% width
-    \global\ht@tempdimd\z@%% height+depth
+    \ht@tempdimc\z@%% width
     \long\def\ht@mesure@line ##1\ht@cr##2\@nil{%
       \if!##1!\else
-        \bgroup
-          \setbox\@tempboxa\hbox{##1}%
-          \ifdim\wd\@tempboxa>\ht@tempdimc\relax
-            \global\ht@tempdimc=\wd\@tempboxa
-          \fi
-          \global\advance\ht@tempdimd\ht\@tempboxa
-          \global\advance\ht@tempdimd\dp\@tempboxa
-        \egroup
+        \setbox\ht@tempboxa\hbox{##1\strut}%
+        \ifdim\wd\ht@tempboxa>\ht@tempdimc\relax
+          \ht@tempdimc=\wd\ht@tempboxa
+        \fi
         \if!##2!\else
           \ht@mesure@line##2\@nil
         \fi
       \fi
     }%
     \expandafter\ht@mesure@line\@argi\ht@cr\@nil
-  \endgroup
-  \SetCellProp{internal-parbox-width}{\the\ht@tempdimc}%
-  \SetCellProp{internal-parbox-height}{\the\ht@tempdimd}%
+    \edef\@tempa{\endgroup
+      \noexpand\SetCellProp{internal-transformbox-width}{\the\ht@tempdimc}%
+      \noexpand\expandafter\noexpand\def\noexpand\csname td-internal-transformbox-width\endcsname{\the\ht@tempdimc}%
+    }%
+    \@tempa
 }
-\def\htCellBreak{\break}
-\def\ht@build@transform@box#1{%
+\def\ht@align@box#1{%
+  \if@ht@final@render
+    \ht@valign@box{\ht@halign#1}%
+  \else
+    \if@ht@nat@calc
+      #1%
+    \else
+      \ht@halign#1%
+    \fi
+  \fi
+}
+\def\ht@transform@box#1#2{%
   \ifx\ht@scope\ht@str@td
-    \IfCellPropEmpty{internal-rotate}{#1}{%
+    \IfCellPropEmpty{internal-rotate}{\ht@align@box{#2}}{%
       \GetCellProp{htRotate}{internal-rotate}%
-      \ht@tempdimc\z@\ht@tempdimd\z@
-      \IfCellPropEmpty{internal-parbox-width}{%
-        \if@ht@height@calc\leavevmode\fi
-        \ht@measure@parbox{#1}%
-      }{}%
-      \GetCellPropDefault{rotHt}{internal-parbox-width}{\the\ht@tempdimc}%
-      \GetCellPropDefault{rotWd}{internal-parbox-height}{\the\ht@tempdimd}%
-      \ifnum\htRotate>\z@\relax\def\ht@rot@orig{origin=lB}\else\def\ht@rot@orig{origin=rB}\fi
-      \expandafter\rotatebox\expandafter[\ht@rot@orig]{\htRotate}{%
-        \ifnum\htRotate<\z@\relax\hskip\dp\strutbox\fi
-        \vbox{\hsize\rotHt #1}%
-        \ifnum\htRotate=90\hskip\dp\strutbox\fi
-      }%
-      \ht@debugmsg{calcwidth}{dim rotatebox:  \rotHt\space x\space \rotWd}%
+      \ifnum\htRotate=\z@\relax
+        \ht@align@box{#2}%
+      \else
+        \csname ht@#1@transform@box\endcsname{#2}%
+      \fi
     }%
   \else
-    #1
+    #2%
   \fi
+}
+\def\ht@render@rotate@box#1{%
+  \ifnum\htRotate>\z@\relax\def\ht@rot@orig{origin=lB}\else\def\ht@rot@orig{origin=rB}\fi
+  \expandafter\rotatebox\expandafter[\ht@rot@orig]{\htRotate}{%
+    #1%
+  }%
+}
+\def\ht@calc@transform@box#1{%
+  \ht@tempdimc\z@
+  \IfCellPropEmpty{internal-transformbox-width}{%
+    \ht@measure@parbox{#1}%
+  }{}%
+  \GetCellPropDefault{rotWd}{internal-transformbox-width}{\the\ht@tempdimc}%
+  \hb@xt@\z@{}%
+  \ht@render@rotate@box{%
+    \hsize\dimexpr\rotWd\relax
+    \vbox{\ht@halign\leavevmode\ignorespaces#1}%
+  }%
+}
+\def\ht@build@transform@box#1{%
+  \edef\rotWd{\the\dimexpr\vsize-.5\dp\strutbox\relax}%
+  \edef\rotHt{\the\hsize}%
+  \ht@render@rotate@box{%
+    \vsize\rotHt
+    \hsize\rotWd
+    \ifnum\htRotate>\z@\relax\hskip.25\dp\strutbox\else\hskip-.25\dp\strutbox\fi
+    \leavevmode
+    \ht@valign@box{%
+      \ht@halign
+      \leavevmode
+      \ignorespaces
+      #1}%
+    \ifnum\htRotate>\z@\relax\hskip-.25\dp\strutbox\else\hskip.25\dp\strutbox\fi
+  }%
 }%
 \def\ht@build@tab@frame#1{%
   \ht@build@frame{table}{is-leftmost}{is-topmost}{is-rightmost}{is-final}{%
@@ -1639,17 +1679,19 @@
 \def\HTBeginTable{%
   \@ht@final@renderfalse
   \ifdim\pagegoal=\maxdimen
-    \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip\relax
+    \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop\relax
   \else
-    \edef\ht@measurepage{\the\dimexpr\pagegoal-\pagetotal-\baselineskip\relax}%
+    \edef\ht@measurepage{\the\dimexpr\pagegoal-\pagetotal-\baselineskip-\htAddToTop\relax}%
     \expandafter\@tempdima\expandafter\dimexpr\ht@min@b@rows\baselineskip+2\baselineskip\relax
     \ifdim\ht@measurepage<\@tempdima
       \goodbreak
-      \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip\relax
+      \let\ht@omit@break\relax
+      \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop\relax
     \else
       \global\ht@init@pagegoal=\ht@measurepage\relax
     \fi
   \fi
+  \ht@footnoteheight\z@
   \ht@get@footnoteheight
   \global\advance\ht@init@pagegoal-\ht@footnoteheight
   \ifdim\ht@init@pagegoal<\z@\relax
@@ -1944,7 +1986,6 @@
 
 \newdimen\ht@footnoteheight
 \def\ht@get@footnoteheight{%
-  \ht@footnoteheight\z@
   \bgroup
     \output{%
       \global\setbox\@holdpg\vbox{\unvbox\@holdpg\unvbox\@cclv}%
@@ -1964,7 +2005,7 @@
       \addpenalty \interlinepenalty
       \global \vsize \@colroom
     }%
-    \pagebreak
+    \ifx\ht@omit@break\relax\else\pagebreak\fi
   \egroup
   }
 \newtoks\HT@ftn
@@ -2228,7 +2269,7 @@
   \@ht@CalculateRowHeights
 }}
 \def\ht@calculate@add@to@top{%
-  \global\ht@add@to@top=\z@\relax
+  \global\ht@add@to@top=\htAddToTop\relax
   \ifvoid\htCaptionBox\else
     \IfTablePropText{repeat-caption}{true}{%
       \IfPropText{caption}{caption-side}{top}{%
