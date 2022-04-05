@@ -213,6 +213,7 @@
 \newif\if@ht@break@table    \@ht@break@tablefalse
 \newif\if@ht@no@final@strut \@ht@no@final@strutfalse
 \newif\if@ht@no@init@strut  \@ht@no@init@strutfalse
+\newif\if@ht@in@table       \@ht@in@tablefalse
 \gdef\ht@tempa{}
 \newcount\ht@tempcnta          \ht@tempcnta=\z@\relax
 \newcount\ht@tempcntb          \ht@tempcntb=\z@\relax
@@ -1677,6 +1678,7 @@
   \ht@build@tab@frame{#1}}
 
 \def\HTBeginTable{%
+  \@ht@in@tabletrue
   \@ht@final@renderfalse
   \ifdim\pagegoal=\maxdimen
     \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop\relax
@@ -1730,7 +1732,8 @@
     % \fi
   \egroup
   \let\ht@parent\ht@str@tbody
-  \let\ht@initial@run\relax}
+  \let\ht@initial@run\relax
+}
 \def\HTEndTable{%
   \let\ht@initial@run\@undefined
   \global\ht@maxrow\ht@currow
@@ -1755,6 +1758,7 @@
   \let\leftskip\ltx@leftskip \let\rightskip\ltx@rightskip
   \ht@debugmsg{info}{Done with table \the\ht@curtab}%
   \@ht@final@rendertrue
+  \@ht@in@tablefalse
 }
 \def\ht@adjust@linewidth{%
   \advance\ht@h@offset\leftskip
