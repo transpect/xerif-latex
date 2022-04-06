@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.2}%
-\def\filedate{2021-03-30}%
+\def\fileversion{0.1.3}%
+\def\filedate{2021-04-06}%
 %%
 %% module for le-tex transpect.cls that extends heading objects.
 %%
@@ -92,14 +92,7 @@
   \tpDeclareHook{toc-after-hook-#1}%
   \tpDeclareHook{before-hook-#1}%
 }
-\def\tp@init@cnt#1#2{%
-  \tpIfPropVal{numbering}{auto}
-    {\expandafter\ifx\csname c@#2\endcsname \relax
-        \expandafter\newcount\csname c@#2\endcsname
-      \fi
-      \global\csname c@#2\endcsname=\z@
-    }{}%
-}
+\def\tp@init@cnt#1#2{\tpIfPropVal{numbering}{auto}{\@definecounter{#2}}{}}
 \def\tp@auto@number#1#2{%#1 level #2 name
   \tpIfPropVal{numbering}{auto}
     {%
@@ -107,9 +100,11 @@
      \else
        \tpIfComp{Number}
          {}%
-         {\expandafter\global\expandafter\advance\csname c@#2\endcsname by \@ne\relax
-          \edef\@tempa{\csname the#2\endcsname}%
-          \expandafter\tpNumber\expandafter{\@tempa}}
+         {\ifnum #1>\c@secnumdepth\relax\else
+            \refstepcounter{#1}%
+            \edef\@tempa{\csname the#2\endcsname}%
+            \expandafter\tpNumber\expandafter{\@tempa}%
+          \fi}%
      \fi}{}
 }
 \def\tp@hdg@create@labels#1{%
