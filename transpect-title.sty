@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.4}%
-\def\filedate{2021-04-11}%
+\def\fileversion{0.1.5}%
+\def\filedate{2021-04-12}%
 %%
 %% module for le-tex transpect.cls for maketitle.
 %%
@@ -56,7 +56,16 @@
   \let\tp@namespace\@empty
 }
 \def\tp@title@set@pdfmeta{%
+  \tp@title@process@bkt
+  \tp@title@process@bka
+}
+\def\tp@title@process@bkt{%
   \expandafter\title\expandafter{\tpUseComp{tpTitle}}%
+  \xdef\tpRunBookTitle{\tpUseProperty{run-book-title}}%
+}
+\def\tp@title@process@bka{%
+  \xdef\tpRunBookName{\tpUseProperty{run-book-name}}%
+  \expandafter\author\expandafter{\tpRunBookName}%
 }
 \def\tp@maketitle{%
   \tpNamespace{titlepage}%
@@ -172,19 +181,7 @@
     \tpIfComp{#1MetaBlock}{}{\expandafter\csname tp#1MetaBlock\expandafter\endcsname\expandafter{\tp@iterate@res}}%
     \tp@iterate@cnts{#1}{\csname tp@title@#1@format@name\endcsname}%
     \tpIfComp{#1NameList}{}{\expandafter\csname tp#1NameList\expandafter\endcsname\expandafter{\tp@iterate@res}}%
-    \tp@create@editor@string{#1}%
   }}%
-\def\tp@create@editor@string#1{%
-  \def\@tempa{Author}\def\@argi{#1}%
-  \ifx\@tempa\@argi\else
-    \tpIfComp{#1String}{}{%
-      \csname tp#1String\endcsname{%
-        \tpUseComp{#1NameList}%
-        \tpUseProperty{editor-suffix}%
-      }%
-    }%
-  \fi
-}%
 \def\tp@title@names#1{%
   \csname tp@title@name@#1\endcsname{Author}{author}%
   \csname tp@title@name@#1\endcsname{Editor}{editor}%
@@ -196,7 +193,8 @@
   \tp@title@macro{Cover}%       Path to Cover Image(!)
   %% Titles
   \tp@title@macro{Title}%       Main Title
-  \tp@title@macro{ShortTitle}% Shortened Main Title
+  \tp@title@macro{ShortTitle}% Shortened main title
+  \tp@title@macro{RunTitle}% Shortened main title override for headers
   \tp@title@macro{Subtitle}%   Sub Title
   %% Series
   \tp@title@macro{Series}%     Series Title
@@ -204,8 +202,8 @@
   \tp@title@macro{SeriesNote}%Series Notes
   \tp@title@macro{Volume}%     Series Volume
   \tp@title@macro{Number}%     Series Number
-  \tp@title@macro{EditorString}% Editor Text Line
-  \tp@title@macro{SeriesEditorString}% Series Editor Text Line
+  \tp@title@macro{EditorNameList}% Editor Text Line
+  \tp@title@macro{SeriesEditorNameList}% Series Editor Text Line
   %% Publisher
   \tp@title@macro{Publisher}% Publisher Name
   \tp@title@macro{PubDivision}% Publishing Division
@@ -334,7 +332,7 @@
   }%
   \tpSetProperty{titlepage-i}{%
     \ifcollection
-      \tpUseComp{EditorString}%
+      \tpUseProperty{editor-string}%
     \else
       \tpUseComp{AuthorNameList}%
     \fi%
@@ -350,7 +348,7 @@
   }%
   \tpSetProperty{titlepage-iii}{%
     \ifcollection
-      \tpUseComp{EditorString}%
+      \tpUseProperty{editor-string}%
     \else
       \tpUseComp{AuthorNameList}%
     \fi%
@@ -441,6 +439,7 @@
   \tpSetProperty{editor-suffix-sgl}{\space(Ed.)}%
   \tpSetProperty{editor-suffix-pl}{\space(Eds.)}%
   \tpSetProperty{editor-suffix}{%
+    \space
     \ifnum\tpTotalCount=\@ne\relax
       \tpUseProperty{editor-suffix-sgl}%
     \else
@@ -463,10 +462,34 @@
       \fi
     \fi
   }%
+  \tpSetProperty{editor-string}{%
+    \tpUseComp{EditorNameList}\tpUseProperty{editor-suffix}%
+  }%
+  \tpSetProperty{series-editor-string}{%
+    \tpUseComp{SeriesEditorNameList}%
+  }%
+  % Bio
   \tpSetProperty{bio-block}{%
     \tpGetComp{AuthorMetaBlock}%
     \tpGetComp{EditorMetaBlock}%
     \tpGetComp{SeriesEditorMetaBlock}%
+  }%
+  % Running headers
+  \tpSetProperty{run-book-title}{%
+    \tpIfComp{RunTitle}
+      {\tpUseComp{RunTitle}}
+      {\tpIfComp{ShortTitle}
+        {\tpUseComp{ShortTitle}}
+        {}}%
+  }%
+  \tpSetProperty{run-book-name}{%
+    \tpIfComp{RunNames}
+      {\tpUseComp{RunNames}}
+      {\ifcollection
+         \tpUseProperty{editor-string}%
+       \else
+         \tpUseComp{AuthorNameList}%
+       \fi}%
   }%
 }
 \let\tpBookTitle\title
