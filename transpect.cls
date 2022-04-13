@@ -98,7 +98,7 @@
 \else
 \RequirePackage{babel}
 \fi
-\PassOptionsToPackage{breaklinks,linktocpage,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
+\PassOptionsToPackage{breaklinks,linktoc=none,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
 \RequirePackage{transpect-headings}
 \RequirePackage{transpect-floats}
 \RequirePackage{transpect-title}

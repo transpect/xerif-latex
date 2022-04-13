@@ -285,6 +285,7 @@
     \expandafter\ifnum \csname c@#2depth\endcsname<#3\relax
     \else
       \bgroup
+        \long\def\tpTocLink####1{\hyper@linkstart{link}{\Hy@tocdestname}{####1}\hyper@linkend}%
         \csname tp@#2@extract@data\endcsname{#3}{#4}{##1}{##2}%
         \csname tp@#2@print@entry\endcsname{#4}%
       \egroup
@@ -296,12 +297,12 @@
 \def\tp@print@generic#1{%
 }
 \def\tp@expand@l@contents#1#2#3#4{%
-  \sbox\z@{\def\numberline##1{\expandafter\gdef\csname tp@#2@#3Number\endcsname{##1}}\expandonce#1}%
+  \sbox\z@{\def\numberline##1{\expandafter\gdef\csname tp@#2@#3Number\endcsname{##1}}#1}%
   \ifdim\wd\z@>\z@
     \let\numberline\@gobble%
-    \expandafter\expandafter\expandafter\csname tp#3#4\endcsname\expandafter{\expandonce#1}%
+    \expandafter\xdef\csname tp@#2@#3#4\endcsname{#1}%
   \else
-    \expandonce#1%
+    #1%
   \fi}
 \def\tp@format@number#1#2#3{%
   \tpSetProperty{#1formatted-number}{}%
