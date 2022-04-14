@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.0}%
-\def\filedate{2022-03-30}%
+\def\fileversion{0.2.1}%
+\def\filedate{2022-04-14}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1690,7 +1690,7 @@
       \let\ht@omit@break\relax
       \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop\relax
     \else
-      \global\ht@init@pagegoal=\ht@measurepage\relax
+       \global\ht@init@pagegoal=\ht@measurepage\relax
     \fi
   \fi
   \ht@footnoteheight\z@
@@ -1993,6 +1993,8 @@
   \bgroup
     \output{%
       \global\setbox\@holdpg\vbox{\unvbox\@holdpg\unvbox\@cclv}%
+      \global\advance \ht@footnoteheight \ht\@holdpg
+      \global\advance \ht@footnoteheight \dp\@holdpg
       \unvbox\@holdpg
       \ifvoid\footins \else
         \global\advance \ht@footnoteheight \ht\footins
