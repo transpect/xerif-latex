@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.1}%
-\def\filedate{2022-04-14}%
+\def\fileversion{0.2.2}%
+\def\filedate{2022-04-19}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -203,6 +203,7 @@
 \newdimen\ht@rowheight         \ht@rowheight=\z@\relax
 \newdimen\ht@rowdepth          \ht@rowdepth=\z@\relax
 \newdimen\ht@add@to@bottom     \ht@add@to@bottom=\z@\relax
+\newdimen\htInitSkip           \htInitSkip=\z@\relax
 \newdimen\htAddToTop           \htAddToTop=\z@\relax
 \newdimen\ht@add@to@top        \ht@add@to@top=\htAddToTop\relax
 \def\ht@min@p@rows{2}%
@@ -1681,21 +1682,21 @@
   \@ht@in@tabletrue
   \@ht@final@renderfalse
   \ifdim\pagegoal=\maxdimen
-    \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop\relax
+    \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop-\htInitSkip\relax
   \else
-    \edef\ht@measurepage{\the\dimexpr\pagegoal-\pagetotal-\baselineskip-\htAddToTop\relax}%
+    \edef\ht@measurepage{\the\dimexpr\pagegoal-\pagetotal-\baselineskip-\htAddToTop-\htInitSkip\relax}%
     \expandafter\@tempdima\expandafter\dimexpr\ht@min@b@rows\baselineskip+2\baselineskip\relax
     \ifdim\ht@measurepage<\@tempdima
       \goodbreak
       \let\ht@omit@break\relax
-      \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop\relax
+      \global\ht@init@pagegoal=\dimexpr\textheight-\baselineskip-\htAddToTop-\htInitSkip\relax
     \else
-       \global\ht@init@pagegoal=\ht@measurepage\relax
+      \global\ht@init@pagegoal=\ht@measurepage\relax
     \fi
   \fi
   \ht@footnoteheight\z@
   \ht@get@footnoteheight
-  \global\advance\ht@init@pagegoal-\ht@footnoteheight
+  \global\ht@init@pagegoal\dimexpr\textheight-\ht@footnoteheight-\baselineskip-\htAddToTop-\htInitSkip\relax
   \ifdim\ht@init@pagegoal<\z@\relax
     \expandafter\global\ht@init@pagegoal\expandafter\dimexpr\pagegoal-(\pagetotal-\pagegoal)-\baselineskip\relax\fi
   \bgroup
