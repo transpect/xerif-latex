@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.2}%
-\def\filedate{2022-04-19}%
+\def\fileversion{0.2.3}%
+\def\filedate{2022-04-21}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -205,6 +205,7 @@
 \newdimen\ht@add@to@bottom     \ht@add@to@bottom=\z@\relax
 \newdimen\htInitSkip           \htInitSkip=\z@\relax
 \newdimen\htAddToTop           \htAddToTop=\z@\relax
+\newdimen\htAddToBottom        \htAddToBottom=\z@\relax
 \newdimen\ht@add@to@top        \ht@add@to@top=\htAddToTop\relax
 \def\ht@min@p@rows{2}%
 \def\ht@min@b@rows{6}%
@@ -2190,40 +2191,41 @@
     \global\let\ht@used@footins@tolerance\@undefined
     \ht@Iterate{\ht@currow}%
       {\the\numexpr\ht@theadrows+\ht@tfootrows+1\relax}%
-      {\ht@maxrow}{{%
-          \ht@eval@props{tr-\the\ht@currow}%
-          \IfPropText{tr}{do-break}{true}{%
-            \ht@prepare@break
-          }{%
-            \GetRowProp{rowHeight}{height}%
-            \GetRowProp{insertHt}{footins-height}%
-            \GetRowProp{rowspan}{has-rowspan}%
-            \ht@debugmsg{footnote}{Adding Footins-height: \insertHt}%
-            \ifx\ht@used@footins@tolerance\@undefined
-              \ifdim\insertHt>\z@\relax
-                \GetScopedProp{insertTol}{table}{insert-tolerance}%
-                \global\advance\ht@table@height\dimexpr\insertTol\relax
-                \global\let\ht@used@footins@tolerance\relax
-              \fi
-            \fi
-            \global\advance\ht@table@height\dimexpr\rowHeight+\insertHt\relax
-            \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax>\numexpr\ht@min@p@rows\relax\relax
-              \ifdim\ht@table@height<\dimexpr\ht@init@pagegoal-\baselineskip\relax
-              \else
-                % \ifdim\rowHeight>2\baselineskip\relax
-                %   \IfPropText{table}{allow-cell-breaks}{true}{\ht@find@row@break@point}{\ht@find@row@break@point}%
-                % \else
-                \ht@find@row@break@point
-                % \fi
-              \fi
-            \else
-              \ifdim\ht@table@height<\ht@init@pagegoal\relax\else
-                \global\ht@init@pagegoal=\textheight\relax
-                \global\let\ht@used@footins@tolerance\@undefined
-              \fi
-            \fi
-          }%
-      }}%
+      {\ht@maxrow}
+      {{\ht@eval@props{tr-\the\ht@currow}%
+        \IfPropText{tr}{do-break}{true}
+          {\ht@prepare@break}
+          {\GetRowProp{rowHeight}{height}%
+           \GetRowProp{insertHt}{footins-height}%
+           \GetRowProp{rowspan}{has-rowspan}%
+           \ifnum\ht@currow=\ht@maxrow
+             \edef\rowHeight{\dimexpr\rowHeight+\htAddToBottom\relax}%
+           \fi
+           \ht@debugmsg{footnote}{Adding Footins-height: \insertHt}%
+           \ifx\ht@used@footins@tolerance\@undefined
+             \ifdim\insertHt>\z@\relax
+               \GetScopedProp{insertTol}{table}{insert-tolerance}%
+               \global\advance\ht@table@height\dimexpr\insertTol\relax
+               \global\let\ht@used@footins@tolerance\relax
+             \fi
+           \fi
+           \global\advance\ht@table@height\dimexpr\rowHeight+\insertHt\relax
+           \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax>\numexpr\ht@min@p@rows\relax\relax
+             \ifdim\ht@table@height<\dimexpr\ht@init@pagegoal-\baselineskip\relax\else
+               % \ifdim\rowHeight>2\baselineskip\relax
+               %   \IfPropText{table}{allow-cell-breaks}{true}{\ht@find@row@break@point}{\ht@find@row@break@point}%
+               % \else
+               \ht@find@row@break@point
+               % \fi
+             \fi
+           \else
+             \ifdim\ht@table@height<\ht@init@pagegoal\relax\else
+               \global\ht@init@pagegoal=\textheight\relax
+               \global\advance\ht@init@pagegoal-\htInitSkip\relax
+               \global\let\ht@used@footins@tolerance\@undefined
+             \fi
+           \fi
+       }}}%
   \fi
 }
 \def\ht@find@cell@break@point{%
