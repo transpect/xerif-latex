@@ -2246,7 +2246,10 @@
     \GetRowProp{rowheight}{height}%
   \repeat
   \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax=\@ne\relax
-    \global\ht@currow\numexpr\ht@tempcnta+\@ne\relax
+    %% \global\ht@currow\numexpr\ht@tempcnta+\@ne\relax% why?
+    \global\ht@init@pagegoal=\textheight\relax
+    \global\advance\ht@init@pagegoal-\htInitSkip\relax
+    \global\let\ht@used@footins@tolerance\@undefined
   \else
     \ifnum\ht@currow=\ht@last@break@row\else
       \ht@prepare@break

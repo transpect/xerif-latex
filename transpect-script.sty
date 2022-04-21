@@ -34,7 +34,7 @@
 \let\usescript\relax
 \define@key{transpect-script.sty}{usescript}{\def\usescript{#1}}
 \ProcessOptionsX
-\RequirePackage{fontspec}
+\RequirePackage[quiet]{fontspec}
 \RequirePackage[bidi=basic,silent]{babel}
 \def\parse@script#1,#2,\relax{%
   \tp@script@callback{#1}%
