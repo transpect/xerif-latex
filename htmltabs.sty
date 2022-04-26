@@ -413,41 +413,45 @@
   }
 \begingroup
 \catcode `\#=\active\gdef#{\string#}
-\gdef\@ht@parse@color@str{\if\ht@next@char #\@ht@set@html@color\else\@ht@set@name@color\fi}%
+\gdef\@ht@parse@color@str{\if\ht@next@token #\@ht@set@html@color\else\@ht@set@name@color\fi}%
 \endgroup
 
-\def\@ht@set@html@color{%
-  \def\@ht@color{\color[HTML]}%
-  \def\ht@res@char{\expandafter\expandafter\expandafter\@cdr\expandafter\string\ht@val\@nil}%
-  \edef\ht@temp@val{\ht@res@char}%
-  \xdef\ht@color@val{\expandonce\@ht@color{\ht@temp@val}}%
+\def\@ht@set@name@color{\xdef\ht@color@val{\noexpand\color{\ht@val}}}
+\def\@ht@set@html@color{\expandafter\expandafter\expandafter\ht@parse@hex@color\expandafter\expandafter\expandafter{\expandafter\@cdr\ht@val\@nil}}
+
+\def\@ht@parse@hex@color#1#2#3#4\@nil{%
+  \edef\@argiv{#4}%
+  \ifx\@argiv\@empty
+    \edef\ht@col@val{#1#1#2#2#3#3}%
+  \else
+    \edef\ht@col@val{#1#2#3#4}%
+  \fi}
+
+\def\ht@parse@hex@color#1{%
+  \@ht@parse@hex@color#1\@nil%
+  \xdef\ht@color@val{\noexpand\color[HTML]{\ht@col@val}}%
 }
 
-\def\@ht@set@name@color{%
-  \def\@ht@color{\color}%
-  \xdef\ht@color@val{\expandonce\@ht@color{\ht@val}}%
-}
 \def\ht@parse@color@prop{%
   \ht@debugmsg{prop}{Parsing color for \ifx\ht@apply\@undefined\else[\ht@apply]\fi{\ht@scope}{\ht@prop}; input: "\ht@val"}%
   \global\let\ht@color@val\@empty
   \ifx\ht@val\@empty\else
-    \def\ht@next@char{\expandafter\expandafter\expandafter\@car\expandafter\string\ht@val\@nil}%
     \edef\ht@next@token{\expandafter\@car\ht@val\@nil}%
     \def\@tempa{\#}%
     \ifx\ht@next@token\@tempa
-      \edef\ht@res@char{\expandafter\@cdr\ht@val\@nil}%
-      \xdef\ht@color@val{\noexpand\color[HTML]{\ht@res@char}}%
+      \@ht@set@html@color
     \else
       \@ht@parse@color@str%
     \fi
   \fi
 }
+
 \def\ht@parse@and@set@color@prop{%
   \ht@debugmsg{prop}{Processing \ifx\ht@apply\@undefined\else[\ht@apply]\fi{\ht@scope}{\ht@prop}; input: "\ht@val"}%
   \ifx\ht@val\@empty\else
     \ht@parse@color@prop
     \let\ht@no@expand\relax
-    \def\ht@apply@color{\ht@apply@prop{internal-\ht@prop}}%
+    \edef\ht@apply@color{\noexpand\ht@apply@prop{internal-\ht@prop}}%
     \expandafter\ht@apply@color\expandafter{\ht@color@val}%
   \fi
 }
@@ -1625,7 +1629,7 @@
   \ifx\ht@scope\ht@str@td
     \IfCellPropEmpty{internal-rotate}{\ht@align@box{#2}}{%
       \GetCellProp{htRotate}{internal-rotate}%
-      \ifnum\htRotate=\z@\relax
+      \ifdim\htRotate\p@=\z@\relax
         \ht@align@box{#2}%
       \else
         \csname ht@#1@transform@box\endcsname{#2}%
@@ -1636,7 +1640,7 @@
   \fi
 }
 \def\ht@render@rotate@box#1{%
-  \ifnum\htRotate>\z@\relax\def\ht@rot@orig{origin=lB}\else\def\ht@rot@orig{origin=rB}\fi
+  \ifdim\htRotate\p@>\z@\relax\def\ht@rot@orig{origin=lB}\else\def\ht@rot@orig{origin=rB}\fi
   \expandafter\rotatebox\expandafter[\ht@rot@orig]{\htRotate}{%
     #1%
   }%
@@ -1659,14 +1663,14 @@
   \ht@render@rotate@box{%
     \vsize\rotHt
     \hsize\rotWd
-    \ifnum\htRotate>\z@\relax\hskip.25\dp\strutbox\else\hskip-.25\dp\strutbox\fi
+    \ifdim\htRotate\p@>\z@\relax\hskip.25\dp\strutbox\else\hskip-.25\dp\strutbox\fi
     \leavevmode
     \ht@valign@box{%
       \ht@halign
       \leavevmode
       \ignorespaces
       #1}%
-    \ifnum\htRotate>\z@\relax\hskip-.25\dp\strutbox\else\hskip.25\dp\strutbox\fi
+    \ifdim\htRotate\p@>\z@\relax\hskip-.25\dp\strutbox\else\hskip.25\dp\strutbox\fi
   }%
 }%
 \def\ht@build@tab@frame#1{%

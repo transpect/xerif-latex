@@ -126,7 +126,7 @@
    }%
 }{\endlist
 \immediate\write\@auxout{\string\g@addto@macro\string\tp@getMaxLabelWidth{\string\ifnum\string\the\tp@descriptionlist=\the\tp@descriptionlist\relax\string\global\string\tp@maxLabelWidth=\the\tp@maxLabelWidth\string\fi}}%
-\global\advance\tp@descriptionlist by 1
+\global\advance\tp@descriptionlist by \@ne
 \gdef\@doendpe{%
     \@endpetrue
     \everypar{{\setbox\z@\lastbox}\everypar{}\@endpefalse}%
