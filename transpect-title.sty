@@ -168,8 +168,8 @@
 \newcount\tpCurCount
 \def\tp@compose@cnt#1#2#3{%
   \tpIfComp{#3}{}
-    {\edef\tp@iterate@res{%
-       \noexpand\def\noexpand\tpTotalCount{\the\csname #1-Cnt\endcsname}%
+    {\gdef\tpTotalCount{\the\csname #1-Cnt\endcsname}%
+     \edef\tp@iterate@res{%
        \noexpand\bgroup
          \noexpand\tpToggleCountedCond
          \noexpand\def\noexpand\tp@cnt@grp{#1}}%
