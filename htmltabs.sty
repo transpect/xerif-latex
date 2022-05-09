@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.3}%
-\def\filedate{2022-04-21}%
+\def\fileversion{0.2.4}%
+\def\filedate{2022-05-09}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -2249,15 +2249,15 @@
     \GetRowProp{rowspan}{has-rowspan}%
     \GetRowProp{rowheight}{height}%
   \repeat
-  \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax=\@ne\relax
-    %% \global\ht@currow\numexpr\ht@tempcnta+\@ne\relax% why?
-    \global\ht@init@pagegoal=\textheight\relax
-    \global\advance\ht@init@pagegoal-\htInitSkip\relax
-    \global\let\ht@used@footins@tolerance\@undefined
-  \else
+  \ifnum\ht@min@p@rows=\z@\relax\ht@min@p@rows=\@ne\relax\fi
+  \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax>\ht@min@p@rows\relax
     \ifnum\ht@currow=\ht@last@break@row\else
       \ht@prepare@break
     \fi
+  \else
+    \global\ht@init@pagegoal=\textheight\relax
+    \global\advance\ht@init@pagegoal-\htInitSkip\relax
+    \global\let\ht@used@footins@tolerance\@undefined
   \fi
 }
 
