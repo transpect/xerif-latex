@@ -217,7 +217,6 @@
     \@afterheading
     \ignorespaces}}
 \def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
-\DeclareRobustCommand{\TitleBreak}{\hfill\break}
 \def\@heading[#1]#2{%
   \tp@heading@reserve
   \tpParseAttributes{heading}{#1}%
@@ -259,7 +258,7 @@
 \def\tp@heading@reserve{%
   \tpNamespace{heading}%
   \let\tpltx@dbl@backslash\\
-  \let\\\TitleBreak
+  \let\\\tpBreak
   \let\tpltx@label\label
   \let\tp@heading@label\relax
   }
