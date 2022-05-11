@@ -62,6 +62,8 @@
   \tp@title@process@bkc
 }
 \def\tp@title@process@bkt{%
+  % Renew \newline macro, as the compilation would otherwise throw an error.
+  \let\newline\break
   \expandafter\title\expandafter{\tpUseComp{Title}}%
   \tp@write@pdf@meta{pdftitle}{\tpUseComp{Title}}%
   \edef\tp@run@book@title{\tpUseProperty{run-book-title}}%
