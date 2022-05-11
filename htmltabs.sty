@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.4}%
-\def\filedate{2022-05-09}%
+\def\fileversion{0.2.5}%
+\def\filedate{2022-05-11}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -2258,6 +2258,7 @@
     \global\ht@init@pagegoal=\textheight\relax
     \global\advance\ht@init@pagegoal-\htInitSkip\relax
     \global\let\ht@used@footins@tolerance\@undefined
+    \global\ht@currow\numexpr\ht@tempcnta+\@ne\relax
   \fi
 }
 
