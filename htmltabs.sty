@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.5}%
-\def\filedate{2022-05-11}%
+\def\fileversion{0.2.6}%
+\def\filedate{2022-05-12}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -2249,7 +2249,7 @@
     \GetRowProp{rowspan}{has-rowspan}%
     \GetRowProp{rowheight}{height}%
   \repeat
-  \ifnum\ht@min@p@rows=\z@\relax\ht@min@p@rows=\@ne\relax\fi
+  \ifnum\ht@min@p@rows=\z@\relax\let\ht@min@p@rows\@ne\relax\fi
   \expandafter\ifnum\numexpr\ht@currow-\ht@theadrows-\ht@tfootrows\relax>\ht@min@p@rows\relax
     \ifnum\ht@currow=\ht@last@break@row\else
       \ht@prepare@break
