@@ -1,0 +1,74 @@
+%%
+%% This is file `transpect-kernel.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% transpect.dtx  (with options: `kernel')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from transpect-kernel.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file transpect.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+\def\fileversion{0.1.7}%
+\def\filedate{2021-04-21}%
+\RequirePackage{etoolbox}
+\gdef\tpPackageError#1#2#3#4{%
+   \GenericError{%
+      (#1)\@spaces\@spaces\@spaces\@spaces
+   }{%
+      [#1] #2 Error: #3%
+   }{}{#4}%
+}
+\long\def\tpDeclareContainer{\@ifnextchar[{\tp@declare@container}{\tp@declare@container[]}}%]
+\long\def\tp@declare@container[#1]#2#3{%
+  \if!#1!\else
+    \expandafter\ifx\csname tp@container@body@#1\endcsname\relax
+      \tpPackageError{transpect-kernel.sty}{Class}
+        {Parent Container `#1' undeclared}
+        {You tried to make a Container named `#2'\MessageBreak an ascendent of a Container named `#1',\MessageBreak but a Container of name `#1' does not exist.}%
+    \else
+      \csname tp@container@body@#1\endcsname
+    \fi
+  \fi
+  \tp@setter@getter{Components}{#2}%
+  \tp@setter@getter{Properties}{#2}%
+  \expandafter\long\expandafter\def\csname tp@container@body@#2\endcsname{%
+    \tpSetContName{#2}%
+    #3}%
+  \csname tp@container@body@#2\endcsname
+}
+\def\tp@setter@getter#1#2{%
+  \expandafter\def\csname tpSet#1\endcsname##1{%
+    \expandafter\def\csname tp@the@#2@#1\endcsname{##1}%
+  }%
+  \expandafter\expandafter\expandafter\let\csname tpGet#1\expandafter\endcsname\csname tp@the@#2@#1\endcsname
+}
+\def\tpSetContName#1{%
+  \def\tp@container@name{#1}%
+  \let\tp@namespace\tp@container@name
+}
+\long\def\tp@iterate{\@ifnextchar[{\@tp@iterate}{\@tp@iterate[\@ne]}}%]
+\long\def\@tp@iterate[#1]#2#3#4#5{%
+  \advance#2 by #1\relax
+  #2=#3\relax%
+  \expandafter\ifnum#2>#4\relax%
+  \else
+    #5%
+    \tp@iterate[#1]{#2}{\the#2}{#4}{#5}%
+  \fi}%
+\def\tpNamespace#1{\tpSetContName{#1}}
+\let\tp@namespace\tp@container@name
+\endinput
+%%
+%% End of file `transpect-kernel.sty'.

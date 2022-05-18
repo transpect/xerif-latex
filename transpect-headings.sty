@@ -35,6 +35,7 @@
 \RequirePackage{transpect-common}
 \RequirePackage{bookmark}
 \hypersetup{bookmarksdepth=-999}
+\tpDeclareContainer{heading}{}
 \long\def\tpDeclareHeading{\@ifnextchar[{\@tpDeclareHeading}{\@tpDeclareHeading[]}}%]
 \long\def\@tpDeclareHeading[#1]#2#3#4{%
   \tpNamespace{heading}%

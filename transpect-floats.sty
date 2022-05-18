@@ -237,6 +237,7 @@
     \advance\tp@flt@marg@r\tp@flt@marg@i
   \fi
 }
+\tpDeclareContainer{float}{}
 \def\tpDeclareFloat{\@ifnextchar[{\@tpDeclareFloat}{\@tpDeclareFloat[]}}%]
 \def\@tpDeclareFloat[#1]#2#3#4#5{%
   \def\tp@float@name{#2}%
