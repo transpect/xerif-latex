@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.7}%
-\def\filedate{2021-04-21}%
+\def\fileversion{0.2.0}%
+\def\filedate{2021-05-23}%
 %%
 %% module for le-tex transpect.cls that extends heading objects.
 %%
@@ -264,7 +264,7 @@
   \let\tp@heading@label\relax
   }
 \def\tp@heading@reset{%
-  \let\tp@namespace\relax
+  \let\tp@cur@cont\relax
   \let\\\tpltx@dbl@backslash
   \let\label\tpltx@label
   \let\tp@heading@name\relax

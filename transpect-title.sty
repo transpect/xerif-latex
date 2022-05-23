@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.1.7}%
-\def\filedate{2021-04-21}%
+\def\fileversion{0.2.0}%
+\def\filedate{2021-05-23}%
 %%
 %% module for le-tex transpect.cls for maketitle.
 %%
@@ -54,7 +54,7 @@
   \tp@title@generic@eval
   \tp@title@fundings@eval
   \tp@title@set@pdfmeta
-  \let\tp@namespace\@empty
+  \let\tp@cur@cont\@empty
 }
 \def\tp@title@set@pdfmeta{%
   \def\tp@write@pdf@meta##1##2{\protected\def\@tempa{##2}\edef\x{\noexpand\hypersetup{##1={\expandonce{\@tempa}}}}\x}%
@@ -124,7 +124,7 @@
     \tp@prov@num@comp{Content}{content}%
   }}
 \def\tp@title@generic@eval{{%
-  \def\tp@namespace{titlepage}%
+  \def\tp@cur@cont{titlepage}%
   %\tp@iterate@cnts{GenericMeta}{generic-meta-format}%
   %\tpIfComp{GenericMetaBlock}{}{\expandafter\csname tpGenericMetaBlock\expandafter\endcsname\expandafter{\tp@iterate@res}}%
   \tp@compose@cnt{GenericMeta}{generic-meta-format}{GenericMetaBlock}
@@ -138,7 +138,7 @@
   }%
 }
 \def\tp@title@fundings@eval{{%
-    \def\tp@namespace{titlepage}%
+    \def\tp@cur@cont{titlepage}%
     \tp@compose@cnt{Funding}{fund-format}{FundingBlock}%
 }}
 \def\tp@provide@comp@block#1#2#3#4{%
@@ -202,7 +202,7 @@
            \def\tp@cnt@grp{#1}%
            \csname #1-Cnt\endcsname=\the\@tempcnta
            \tpCurCount=\the\@tempcnta
-           \protected@edef\@tempb{\csname tp@\tp@namespace @#2\endcsname}%
+           \protected@edef\@tempb{\csname tp@\tp@cur@cont @#2\endcsname}%
            \def\@tempc{\csgappto{tp@iterate@res}}%
            \expandafter\@tempc\expandafter{\@tempb}%
          \egroup
@@ -223,8 +223,8 @@
 \def\tp@create@editor@string#1{%
   \def\@tempa{Author}\def\@argi{#1}%
   \ifx\@tempa\@argi\else
-    \expandafter\ifx\csname tp@\tp@namespace @#1NameList\endcsname\relax\else
-      \expandafter\xdef\csname tp@\tp@namespace @#1NameList\endcsname{%
+    \expandafter\ifx\csname tp@\tp@cur@cont @#1NameList\endcsname\relax\else
+      \expandafter\xdef\csname tp@\tp@cur@cont @#1NameList\endcsname{%
         \tpUseComp{#1NameList}%
         \tpUseProperty{editor-suffix}%
       }%
