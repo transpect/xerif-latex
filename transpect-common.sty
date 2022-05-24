@@ -71,19 +71,6 @@
   \renewcommand\glossary[2][]{}%
   \let\label\@gobble
 }%
-%% \section{Hooks}
-%% In this part we provide the facility to utilize Hooks to patch code
-%% into different parts of the package depending on options and loaded
-%% packages.
-\def\tpDeclareHook#1{\expandafter\global\expandafter\let\csname tp@hook@\tp@cur@cont @#1\endcsname\@empty}
-\def\tpAddToHook{\@ifnextchar [{\tp@add@to@hook}{\tp@add@to@hook[\tp@cur@cont]}}%]
-\def\tp@add@to@hook[#1]#2#3{%
-  \expandafter\ifx\csname tp@hook@\tp@cur@cont @#1\endcsname\relax
-    \tpDeclareHook{#1@#2}%
-  \fi
-  \csgappto{tp@hook@#1@#2}{#3}%
-}
-\def\tpUseHook#1{\expandafter\ifx\csname tp@hook@\tp@cur@cont @#1\endcsname\relax\else\csname tp@hook@\tp@cur@cont @#1\endcsname\fi}
 \begingroup
 \catcode`"=12
 \gdef\tpParseAttributes#1#2{%
