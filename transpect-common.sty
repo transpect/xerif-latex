@@ -95,29 +95,6 @@
       \@tp@parse@attributes#2,\@nil
     \fi\fi}
 \endgroup
-\DeclareRobustCommand{\tpSetProperty}[2]{\expandafter\long\expandafter\protect\expandafter\def\csname tp@\tp@cur@cont @#1\endcsname{#2}}
-\DeclareRobustCommand{\tpSetValProp}[2]{\def\@tempa{\tpSetProperty{#1}}\expandafter\@tempa\expandafter{#2}}
-\DeclareRobustCommand{\tpSetPropertyX}[2]{\expandafter\long\expandafter\protect\expandafter\edef\csname tp@\tp@cur@cont @#1\endcsname{#2}}
-\def\tpUseProperty#1{\csname tp@\tp@cur@cont @#1\endcsname}
-\DeclareRobustCommand{\tpIfProp}[3]{\long\def\@tempa{}%
-  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa#3\else#2\fi\ignorespaces}
-\DeclareRobustCommand{\tpIfPropVal}[4]{\long\def\@tempa{#2}%
-  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa\relax#3\else#4\fi\ignorespaces}
-\DeclareRobustCommand{\tpAddToDefault}[2]{\csgappto{tp@#1@default}{#2}}
-\def\tpCascadeProps#1#2{%
-  \csname tp@#2@default\endcsname
-  \expandafter\ifx\csname tp@#2@#1@parent\endcsname\relax\else
-    \expandafter\tp@inherit@props\expandafter{\csname tp@#2@#1@parent\endcsname}{#2}%
-  \fi
-  \csname tp@#2@#1@properties\endcsname
-}
-\def\tp@inherit@props#1#2{%
-  \expandafter\ifx\csname tp@#2@#1@parent\endcsname\relax\else
-    \edef\@tempa{\csname tp@#2@#1@parent\endcsname}%
-    \expandafter\tp@inherit@props\expandafter{\@tempa}{#2}%
-  \fi
-  \csname tp@#2@#1@properties\endcsname
-}
 \long\def\tpDeclareClass{\@ifnextchar [{\@tp@set@class}{\@tp@set@class[default]}}%]
 \long\def\@tp@set@class[#1]#2{\@ifnextchar [{\tp@set@class[#1]{#2}}{\tp@set@class[#1]{#2}[]}}%]
 \long\gdef\tp@default@class@default{}
