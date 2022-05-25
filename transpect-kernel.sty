@@ -228,12 +228,8 @@
 \DeclareRobustCommand{\tpSetProperty}[2]{\expandafter\long\expandafter\protect\expandafter\def\csname tp@\tp@cur@cont @#1\endcsname{#2}}
 \DeclareRobustCommand{\tpSetValProp}[2]{\def\@tempa{\tpSetProperty{#1}}\expandafter\@tempa\expandafter{#2}}
 \DeclareRobustCommand{\tpSetPropertyX}[2]{\expandafter\long\expandafter\protect\expandafter\edef\csname tp@\tp@cur@cont @#1\endcsname{#2}}
-\def\tpUseProperty#1{\csname tp@\tp@cur@cont @#1\endcsname}
-\DeclareRobustCommand{\tpIfProp}[3]{\long\def\@tempa{}%
-  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa#3\else#2\fi\ignorespaces}
-\DeclareRobustCommand{\tpIfPropVal}[4]{\long\def\@tempa{#2}%
-  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa\relax#3\else#4\fi\ignorespaces}
 \DeclareRobustCommand{\tpAddToDefault}[2]{\csgappto{tp@#1@default}{#2}}
+\def\tpUseProperty#1{\csname tp@\tp@cur@cont @#1\endcsname}
 \def\tpCascadeProps#1#2{%
   \csname tp@#2@default\endcsname
   \expandafter\ifx\csname tp@#2@#1@parent\endcsname\relax\else
@@ -248,6 +244,10 @@
   \fi
   \csname tp@#2@#1@properties\endcsname
 }
+\DeclareRobustCommand{\tpIfProp}[3]{\long\def\@tempa{}%
+  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa#3\else#2\fi\ignorespaces}
+\DeclareRobustCommand{\tpIfPropVal}[4]{\long\def\@tempa{#2}%
+  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa\relax#3\else#4\fi\ignorespaces}
 \def\tp@opt@curcont#1{\@ifnextchar[{#1}{#1[\tp@cur@cont]}}%]
 \def\tp@opt@empty#1{\@ifnextchar[{#1}{#1[]}}%]
 \long\def\tp@iterate{\@ifnextchar[{\@tp@iterate}{\@tp@iterate[\@ne]}}%]
