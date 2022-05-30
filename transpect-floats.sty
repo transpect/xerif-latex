@@ -197,18 +197,18 @@
 }
 \def\tp@set@top@sep{\addvspace{\tp@flt@sep@top}}
 \def\tp@set@bot@sep{\addvspace{\tp@flt@sep@bottom}}
-\def\tpMakeFltComp#1#2#3{%
-  \tp@def@counted@comp{#1}{#2}{#3}{\tpSubFloatCnt}{\ifx\tp@is@subflt\relax\else\tpSubFloatCnt=\z@\relax\fi}{}%
+\def\tpMakeFltComp#1{%
+  \tp@def@counted@comp{#1-\the\tpSubFloatCnt}{#1}{\ifx\tp@is@subflt\relax\else\tpSubFloatCnt=\z@\relax\fi}{}%
 }
-\def\tpMakeFltCompL#1#2{%
-  \tpMakeFltComp{tp#1}{#2}{#1}%
-  \tpMakeFltComp{tpListof#1}{list-of-#2}{Listof#1}}
+\def\tpMakeFltCompL#1{%
+  \tpMakeFltComp{#1}%
+  \tpMakeFltComp{Listof#1}}
 \def\tp@set@caption@comps{%
-  \tpMakeFltCompL{Caption}{caption}%
-  \tpMakeFltCompL{Legend}{legend}%
-  \tpMakeFltCompL{Source}{source}%
-  \tpMakeFltCompL{Number}{number}%
-  \tpMakeFltComp{label}{label}{Label}%
+  \tpMakeFltCompL{Caption}%
+  \tpMakeFltCompL{Legend}%
+  \tpMakeFltCompL{Source}%
+  \tpMakeFltCompL{Number}%
+  \tpMakeFltComp{label}%
 }
 \def\tp@flt@set@hsize{%
   \expandafter\tp@subflt@sep\tpUseProperty{sub-float-sep}\relax%
@@ -268,11 +268,11 @@
   \expandafter\gdef\csname tp@#1@extract@data\endcsname##1##2##3##4{%
     \tpNamespace{#3}%
     \tpCascadeProps{#3}{float}%
-    \tpDeclareComp[ListofCaption]{tpListofCaption}{}{}%
-    \tpDeclareComp[ListofLegend]{tpListofLegend}{}{}%
-    \tpDeclareComp[ListofSource]{tpListofSource}{}{}%
-    \tpDeclareComp[ListofNumber]{tpListofNumber}{}{}%
-    \tpDeclareComp[ListofPage]{tpListofPage}{}{}%
+    \tpDeclareComp{ListofCaption}{}{}%
+    \tpDeclareComp{ListofLegend}{}{}%
+    \tpDeclareComp{ListofSource}{}{}%
+    \tpDeclareComp{ListofNumber}{}{}%
+    \tpDeclareComp{ListofPage}{}{}%
     \tpListofPage{\tpUseProperty{list-of-page-format}##4}%
     \tp@expand@l@contents{##3}{#2}{Listof}{Caption}%%
     \tp@format@number{list-of-}{Listof}{##1}%
@@ -537,7 +537,7 @@
     \global\advance\tpSubFloatCnt\@ne
     \ignorespaces
   \fi}
-\def\tp@flt@create@natural{\tpUseComp{Content}}
+\def\tp@flt@create@natural{\tpUseComp{Fig}}
 \def\endtpSubFloat{%
   \tpUseProperty{subfloat-handler}%
   \expandafter\xdef\csname tp@\tp@cur@cont @width-\the\tpSubFloatCnt\endcsname{\the\wd\tp@subfltbox}%
@@ -596,23 +596,23 @@
 \def\endtpSubFloatCol{%
   \let\tp@subfloat@parent\tp@subfloat@prev@parent
 }
-\long\def\tp@render@sub@floats#1{%
+\long\def\tp@render@sub@floats#1#2{%
   \leavevmode
   \savenotes
   \ifnum#1>\@ne\hfill\fi
   \vtop\bgroup
     \expandafter\hsize\csname tp@\tp@cur@cont @res@width-#1\endcsname\relax
     \let\includegraphics\tp@includesubgraphics
-    \tpRenderSubFloat{#1}%
+    \tpRenderSubFloat{#1}{#2}%
   \egroup
   \spewnotes
 }
-\long\def\tpRenderSubFloat#1{%
+\long\def\tpRenderSubFloat#1#2{%
   \tpSubFloatCnt=#1\relax
   \expandafter\ifx\csname tp@has@\tp@prefix capt@top\endcsname\@empty
     \tp@make@caption{top}{\tpUseProperty{\tp@prefix caption-valign-top}}%
   \fi
-  \bgroup\strut\tpUseComp{Content}\strut\par\egroup%
+  \bgroup\strut\tpUseComp{#2}\strut\par\egroup%
   \expandafter\ifx\csname tp@has@\tp@prefix capt@bottom\endcsname\@empty
     \tp@make@caption{bottom}{\tpUseProperty{\tp@prefix caption-valign-bottom}}%
   \fi
@@ -648,9 +648,9 @@
   \expandafter\tpltx@includegraphics\expandafter[\@igopts]{#2}%
 }
 \def\tpGenericRender{\tpUseComp{Content}}
-\def\tpGenericHandler{\tpMakeFltComp{tpContent}{content}{Content}}
+\def\tpGenericHandler{\tpMakeFltComp{content}}
 \def\tpSubGenericHandler{}
-\def\tpFigureHandler{\tpMakeFltComp{tpFig}{figure}{Content}}
+\def\tpFigureHandler{\tpMakeFltComp{Fig}}
 \def\tpSubFigureHandler{%
   \ifx\tp@nofigs\relax
     \setbox\tp@subfltbox\hbox{\rule{0pt}{1pt}\rule{1pt}{0pt}}%
@@ -662,13 +662,13 @@
   \bgroup
     \let\includegraphics\tp@includesubgraphics
     \hskip\tp@flt@marg@l
-    \strut\tpUseComp{Content}\strut
+    \strut\tpUseComp{Fig}\strut
   \egroup%
 }%
 \def\tpSubFigureRender{%
   \hskip\tp@flt@marg@l
   \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
-    \tp@render@sub@floats{\the\@tempcnta}%
+    \tp@render@sub@floats{\the\@tempcnta}{Fig}%
   }%
 }
 \def\tp@reserve@tabular{%
@@ -683,7 +683,7 @@
   \expandafter\def\csname endtabular#1\endcsname{\csname orig@endtabular#1\endcsname\egroup}%
 }
 \def\tpTableHandler{%
-  \tpMakeFltComp{tpContent}{content}{Content}%
+  \tpMakeFltComp{Content}%
   \tp@reserve@tabular
   \ifx\tp@uses@htmltabs\relax
     \let\tp@addstyle\@empty
@@ -727,7 +727,7 @@
   \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
     \tpGetTableContent
     \tpContent{\unvbox\tp@floatbox}%
-    \tp@render@sub@floats{\the\@tempcnta}%
+    \tp@render@sub@floats{\the\@tempcnta}{Content}%
   }%
 }
 \def\tpFloatBarrier{\AtBeginShipoutNext{\clearpage}}
