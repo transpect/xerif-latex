@@ -104,7 +104,8 @@
     \@noitemerr
   \fi}
 \def\the@tp@thispage{}%
-\newcount\tp@abspage \tp@abspage\z@ \def\thetp@abspage{\the\tp@abspage}
+\newcount\tp@abspage \tp@abspage\z@
+\def\thetp@abspage{\the\tp@abspage}
 \newif\if@tp@odd \@tp@oddtrue
 \AtBeginDocument{%
   \global\tp@abspage=\c@page\relax%
@@ -169,10 +170,8 @@
     \fi
     \ifLuaTeX\suppresslongerror=0\fi
   }}
-\def\tp@extract@generic#1#2#3#4{%
-}
-\def\tp@print@generic#1{%
-}
+\def\tp@extract@generic#1#2#3#4{}
+\def\tp@print@generic#1{}
 \def\tp@expand@l@contents#1#2#3#4{%
   \sbox\z@{\def\numberline##1{\expandafter\gdef\csname tp@#2@#3Number\endcsname{##1}}#1}%
   \ifdim\wd\z@>\z@
@@ -267,24 +266,20 @@
                {\tpSetProperty{#1indent}{\z@}%
                 \tpSetProperty{#1margin-left}{\z@}}}}}}%
     }
-\def\tp@str@german{german}
-\def\tp@str@english{english}
 \def\tpSetBabelLabel#1#2#3{%
   \def\@lang{#1}%
   \expandafter\def\expandafter\@tempa\expandafter{\expandafter\def\csname #2name\endcsname{#3}}%
-  \ifx\@lang\tp@str@german
+  \ifdefstring\@lang{german}{%
     \expandafter\addto\expandafter\captionsgerman\expandafter{\@tempa}%
     \expandafter\addto\expandafter\captionsngerman\expandafter{\@tempa}%
-  \else
-    \ifx\@lang\tp@str@english
+  }{%
+    \ifdefstring\@lang{english}{%
       \expandafter\addto\expandafter\captionsbritish\expandafter{\@tempa}%
       \expandafter\addto\expandafter\captionsUKenglish\expandafter{\@tempa}%
       \expandafter\addto\expandafter\captionsenglish\expandafter{\@tempa}%
       \expandafter\addto\expandafter\captionsamerican\expandafter{\@tempa}%
       \expandafter\addto\expandafter\captionsUSenglish\expandafter{\@tempa}%
-    \else
-    \fi
-  \fi}
+    }{}}}
 \endinput
 %%
 %% End of file `transpect-common.sty'.
