@@ -249,6 +249,8 @@
   \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa\relax#3\else#4\fi\ignorespaces}
 \def\tp@opt@curcont#1{\@ifnextchar[{#1}{#1[\tp@cur@cont]}}%]
 \def\tp@opt@empty#1{\@ifnextchar[{#1}{#1[]}}%]
+\def\tp@opt@second#1{\def\@tempa[##1]##2{#1[##1\if!##1!##2\fi]{##2}}%
+  \@ifnextchar[{\@tempa}{\@tempa[]}}%]
 \long\def\tp@iterate{\@ifnextchar[{\@tp@iterate}{\@tp@iterate[\@ne]}}%]
 \long\def\@tp@iterate[#1]#2#3#4#5{%
   \advance#2 by #1\relax
