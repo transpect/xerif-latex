@@ -35,37 +35,60 @@
 \RequirePackage{transpect-meta}
 \RequirePackage{bookmark}
 \hypersetup{bookmarksdepth=-999}
-\tpDeclareContainer{heading}{}
-\long\def\tpDeclareHeading{\@ifnextchar[{\@tpDeclareHeading}{\@tpDeclareHeading[]}}%]
+\tpDeclareContainer{heading}{%
+  \tpInherit {Components,Properties} from Meta;
+  \tpDeclareType{Containers}{%
+  }%
+  \tpDeclareType{Properties}{\tp@heading@default}%
+  \tpDeclareEnv{\heading}{\endheading}%
+}
+\long\def\tpDeclareHeading{\tp@opt@empty\@tpDeclareHeading}
 \long\def\@tpDeclareHeading[#1]#2#3#4{%
-  \tpNamespace{heading}%
-  \expandafter\def\csname tp@heading@name\endcsname{#3}%
-  %
-  \if!#1!\else\expandafter\protect\expandafter\def\csname tp@heading@#3@parent\endcsname{#1}\fi%
-  \expandafter\protect\expandafter\def\csname tp@heading@#3@properties\endcsname{#4}%
-  \tp@init@hooks{#3}%
-  \tp@init@l@{toc}{#2}{#3}%
-  \tp@init@cnt{#2}{#3}%
-  \tp@restore@init{heading}{number-#2-maxwd}%
-  %
-  %
-  %
-  \expandafter\def\csname tpUseHeading#3\endcsname{%
-    \if!#1!\else\edef\tp@heading@parent{#1}\fi%
-    \edef\tp@heading@level{#2}%
-    \@setpar{\@@par}%
+  \tpDeclareContainer{#3}{%
+    \edef\@argi{#1}%
+    \tpDeclareType{Parent}{\tp@heading@create@parent{#1}{#3}}
+    \ifx\@argi\@empty
+      \tpInherit {Components,Properties} from heading;
+    \else
+      \tpInherit {Components,Properties,Parent} from #1;
+    \fi
+    \tpDeclareType{Properties}{%
+      #4%
+    }%
+    \tpDeclareType{Init}{%
+      \tp@init@hooks{#3}%
+      \tp@init@l@{toc}{#2}{#3}%
+      \tp@init@cnt{#3}%
+      \tp@restore@init{heading}{number-#2-maxwd}%
+    }%
+    \tp@declare@heading{#2}{#3}%
+  }%
+}
+\def\tp@heading@create@parent#1#2{%
+  \def\tp@heading@name{#2}%
+  \if!#1!\else
+    \tpCheckParent{#1}{#2}%
+  \fi%
+}
+\def\tp@declare@heading#1#2{%
+  \tpEvalType{Parent}%
+  \tpEvalType{Init}%
+  \csgdef{tpUseHeading#2}{%
     \tpNamespace{heading}%
-    \tpCascadeProps{#3}{heading}%
-    \def\Hy@toclevel{#2}%
-    \tp@auto@number{#2}{#3}%
+    \@setpar{\@@par}%
+    \tpEvalType[#2]{Properties}%
+    \csname tp@heading@#2@properties\endcsname
+    \def\Hy@toclevel{#1}%
+    \tp@auto@number{#1}{#2}%
     \tpUseProperty{heading-par}%
-    \ifx\tp@heading@parent\@undefined\else
-      \tpUseHook{before-hook-\tp@heading@parent}%
+    \expandafter\ifx\csname tp@parent@#2\endcsname\relax\else
+      \edef\@@parent{before-hook-\csname\tp@parent@#2\endcsname}%
+      \expandafter\tpUseHook\expandafter{\@@parent}%
     \fi
     \tpUseHook{before-hook-\tp@heading@name}%
     \tpUseProperty{before-heading}%
     \everypar{}%
-    \tp@format@number{}{}{\tp@heading@level}% Calculate number width
+    \tp@format@number{}{}{#2}%
     \tpIfProp{after-skip}{\expandafter\global\expandafter\@tempskipa\expandafter=\tpUseProperty{after-skip}\relax}{\global\@tempskipa=1sp\relax}%
     \def\@svsec{%
       \tpUseProperty{before-heading-block}%
@@ -75,7 +98,7 @@
         \tpUseProperty{heading-block}%
         \tpIfProp{extended}{\tpUseProperty{extended-heading}}{}%
       \egroup%
-      \tp@hdg@create@labels{#3}% label facility
+      \tp@heading@create@labels{#2}% label facility
       \tpIfPropVal{no-toc}{true}{}{\tp@make@toc}% ToC entries
       \tpIfPropVal{no-BM}{true}{}{\tp@make@bookmarks}% Bookmarks
       \tp@make@run% Running headers
@@ -87,28 +110,29 @@
       \tp@block@heading
     \fi
     \aftergroup\next%
-  }}
+  }%
+}
 \def\tp@init@hooks#1{%
   \tpDeclareHook{toc-before-hook-#1}%
   \tpDeclareHook{toc-after-hook-#1}%
   \tpDeclareHook{before-hook-#1}%
 }
-\def\tp@init@cnt#1#2{\tpIfPropVal{numbering}{auto}{\@definecounter{#2}}{}}
-\def\tp@auto@number#1#2{%#1 level #2 name
+\def\tp@init@cnt#1{\tpIfPropVal{numbering}{auto}{\@definecounter{#1}}{}}
+\tp@restore@init{heading}{toc-number-maxwd}
+\tp@restore@init{heading}{number-maxwd}
+\def\tp@auto@number#1#2{%
   \tpIfPropVal{numbering}{auto}
-    {%
-     \expandafter\ifx\csname tp@heading@attr@nonumber\endcsname\@empty
+    {\expandafter\ifx\csname tp@heading@attr@nonumber\endcsname\@empty
      \else
-       \tpIfComp{Number}
-         {}%
+       \tpIfComp{Number}{}
          {\ifnum #1>\c@secnumdepth\relax\else
             \refstepcounter{#2}%
             \edef\@tempa{\csname the#2\endcsname}%
             \expandafter\tpNumber\expandafter{\@tempa}%
           \fi}%
-     \fi}{}
+     \fi}{}%
 }
-\def\tp@hdg@create@labels#1{%
+\def\tp@heading@create@labels#1{%
   \ifx\Hy@MakeCurrentHrefAuto\@undefined\else
     \Hy@MakeCurrentHrefAuto{tp.#1}%
     \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
@@ -184,8 +208,6 @@
     \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}%
   \fi
 }
-\tp@restore@init{heading}{toc-number-maxwd}
-\tp@restore@init{heading}{number-maxwd}
 \newbox\tp@inlinesecbox
 \def\tp@inline@heading{%
   \tpIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
@@ -223,7 +245,7 @@
   \tpParseAttributes{heading}{#1}%
   \edef\tp@heading@name{#2}%
   \tp@heading@load@props%
-  \tp@provide@hd@macros{Author}%
+  \tp@provide@hd@overrides{Author}%
   \tp@provide@hd@macros{Title}%
   \tp@provide@hd@macros{Subtitle}%
   \tp@provide@hd@macros{Number}%
@@ -231,22 +253,7 @@
     \tp@extended@ht@macros
   }{}%
   \tpDeclareComp{Quote}{}{}%
-  \tpDeclareComp{QuoteSource}{}{}}
-\def\tp@heading@load@props{\csname tp@heading@\tp@heading@name @properties\endcsname}
-\def\tp@extended@ht@macros{%
-  \tp@provide@ext@hd@macros{Abstract}%
-  \tp@provide@ext@hd@macros{Keywords}%
-  \tp@provide@ext@hd@macros{DOI}%
-}
-\def\tp@provide@ext@hd@macros#1{%
-  \tpDeclareComp{#1}{}{}%
-  \tpDeclareComp{#1Title}{}{}%
-}
-\def\tp@provide@hd@macros#1{%
-  \tpDeclareComp{#1}{}{}%
-  \tpDeclareComp{Toc#1}{}{}% toc overrides
-  \tpDeclareComp{Run#1}{}{}% running overrides
-  \tpDeclareComp{BM#1}{}{}% bookmark overrides
+  \tpDeclareComp{QuoteSource}{}{}%
 }
 \def\endheading{%
   \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
@@ -270,6 +277,25 @@
   \let\tp@heading@name\relax
   \let\tp@heading@label\relax
   }
+\def\tp@heading@load@props{\csname tp@heading@\tp@heading@name @properties\endcsname}
+\def\tp@extended@ht@macros{%
+  \tp@provide@ext@hd@macros{Abstract}%
+  \tp@provide@ext@hd@macros{Keywords}%
+  \tp@provide@ext@hd@macros{DOI}%
+}
+\def\tp@provide@ext@hd@macros#1{%
+  \tpDeclareComp{#1}{}{}%
+  \tpDeclareComp{#1Title}{}{}%
+}
+\def\tp@provide@hd@macros#1{%
+  \tpDeclareComp{#1}{}{}%
+  \tp@provide@hd@overrides{#1}%
+}
+\def\tp@provide@hd@overrides#1{%
+  \tpDeclareComp{Toc#1}{}{}% toc overrides
+  \tpDeclareComp{Run#1}{}{}% running overrides
+  \tpDeclareComp{BM#1}{}{}% bookmark overrides
+}
 \tpAddToDefault{heading}{%
   \tpSetProperty{interline-para}{}%
   \tpSetProperty{interline-para-sep}{\space}

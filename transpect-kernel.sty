@@ -51,9 +51,10 @@
   \expandafter\x\endgroup
 }
 \@onlypreamble\tpDeclareContainer
-\def\tpEvalType#1{%
-  \tpKernelDebugMsg{Evaluating tp@type@#1@\tp@cur@cont:^^J \expandafter\meaning\csname tp@type@#1@\tp@cur@cont\endcsname}%
-  \csname tp@type@#1@\tp@cur@cont\endcsname
+\def\tpEvalType{\tp@opt@curcont\tp@eval@type}
+\def\tp@eval@type[#1]#2{%
+  \tpKernelDebugMsg{Evaluating tp@type@#2@#1:^^J \expandafter\meaning\csname tp@type@#2@#1\endcsname}%
+  \csname tp@type@#2@#1\endcsname
 }
 \def\tpCheckParent#1#2{%
   \expandafter\ifx\csname tp@container@#1\endcsname\relax
@@ -161,6 +162,7 @@
         \expandafter\expandafter\expandafter{\expandafter\tp@iterate@res\@tempb}%
       }%
       \expandafter\def\expandafter\tp@iterate@res\expandafter{\tp@iterate@res\noexpand\egroup}%
+    \message{#3: \expandafter\meaning\csname tp#3\endcsname}%
     \expandafter\csname tp#3\expandafter\endcsname\expandafter{\tp@iterate@res}%
   }%
 }
@@ -224,11 +226,11 @@
 }
 \def\tpUseHook{\tp@opt@curcont\tp@use@hook}
 \def\tp@use@hook[#1]#2{\csuse{tp@hook@#1@#2}}
-\DeclareRobustCommand{\tpSetProperty}[2]{\expandafter\long\expandafter\protect\expandafter\def\csname tp@\tp@cur@cont @#1\endcsname{#2}}
+\DeclareRobustCommand{\tpSetProperty}[2]{\long\protect\csdef{tp@\tp@cur@cont @#1}{#2}}
 \DeclareRobustCommand{\tpSetValProp}[2]{\def\@tempa{\tpSetProperty{#1}}\expandafter\@tempa\expandafter{#2}}
-\DeclareRobustCommand{\tpSetPropertyX}[2]{\expandafter\long\expandafter\protect\expandafter\edef\csname tp@\tp@cur@cont @#1\endcsname{#2}}
+\DeclareRobustCommand{\tpSetPropertyX}[2]{\long\protect\csedef{tp@\tp@cur@cont @#1}{#2}}
 \DeclareRobustCommand{\tpAddToDefault}[2]{\csgappto{tp@#1@default}{#2}}
-\def\tpUseProperty#1{\csname tp@\tp@cur@cont @#1\endcsname}
+\def\tpUseProperty#1{\csuse{tp@\tp@cur@cont @#1}}
 \def\tpCascadeProps#1#2{%
   \csname tp@#2@default\endcsname
   \expandafter\ifx\csname tp@#2@#1@parent\endcsname\relax\else
@@ -244,7 +246,10 @@
   \csname tp@#2@#1@properties\endcsname
 }
 \DeclareRobustCommand{\tpIfProp}[3]{\long\def\@tempa{}%
-  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa#3\else#2\fi\ignorespaces}
+  %\expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\relax#3\else
+    \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa #3\else#2\fi
+  %\fi
+\ignorespaces}
 \DeclareRobustCommand{\tpIfPropVal}[4]{\long\def\@tempa{#2}%
   \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa\relax#3\else#4\fi\ignorespaces}
 \def\tp@opt@curcont#1{\@ifnextchar[{#1}{#1[\tp@cur@cont]}}%]
@@ -260,6 +265,7 @@
     #5%
     \tp@iterate[#1]{#2}{\the#2}{#4}{#5}%
   \fi}%
+\def\csmean#1{\expandafter\meaning\csname#1\endcsname}%
 \begingroup
 \catcode`"=12
 \gdef\tpParseAttributes#1#2{%

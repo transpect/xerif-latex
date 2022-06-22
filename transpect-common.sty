@@ -144,7 +144,7 @@
       \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space tp-#1-#2\string\endcsname{\csname tp-#1-#2\endcsname}}%
     \fi}}
 \DeclareRobustCommand{\tpBreak}{\hfill\break}
-\def\tp@init@l@{\@ifnextchar[\@tp@init@l@{\@tp@init@l@[]}}%]
+\def\tp@init@l@{\tp@opt@empty\@tp@init@l@}%
 \def\@tp@init@l@[#1]#2#3#4{%
   \expandafter\ifx\csname c@#2depth\endcsname\relax
     \expandafter\global\expandafter\newcount\csname c@#2depth\endcsname
