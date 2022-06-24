@@ -35,12 +35,12 @@
 \RequirePackage{transpect-meta}
 \RequirePackage{bookmark}
 \hypersetup{bookmarksdepth=-999}
-\tpDeclareContainer{heading}{%
+\tpDeclareContainer{tpHeading}{%
   \tpInherit {Components,Properties} from Meta;
   \tpDeclareType{Containers}{%
   }%
   \tpDeclareType{Properties}{\tp@heading@default}%
-  \tpDeclareEnv{\heading}{\endheading}%
+  \tpDeclareEnv{\@heading}{\end@heading}%
 }
 \long\def\tpDeclareHeading{\tp@opt@empty\@tpDeclareHeading}
 \long\def\@tpDeclareHeading[#1]#2#3#4{%
@@ -48,7 +48,7 @@
     \edef\@argi{#1}%
     \tpDeclareType{Parent}{\tp@heading@create@parent{#1}{#3}}
     \ifx\@argi\@empty
-      \tpInherit {Components,Properties} from heading;
+      \tpInherit {Components,Properties} from tpHeading;
     \else
       \tpInherit {Components,Properties,Parent} from #1;
     \fi
@@ -239,8 +239,8 @@
     \vskip \@tempskipa
     \@afterheading
     \ignorespaces}}
-\def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
-\def\@heading[#1]#2{%
+\def\@heading{\@ifnextchar [{\@@heading}{\@@heading[]}}%]
+\def\@@heading[#1]#2{%
   \tp@heading@reserve
   \tpParseAttributes{heading}{#1}%
   \edef\tp@heading@name{#2}%
@@ -255,7 +255,7 @@
   \tpDeclareComp{Quote}{}{}%
   \tpDeclareComp{QuoteSource}{}{}%
 }
-\def\endheading{%
+\def\end@heading{%
   \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
     \PackageError{transpect.cls}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
   \else
@@ -263,6 +263,8 @@
   \fi
   \tp@heading@reset
 }
+\let\heading\tpHeading
+\let\endheading\endtpHeading
 \def\tp@heading@reserve{%
   \tpNamespace{heading}%
   \let\tpltx@dbl@backslash\\
