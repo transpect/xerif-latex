@@ -42,7 +42,7 @@
   \@namedef{tp@cur@cont}{#1}%
   \begingroup
     \def\tpInherit ##1 from ##2;{\@tp@inherit{##1}{##2}{#1}}%
-    \def\tpDeclareType##1##2{\csgappto{tp@type@##1@#1}{##2}}%
+    \long\def\tpDeclareType##1##2{\csgappto{tp@type@##1@#1}{##2}}%
     \def\tpDeclareEnv{\@ifnextchar [{\tp@declare@env}{\tp@declare@env[#1]}}%]
     \def\tp@declare@env[##1]##2##3{\csgdef{##1}{\global\let\reserved@cont\tp@cur@cont\def\tp@cur@cont{#1}##2}\csgdef{end##1}{##3}\global\let\tp@cur@cont\reserved@cont}%
     \def\x{%
@@ -53,8 +53,14 @@
 \@onlypreamble\tpDeclareContainer
 \def\tpEvalType{\tp@opt@curcont\tp@eval@type}
 \def\tp@eval@type[#1]#2{%
-  \tpKernelDebugMsg{Evaluating tp@type@#2@#1:^^J \expandafter\meaning\csname tp@type@#2@#1\endcsname}%
-  \csname tp@type@#2@#1\endcsname
+  \expandafter\ifx\csname tp@type@#2@#1\endcsname\relax
+    \tpPackageError{Kernel}{Class}
+    {Data Type #2 in Container #1 undefined!}
+    {You try to evaluate a data type `#2' from container `#1', but that data type has not been declared.}%
+  \else
+    \tpKernelDebugMsg{Evaluating tp@type@#2@#1:^^J \expandafter\meaning\csname tp@type@#2@#1\endcsname}%
+    \csname tp@type@#2@#1\endcsname
+  \fi
 }
 \def\tpCheckParent#1#2{%
   \expandafter\ifx\csname tp@container@#1\endcsname\relax
@@ -117,7 +123,8 @@
 \def\tpUseComp#1{\csname tp@\tp@cur@cont @#1\endcsname}
 \def\tpGetComp#1{\tpIfComp{#1}{\tpUseComp{#1}\par}{}}
 \long\def\tpIfComp#1#2#3{\expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\relax#3\else#2\fi}
-\long\def\tpIfCompEmpty#1#2#3{\long\def\@tempa{}\expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa#2\else#3\fi}
+\long\def\long@empty{}
+\long\def\tpIfCompEmpty#1#2#3{\expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\long@empty#2\else#3\fi}
 \def\tp@check@empty{\tp@opt@empty\@tp@check@empty}%]
 \def\@tp@check@empty[#1]#2#3#4{%
   \tpIfComp{#4#3}
@@ -139,7 +146,6 @@
   }%
   \expandafter\def\csname end#1\endcsname{}%
 }
-\@onlypreamble\tpDeclareComponentGroup
 \let\tp@cnt@grp\@empty
 \newcount\tpCurCount
 \def\tpComposeCollection#1#2#3{%
@@ -156,13 +162,12 @@
           \noexpand\csname #1-Cnt\endcsname=\the\@tempcnta
           %% top-level counter for user interaction
           \noexpand\tpCurCount=\the\@tempcnta
-          \noexpand\tpUseProperty{#2}}%
+          \noexpand\tpUseProperty{\unexpanded{#2}}}%
         \expandafter\expandafter\expandafter\def
         \expandafter\expandafter\expandafter\tp@iterate@res
         \expandafter\expandafter\expandafter{\expandafter\tp@iterate@res\@tempb}%
       }%
       \expandafter\def\expandafter\tp@iterate@res\expandafter{\tp@iterate@res\noexpand\egroup}%
-    \message{#3: \expandafter\meaning\csname tp#3\endcsname}%
     \expandafter\csname tp#3\expandafter\endcsname\expandafter{\tp@iterate@res}%
   }%
 }

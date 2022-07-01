@@ -37,7 +37,16 @@
 \hypersetup{bookmarksdepth=-999}
 \tpDeclareContainer{tpHeading}{%
   \tpInherit {Components,Properties} from Meta;
-  \tpDeclareType{Containers}{%
+  \tpDeclareType{Components}{%
+    \tp@provide@hd@overrides{Author}%
+    \tp@provide@hd@macros{Title}%
+    \tp@provide@hd@macros{Subtitle}%
+    \tp@provide@hd@macros{Number}%
+    \tpIfProp{extended}{%
+      \tp@extended@ht@macros
+    }{}%
+    \tpDeclareComp{Quote}{}{}%
+    \tpDeclareComp{QuoteSource}{}{}%
   }%
   \tpDeclareType{Properties}{\tp@heading@default}%
   \tpDeclareEnv{\@heading}{\end@heading}%
@@ -78,6 +87,7 @@
     \@setpar{\@@par}%
     \tpEvalType[#2]{Properties}%
     \csname tp@heading@#2@properties\endcsname
+    \tp@meta@role@eval{Author}%
     \def\Hy@toclevel{#1}%
     \tp@auto@number{#1}{#2}%
     \tpUseProperty{heading-par}%
@@ -245,15 +255,7 @@
   \tpParseAttributes{heading}{#1}%
   \edef\tp@heading@name{#2}%
   \tp@heading@load@props%
-  \tp@provide@hd@overrides{Author}%
-  \tp@provide@hd@macros{Title}%
-  \tp@provide@hd@macros{Subtitle}%
-  \tp@provide@hd@macros{Number}%
-  \tpIfProp{extended}{%
-    \tp@extended@ht@macros
-  }{}%
-  \tpDeclareComp{Quote}{}{}%
-  \tpDeclareComp{QuoteSource}{}{}%
+  \tpEvalType[tpHeading]{Components}%
 }
 \def\end@heading{%
   \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
@@ -319,7 +321,7 @@
        {\leftskip0pt}%
      {\tpUseComp{Title}}\par%
      \tpIfComp{Subtitle}{{\tpUseProperty{subtitle-format}\tpUseComp{Subtitle}}\par}{}%
-     \tpIfComp{Author}{{\tpUseProperty{author-format}\tpUseComp{Author}}\par}{}%
+     \tpIfComp{AuthorNameList}{{\tpUseProperty{author-format}\tpUseComp{AuthorNameList}}\par}{}%
      \tpIfComp{Quote}{%
        \bgroup
          \tpUseProperty{quote-format}%
