@@ -118,14 +118,14 @@
     #3\expandafter\long\expandafter\def\csname tp@\tp@cur@cont @#1\endcsname{##1}\ignorespaces#4}%
 }
 \long\protected\def\tpComp#1#2{%
-  \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\relax
-    \ifx\tp@is@counted\relax
-      \tp@def@counted@comp{\tp@cnt@grp-#1-\expandafter\the\csname \tp@cnt@grp-Cnt\endcsname}{#1}{}{}%
-    \else
-      \tpDeclareComp{#1}{}{}%
-    \fi
+  \ifx\tp@is@counted\relax
+    \ifcsdef{tp@\tp@cur@cont @#1}{}
+      {\tp@def@counted@comp{\tp@cnt@grp-#1-\expandafter\the\csname \tp@cnt@grp-Cnt\endcsname}{#1}{}{}}%
+    \csgdef{tp@\tp@cur@cont @\tp@cnt@grp-#1-\expandafter\the\csname \tp@cnt@grp-Cnt\endcsname}{#2}%
+  \else
+    \ifcsdef{tp@\tp@cur@cont @#1}{}{\tpDeclareComp{#1}{}{}}%
+    \csname tp#1\endcsname{#2}%
   \fi
-  \csname tp#1\endcsname{#2}%
 }
 \def\tpUseComp#1{\csname tp@\tp@cur@cont @#1\endcsname}
 \def\tpGetComp#1{\tpIfComp{#1}{\tpUseComp{#1}\par}{}}
@@ -157,30 +157,34 @@
 \newcount\tpCurCount
 \def\tpComposeCollection#1#2#3{%
   \tpIfComp{#3}{}{%
-    \edef\tp@iterate@res{%
-      \noexpand\def\noexpand\tpTotalCount{\the\csname #1-Cnt\endcsname}%
-      \noexpand\bgroup
-        \noexpand\tpToggleCountedCond
-        \noexpand\def\noexpand\tp@cnt@grp{#1}}%
-      \expandafter\@tempcntb\csname #1-Cnt\endcsname
-      \tp@iterate{\@tempcnta}{\@ne}{\@tempcntb}{%
-        \edef\@tempb{%
-          %% internal counter for macro grabbing
-          \noexpand\csname #1-Cnt\endcsname=\the\@tempcnta
-          %% top-level counter for user interaction
-          \noexpand\tpCurCount=\the\@tempcnta
-          \noexpand\tpUseProperty{\unexpanded{#2}}}%
-        \expandafter\expandafter\expandafter\def
-        \expandafter\expandafter\expandafter\tp@iterate@res
-        \expandafter\expandafter\expandafter{\expandafter\tp@iterate@res\@tempb}%
-      }%
-      \expandafter\def\expandafter\tp@iterate@res\expandafter{\tp@iterate@res\noexpand\egroup}%
-    \expandafter\csname tp#3\expandafter\endcsname\expandafter{\tp@iterate@res}%
-  }%
+    \ifcsdef{#1-Cnt}{%
+      \expandafter\ifnum\csname #1-Cnt\endcsname > \z@\relax
+        \edef\tp@iterate@res{%
+          \noexpand\def\noexpand\tpTotalCount{\the\csname #1-Cnt\endcsname}%
+          \noexpand\bgroup
+            \noexpand\tpToggleCountedCond
+            \noexpand\def\noexpand\tp@cnt@grp{#1}}%
+          \expandafter\@tempcntb\csname #1-Cnt\endcsname
+          \tp@iterate{\@tempcnta}{\@ne}{\@tempcntb}{%
+            \edef\@tempb{%
+              %% internal counter for macro grabbing
+              \noexpand\csname #1-Cnt\endcsname=\the\@tempcnta
+              %% top-level counter for user interaction
+              \noexpand\tpCurCount=\the\@tempcnta
+              \noexpand\tpUseProperty{#2}}%
+            \expandafter\expandafter\expandafter\def
+            \expandafter\expandafter\expandafter\tp@iterate@res
+            \expandafter\expandafter\expandafter{\expandafter\tp@iterate@res\@tempb}%
+          }%
+          \expandafter\def\expandafter\tp@iterate@res\expandafter{\tp@iterate@res\egroup}%
+        \expandafter\csname tp#3\expandafter\endcsname\expandafter{\tp@iterate@res}%
+        \message{^^J==> composed \string\ tp@\tp@cur@cont @#3: \expandafter\meaning\csname tp@\tp@cur@cont @#3\endcsname}%\STOPP
+      \fi
+    }{}}%
 }
 \def\tpApplyCollection#1#2#3{%
   \tpIfComp{#3}{}
-    {%\begingroup
+    {\begingroup
        \global\let\tp@iterate@res\relax
        \edef\tpTotalCount{\the\csname #1-Cnt\endcsname}%
        \tp@iterate{\@tempcnta}{\@ne}{\tpTotalCount}{%
@@ -194,7 +198,8 @@
            \expandafter\@tempc\expandafter{\@tempb}%
          \egroup
        }%
-     %\endgroup
+     \endgroup
+\message{^^J==> applied tp#3: \meaning\tp@iterate@res}%\STOPP
      \expandafter\csname tp#3\expandafter\endcsname\expandafter{\tp@iterate@res}%
    }%
 }
