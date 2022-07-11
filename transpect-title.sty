@@ -39,7 +39,7 @@
     \tp@title@simple@comps
     \tp@meta@generic@comp
     \tp@title@fundings@comp
-    \tpDeclareRoleBlock{Author}{MetaBlock}{block}{author-meta-format}%
+    \tp@title@role@handlers{author}{Author}%
     \tp@titlepage@role{editor}{Editor}%
     \tp@titlepage@role{series-editor}{SeriesEditor}%
   }%
@@ -48,7 +48,17 @@
 }
 \def\tp@titlepage@role#1#2{%
   \tpDeclareRole[#1]{#2}%
-  \tpDeclareRoleBlock{#2}{MetaBlock}{block}{#1-meta-format}%
+  \tp@title@role@handlers{#1}{#2}%
+}
+\def\tp@title@role@handlers#1#2{%
+  \tpAddToRole{#2}{%
+    \tpDeclareCountedComp{Bio}%
+    \tpDeclareCountedComp{BioBlock}%
+  }%
+  \tpDeclareRoleBlock{#2}{BioBlock}{#1-bio-block-format}%
+  \tpGroupHandler{tp#2}{%
+    \tpIfComp{BioBlock}{}{\tpIfComp{Bio}{\tpBioBlock{\tpUseProperty{#1-bio-format}}}{}}%
+  }%
 }
 \long\def\tpDeclareTitlepage#1{%
   \gdef\tp@titlepage{%
@@ -66,7 +76,7 @@
   \tpEvalType{Properties}%
   \tp@maketitle
   \tp@meta@role@eval{Author}%
-  \tpComposeCollection{tpAuthor}{\csname tp@meta@role@Author@block\endcsname}{AuthorMetaBlock}%
+  \tpComposeCollection{tpAuthor}{\csname tp@meta@role@Author@BioBlock\endcsname}{AuthorBioBlock}%
   \tp@title@eds@eval{Editor}%
   \tp@title@eds@eval{SeriesEditor}%
   \tp@meta@generic@eval
@@ -139,7 +149,7 @@
     \tpDeclareCountedComp{FundName}%
     \tpDeclareCountedComp{FundLogo}%
     \tpDeclareCountedComp{FundID}%
-  }%
+  }{}%
 }
 \def\tp@title@fundings@eval{{%
     \def\tp@cur@cont{titlepage}%
@@ -149,7 +159,7 @@
   \expandafter\ifx\csname tp@#1-#2@attr@corresp\endcsname\relax\else\tpUseProperty{corresp-mark}\fi}
 \def\tp@title@eds@eval#1{%
   \tp@meta@role@eval{#1}%
-  \tpComposeCollection{tp#1}{\csname tp@meta@role@#1@block\endcsname}{#1MetaBlock}%
+  \tpComposeCollection{tp#1}{\csname tp@meta@role@#1@BioBlock\endcsname}{#1BioBlock}%
   \tp@create@editor@string{#1}}
 \def\tp@create@editor@string#1{%
   \expandafter\ifx\csname tp@\tp@cur@cont @#1NameList\endcsname\relax\else
@@ -310,7 +320,7 @@
   }%
   \tpSetProperty{titlepage-i}{%
     \ifcollection
-      \tpUseProperty{editor-string}%
+      \tpUseProperty{EditorNameList}%
     \else
       \tpUseComp{AuthorNameList}%
     \fi%
@@ -327,7 +337,7 @@
   }%
   \tpSetProperty{titlepage-iii}{%
     \ifcollection
-      \tpUseProperty{editor-string}%
+      \tpUseProperty{EditorNameList}%
     \else
       \tpUseComp{AuthorNameList}%
     \fi%
@@ -399,10 +409,9 @@
   }%
   % Name Formats
   \tpSetProperty{pdf-autor-list}{%
-    \ifnum\tpCurCount>1\relax, \fi
-    \tpIfCompEmpty{FullName}{\tpComp{FullName}{\tpUseComp{FirstName}\space\tpUseComp{SurName}}}{}%
+    \ifnum\tpCurCount=1\else, \fi
     \tpUseComp{FullName}%
- }
+  }
   \tpSetProperty{counted-meta-sep}{\ifnum\tpCurCount<\tpTotalCount\relax\vskip\baselineskip\fi}%
   \tpSetProperty{counted-name-sep}{%
     \ifnum\tpTotalCount>1\relax
@@ -415,17 +424,21 @@
       \fi
     \fi
   }%
-  \tpSetProperty{name-meta-format}{%
-    \tpIfComp{Bio}
-      {\tpUseComp{FullName}:\space%
-       \tpUseComp{Bio}\par%
-       \tpUseProperty{counted-meta-sep}}{}%
-  }
-  \tpSetProperty{author-meta-format}{\tpUseProperty{name-meta-format}}% Override for single author meta info (this one is titlepage specific and may look different in other places where tpAuthor is used!)
-  \tpSetProperty{editor-format}{\tpUseProperty{name-format}}% Override for single editor names
-  \tpSetProperty{editor-meta-format}{\tpUseProperty{name-meta-format}}% Override for single editor meta info
-  \tpSetProperty{series-editor-format}{\tpUseProperty{name-format}}% Override for single series editor names
-  \tpSetProperty{series-editor-meta-format}{\tpUseProperty{name-meta-format}}% Override for single series editor meta info
+  \tpSetProperty{name-bio-block-format}{\tpUseComp{BioBlock}\par}
+  \tpSetProperty{name-bio-format}{%
+    {\bfseries\tpUseComp{FullName}:}\space%
+    \tpUseComp{Bio}%
+  }%
+  \tpPropertyLet{author-bio-format}             {name-bio-format}% Override for single author meta info (this one is titlepage specific and may look different in other places where tpAuthor is used!)
+  \tpPropertyLet{author-bio-block-format}       {name-bio-block-format}% Override for single author meta info (this one is titlepage specific and may look different in other places where tpAuthor is used!)
+  \tpPropertyLet{editor-format}                 {name-format}% Override for single editor names
+  \tpPropertyLet{editor-list-format}            {name-list-format}% Override for single editor names
+  \tpPropertyLet{editor-bio-format}             {name-bio-format}% Override for single editor meta info
+  \tpPropertyLet{editor-bio-block-format}       {name-bio-block-format}% Override for single editor meta info
+  \tpPropertyLet{series-editor-format}          {name-format}% Override for single series editor names
+  \tpPropertyLet{series-editor-list-format}     {name-list-format}% Override for single editor names
+  \tpPropertyLet{series-editor-bio-format}      {name-bio-format}% Override for single series editor meta info
+  \tpPropertyLet{series-editor-bio-block-format}{name-bio-block-format}% Override for single series editor meta info
   % name Separators
   \tpSetProperty{editor-suffix-sgl}{\space(Ed.)}%
   \tpSetProperty{editor-suffix-pl}{\space(Eds.)}%
@@ -439,9 +452,9 @@
   }%
   % Bio
   \tpSetProperty{bio-block}{%
-    \tpGetComp{AuthorMetaBlock}%
-    \tpGetComp{EditorMetaBlock}%
-    \tpGetComp{SeriesEditorMetaBlock}%
+    \tpGetComp{AuthorBioBlock}%
+    \tpGetComp{EditorBioBlock}%
+    \tpGetComp{SeriesEditorBioBlock}%
   }%
   % Running headers
   \tpSetProperty{run-book-title}{%
