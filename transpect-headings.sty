@@ -97,9 +97,10 @@
     \fi
     \tpUseHook{before-hook-\tp@heading@name}%
     \tpUseProperty{before-heading}%
-    \everypar{}%
+    \tp@do@before@skip
     \tp@format@number{}{}{#2}%
     \tpIfProp{after-skip}{\expandafter\global\expandafter\@tempskipa\expandafter=\tpUseProperty{after-skip}\relax}{\global\@tempskipa=1sp\relax}%
+      \tp@heading@create@labels{#2}% label facility
     \def\@svsec{%
       \tpUseProperty{before-heading-block}%
       \leftskip\tpUseProperty{margin-left}%
@@ -108,7 +109,6 @@
         \tpUseProperty{heading-block}%
         \tpIfProp{extended}{\tpUseProperty{extended-heading}}{}%
       \egroup%
-      \tp@heading@create@labels{#2}% label facility
       \tpIfPropVal{no-toc}{true}{}{\tp@make@toc}% ToC entries
       \tpIfPropVal{no-BM}{true}{}{\tp@make@bookmarks}% Bookmarks
       \tp@make@run% Running headers
@@ -122,6 +122,20 @@
     \aftergroup\next%
   }%
 }
+\def\tp@do@before@skip{%
+  \setlength\@tempskipa{\tpUseProperty{before-skip}}%
+  \ifdim\@tempskipa<\z@\relax
+    \def\do@skip{\minusvspace{-\@tempskipa}}%
+  \else
+    \def\do@skip{\addvspace{\@tempskipa}}%
+  \fi%
+  \if@nobreak
+    \everypar{}%
+    \do@skip
+  \else
+    \addpenalty\@secpenalty
+    \do@skip
+  \fi}
 \def\tp@init@hooks#1{%
   \tpDeclareHook{toc-before-hook-#1}%
   \tpDeclareHook{toc-after-hook-#1}%
@@ -341,6 +355,7 @@
        {\itshape\small\tpUseComp{Keywords}\par}}
      {}%
    }%
+  \tpSetProperty{before-skip}{\z@skip}% TODOC: values < 0pt use \minusvspace, else \addvspace. LaTeX's default behaviour of @afterindent is relocated to the after-indent property.
   \tpSetProperty{after-heading-block}{}%
   \tpSetProperty{before-heading-block}{\parindent\z@ \parskip\z@}%
   \tpSetProperty{after-indent}{}%
