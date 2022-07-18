@@ -191,26 +191,40 @@
 }
 \def\tpApplyCollection#1#2#3{%
   \tpIfComp{#3}{}
-    {\begingroup
-       \global\let\tp@iterate@res\relax
-       \edef\tpTotalCount{\the\csname #1-Cnt\endcsname}%
-       \tp@iterate{\@tempcnta}{\@ne}{\tpTotalCount}{%
-         \bgroup
-           \tpToggleCountedCond
-           \def\tp@cnt@grp{#1}%
-           \csname #1-Cnt\endcsname=\the\@tempcnta
-           \tpCurCount=\the\@tempcnta
-           \xdef\@tempb{\csname tp@\tp@cur@cont @#2\endcsname}%
-           \@temptokena \expandafter{\@tempb}%
-           \def\@tempc{\csgappto{tp@iterate@res}}%
-           \expandafter\@tempc\expandafter{\@tempb}%
-         \egroup
-       }%
-     \endgroup
-\message{^^J==> applied tp#3: \meaning\tp@iterate@res}%\STOPP
+    {\tp@apply@collection{#1}{#2}%
      \expandafter\csname tp#3\expandafter\endcsname\expandafter{\tp@iterate@res}%
    }%
 }
+\def\tp@apply@collection#1#2{%
+  \begingroup
+    \global\let\tp@iterate@res\relax
+    \edef\tpTotalCount{\the\csname #1-Cnt\endcsname}%
+    \tp@iterate{\@tempcnta}{\@ne}{\tpTotalCount}{%
+      \bgroup
+        \tpToggleCountedCond
+        \def\tp@cnt@grp{#1}%
+        \csname #1-Cnt\endcsname=\the\@tempcnta
+        \tpCurCount=\the\@tempcnta
+        \protected@xdef\@tempb{\csname tp@\tp@cur@cont @#2\endcsname}%
+        \@temptokena \expandafter{\@tempb}%
+        \def\@tempc{\csgappto{tp@iterate@res}}%
+        \expandafter\@tempc\expandafter{\@tempb}%
+      \egroup
+    }%
+  \endgroup
+  \message{^^J==> applied #1 with #2: \meaning\tp@iterate@res}%\STOPP
+}
+\def\tp@comp@def[#1]#2#3#4{%
+  \tp@apply@collection{#3}{#4}%
+  \ifx\tp@iterate@res\relax
+    #1\let#2\relax%
+  \else
+    \def\@tempa{#1\def#2}%
+    \expandafter\@tempa\expandafter{\tp@iterate@res}%
+  \fi
+}
+\def\tpCompDef{\tp@comp@def[]}
+\def\tpCompGDef{\tp@comp@def[\global]}
 \def\tpDeclareCountedComp#1{%
   \tp@def@counted@comp
     {\tp@cnt@grp-#1-\expandafter\the\csname \tp@cnt@grp-Cnt\endcsname}
@@ -222,27 +236,27 @@
   \tpDeclareComp[#1]{#2}
     {\bgroup#3\expandafter\global}
     {\def\@tempa{{@tp@reset@components@\tp@cur@cont}}%
-     \edef\@tempb{%
-       \noexpand\ltx@LocalExpandAfter\noexpand\global\noexpand\expandafter\noexpand\let
-         \noexpand\csname tp@\noexpand\tp@cur@cont @#1\noexpand\endcsname
-         \noexpand\relax}%
+     \edef\@tempb{\noexpand\csgundef{tp@\noexpand\tp@cur@cont @#1}}%
      \expandafter\expandafter\expandafter\csgappto\expandafter\@tempa\expandafter{\@tempb}%
      \egroup}%
   #4\expandafter\long\expandafter\def\csname tp@\tp@cur@cont @#2\endcsname{\csname tp@\tp@cur@cont @#1\endcsname}%
-  \csgappto{@tp@reset@components@\tp@cur@cont}{\csname tp@\tp@cur@cont @#2\endcsname}%
+  %%\csgappto{@tp@reset@components@\tp@cur@cont}{\csname tp@\tp@cur@cont @#2\endcsname{}}%
 }
 \def\tp@reset@components#1{%
   \csname @tp@reset@components@#1\endcsname
-  \expandafter\global\cslet{@tp@reset@components@#1}\relax
+  \global\cslet{@tp@reset@components@#1}\relax%
 }
 \long\def\tpToggleCountedCond{%
   \let\tp@is@counted\relax
   \long\def\tpIfComp##1##2##3{%
+    %\ifcsprotected{tp@\tp@cur@cont @##1}{##2}{##3}%
+    %\expandafter\expandafter\expandafter\ifx\csname tp@\tp@cur@cont @##1\endcsname\relax##2\else##3\fi
     \expandafter\let\expandafter\@tempa\csname tp@\tp@cur@cont @##1\endcsname\relax
-    \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi}%
+    \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi%
     % \expandafter\def\expandafter\@tempa\expandafter{\csname tp@\tp@cur@cont @##1\endcsname}%
-    % \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi}%
-  \long\def\tpIfCompEmpty##1##2##3{%
+    % \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi%
+  }
+  \long\protected\def\tpIfCompEmpty##1##2##3{%
     \expandafter\expandafter\expandafter\ifx\csname tp@\tp@cur@cont @##1\endcsname\long@empty ##2\else ##3\fi}}
 \def\tpDeclareHook{\tp@opt@curcont\tp@declare@hook}
 \def\tp@declare@hook[#1]#2{\expandafter\global\expandafter\let\csname tp@hook@#1@#2\endcsname\@empty}

@@ -76,7 +76,7 @@
   \tpEvalType{Properties}%
   \tp@maketitle
   \tp@meta@role@eval{Author}%
-  \tpComposeCollection{tpAuthor}{\csname tp@meta@role@Author@BioBlock\endcsname}{AuthorBioBlock}%
+  \tpApplyCollection{tpAuthor}{\tp@meta@role@Author@BioBlock}{AuthorBioBlock}%
   \tp@title@eds@eval{Editor}%
   \tp@title@eds@eval{SeriesEditor}%
   \tp@meta@generic@eval
@@ -100,17 +100,17 @@
 \def\tp@title@process@bka{%
   \@tempswatrue
   \expandafter\ifnum\csname tpAuthor-Cnt\endcsname>\z@
-    \tpApplyCollection{tpAuthor}{pdf-autor-list}{PDFAuthor}%
+    \tpCompGDef\tpRunBookName{tpAuthor}{author-list-format}%
   \else
     \expandafter\ifnum\csname tpEditor-Cnt\endcsname>\z@
-      \tpApplyCollection{tpEditor}{pdf-autor-list}{PDFAuthor}%
+      \tpCompGDef\tpRunBookName{tpEditor}{editor-list-format}%
+      \csgappto{tpRunBookName}{\tpUseProperty{editor-suffix}}%
     \else
       \tpPackageWarning{transcript-title}{Meta Data}{No author or editor given!}%
       \@tempswafalse
     \fi
   \fi
   \if@tempswa
-    \edef\tpRunBookName{\tpUseProperty{PDFAuthor}}%
     \expandafter\author\expandafter{\tpRunBookName}%
     \tp@write@pdf@meta{pdfauthor}{\tpRunBookName}%
   \fi
@@ -153,13 +153,13 @@
 }
 \def\tp@title@fundings@eval{{%
     \def\tp@cur@cont{titlepage}%
-    \tpComposeCollection{tpFunding}{fund-format}{FundingBlock}%
+    \tpApplyCollection{tpFunding}{fund-format}{FundingBlock}%
 }}
 \def\tp@title@eval@corresp#1#2{%
   \expandafter\ifx\csname tp@#1-#2@attr@corresp\endcsname\relax\else\tpUseProperty{corresp-mark}\fi}
 \def\tp@title@eds@eval#1{%
   \tp@meta@role@eval{#1}%
-  \tpComposeCollection{tp#1}{\csname tp@meta@role@#1@BioBlock\endcsname}{#1BioBlock}%
+  \tpApplyCollection{tp#1}{\csname tp@meta@role@#1@BioBlock\endcsname}{#1BioBlock}%
   \tp@create@editor@string{#1}}
 \def\tp@create@editor@string#1{%
   \expandafter\ifx\csname tp@\tp@cur@cont @#1NameList\endcsname\relax\else
@@ -197,7 +197,6 @@
   \tp@title@macro{PubWeb}%    Publisher URL
   %% Pubication Meta
   \tp@title@macro{PDFCreator}% Creator for pdf metadata
-  \tp@title@macro{PDFAuthor}%   Name list for pdf metadata
   \tp@title@macro[le-tex transpect]{PDFProducer}%   PDF producer for pdf metadata
   \tp@title@macro{Dedication}%   Dedication
   \tp@title@macro{Acknowledgements}%   Acknowledgements
@@ -274,9 +273,9 @@
     \clearpage
   }%
   %% Generic meta blocks
-  \tpSetProperty{generic-meta-heading-format}{\large}% format of the heading of a generic meta block
+  \tpSetProperty{generic-meta-heading-face}{\large}% format of the heading of a generic meta block
   \tpSetProperty{generic-meta-format}{% Format of a single generic meta-block
-    \tpIfComp{Heading}{{\tpUseProperty{generic-meta-heading-format}\tpUseComp{Heading}\par}\vskip\baselineskip}{}%
+    \tpIfComp{Heading}{{\tpUseProperty{generic-meta-heading-face}\tpUseComp{Heading}\par}\vskip\baselineskip}{}%
     \tpUseComp{Content}%
     \par%
   }%
@@ -358,7 +357,7 @@
     \tpUseProperty{funding-block}%
     \vfill
     \bgroup
-      \tpUseProperty{imprint-format}%
+      \tpUseProperty{imprint-face}%
       \tpIfComp{Biblio}{{\bfseries\tpGetComp{BiblioTitle}}\tpGetComp{Biblio}}{}%
       \tpUseProperty{imprint-sep}%
       \tpUseProperty{imprint}%
@@ -366,7 +365,7 @@
     \clearpage
   }%
   %% Imprint
-  \tpSetProperty{imprint-format}{\footnotesize}%
+  \tpSetProperty{imprint-face}{\footnotesize}%
   \tpSetProperty{imprint-sep}{\ifhmode\par\fi\addvspace{\baselineskip}}%
   \tpSetProperty{imprint}{%
     \tpUseProperty{publisher}%
@@ -408,10 +407,6 @@
     \tpGetComp{PubWeb}%
   }%
   % Name Formats
-  \tpSetProperty{pdf-autor-list}{%
-    \ifnum\tpCurCount=1\else, \fi
-    \tpUseComp{FullName}%
-  }
   \tpSetProperty{counted-meta-sep}{\ifnum\tpCurCount<\tpTotalCount\relax\vskip\baselineskip\fi}%
   \tpSetProperty{counted-name-sep}{%
     \ifnum\tpTotalCount>1\relax

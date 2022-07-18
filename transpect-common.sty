@@ -280,6 +280,10 @@
       \expandafter\addto\expandafter\captionsamerican\expandafter{\@tempa}%
       \expandafter\addto\expandafter\captionsUSenglish\expandafter{\@tempa}%
     }{}}}
+\def\tpCompLink#1#2{%
+  \edef\@argi{\tpUseComp{#1}}%
+  \expandafter\href\expandafter{\@argi}{#2}%
+}
 \endinput
 %%
 %% End of file `transpect-common.sty'.
