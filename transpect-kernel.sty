@@ -275,6 +275,8 @@
 \long\def\tpSetPropertyX#1#2{\long\csedef{tp@\tp@cur@cont @#1}{#2}}
 \long\def\tpAddToDefault#1#2{\csgappto{tp@#1@default}{#2}}
 \def\tpUseProperty#1{\csuse{tp@\tp@cur@cont @#1}}
+\def\tpUsePropEnv#1{\cslet{tp@#1@active}{\relax}\csuse{tp@\tp@cur@cont @#1}\csundef{tp@#1@active}}
+\DeclareRobustCommand\tpPI[2]{\ifcsdef{tp@#1@active}{#2}{}}
 \def\tpCascadeProps#1#2{%
   \csname tp@#2@default\endcsname
   \expandafter\ifx\csname tp@#2@#1@parent\endcsname\relax\else
