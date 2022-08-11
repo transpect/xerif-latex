@@ -158,7 +158,7 @@
   \expandafter\ifx\csname tp@#2@print@entry\endcsname\relax
     \expandafter\let\csname tp@#2@print@entry\endcsname\tp@print@generic
   \fi
-  \expandafter\long\expandafter\gdef\csname l@#4\endcsname##1##2{%
+  \expandafter\long\expandafter\gdef\csname tp@l@#4\endcsname##1##2{%
     \ifLuaTeX\suppresslongerror=1\fi
     \expandafter\ifnum \csname c@#2depth\endcsname<#3\relax
     \else
