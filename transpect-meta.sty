@@ -56,11 +56,11 @@
 \def\tp@declare@role[#1]#2{%
   \tpDeclareComponentGroup{tp#2}{%
     \tpDeclareCountedComp{FullName}%
-    \tpDeclareCountedComp{SurName}%
+    \tpDeclareCountedComp{LastName}%
     \tpDeclareCountedComp{FirstName}%
     \tpDeclareCountedComp{MidName}%
     \tpDeclareCountedComp{PersonPrefix}%
-    \tpDeclareCountedComp{OCRID}%
+    \tpDeclareCountedComp{ORCID}%
     \tpDeclareCountedComp{Affil}%
     \tpDeclareCountedComp{Email}%
   }%
@@ -75,19 +75,19 @@
   \csgdef{tp@meta@role@#1@#2}{#3}}
 \def\tp@meta@role@eval#1{{%
   \tpIfComp{#1NameList}{}{%
-    \ifcsdef{tp#1-Cnt}
-      {\ifnum\csname tp#1-Cnt\endcsname>\z@
+    \ifcsdef{tp#1Cnt}
+      {\expandafter\ifnum\csname tp#1Cnt\endcsname>\z@
           \tp@eval@role@attrs{#1}%
           \tpApplyCollection{tp#1}{\csname tp@meta@role@#1@NameList\endcsname}{#1NameList}%
         \fi
       }{}}}}%
 \def\tp@eval@role@attrs#1{%
-    \tp@iterate{\@tempcnta}{\@ne}{\expandafter\the\csname tp#1-Cnt\endcsname}{%
+    \tp@iterate{\@tempcnta}{\@ne}{\csname tp#1Cnt\endcsname}{%
       \ifcsdef{tp@meta@#1-\the\@tempcnta @attrs\endcsname}{%
         \tpParseAttributes{#1-\the\@tempcnta }{\csname tp@meta@#1-\the\@tempcnta @attrs\endcsname}%
       }{}}}
 \tpAddToDefault{Meta}{%
-  \tpSetProperty{name-format}{\tpUseComp{FirstName}\space\tpUseComp{SurName}}%
+  \tpSetProperty{name-format}{\tpUseComp{FirstName}\space\tpUseComp{LastName}}%
   \tpSetProperty{name-list-format}{\tpUseComp{FullName}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi}%
   \tpSetProperty{counted-name-sep}{,\space}%
   \tpPropertyLet{author-format}{name-format}% Override for single author names

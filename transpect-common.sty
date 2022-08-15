@@ -281,7 +281,7 @@
       \expandafter\addto\expandafter\captionsUSenglish\expandafter{\@tempa}%
     }{}}}
 \def\tpCompLink#1#2{%
-  \edef\@argi{\tpUseComp{#1}}%
+  \protected@edef\@argi{\expandonce{\tpUseComp{#1}}}%
   \expandafter\href\expandafter{\@argi}{#2}%
 }
 \endinput

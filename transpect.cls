@@ -43,13 +43,18 @@
 \DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \DeclareOptionX{endnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{transpect-endnotes}}
 \newif\ifcollection \collectionfalse
-\newif\ifarticle   \articlefalse
-\define@choicekey{transpect.cls}{pubtype}[\tp@pubtype\nr]{collection,article,mono}{%
+\newif\ifarticle    \articlefalse
+\newif\ifmonograph  \monographfalse
+\newif\ifjournal    \journalfalse
+\define@choicekey{transpect.cls}{pubtype}[\tp@pubtype\nr]{collection,article,journal,mono}{%
   \ifcase\nr\relax% collection
     \global\collectiontrue
-  \or%
+  \or% article
     \global\articletrue
-  \else% mono
+  \or% journal
+    \global\journaltrue
+  \else% monograph
+    \global\monographytrue
   \fi
 }
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}

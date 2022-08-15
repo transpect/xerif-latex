@@ -88,7 +88,8 @@
     \tpEvalType[#2]{Properties}%
     \csname tp@heading@#2@properties\endcsname
     \tp@meta@role@eval{Author}%
-    %\tpComposeCollection{tpAuthor}{author-contact-block-format}{AuthorContactBlock}%
+    \tpComposeCollection{tpAuthor}{author-contact-block-format}{AuthorContactBlock}%
+    \tpComposeCollection{tpAffil}{affil-block-format}{AffilBlock}%
     \def\Hy@toclevel{#1}%
     \tp@auto@number{#1}{#2}%
     \tpUseProperty{heading-par}%
@@ -311,7 +312,8 @@
   \let\\\tpBreak
   \let\tpltx@label\label
   \let\tp@heading@label\relax
-  \csname tpAuthor-Cnt\endcsname\z@
+  \def\tpAuthorCnt{\z@}%
+  \def\tpAffilCnt{\z@}%
   \tp@reset@components{\tp@cur@cont}%
   }
 \def\tp@heading@reset{%
@@ -332,13 +334,28 @@
   \tpDeclareComp{#1Title}{}{}%
 }
 \def\tp@heading@authors{%
-  % \tpAddToRole{Author}{%
-  %   \tpDeclareCountedComp{AuthorContact}%
-  % }%
-  %\tpDeclareRoleBlock{Author}{ContactBlock}{author-contact-block-format}%
-  % \tpGroupHandler{tpAuthor}{%
-  %   \tpIfComp{AuthorContact}{}{\csname tpAuthorContact\endcsname{\tpUseProperty{author-contact-format}}}{}}%
+  \tpAddToRole{Author}{%
+    \tpDeclareCountedComp{AuthorContact}%
+  }%
+  \tpDeclareRoleBlock{Author}{ContactBlock}{author-contact-block-format}%
+  \tpGroupHandler{tpAuthor}{%
+    \tpIfComp{AuthorContact}{}{\csname tpAuthorContact\endcsname{\tpUseProperty{author-contact-format}}}{}%
+  }%
   \tp@provide@hd@overrides{AuthorNameList}%
+  \tp@heading@affils
+}
+\def\tp@heading@affils{%
+  \tpDeclareComp{AffilBlock}{\expandafter\global}{}%
+  \tpDeclareComponentGroup{tpAffil}{%
+    \tpDeclareCountedComp{Address}%
+    \tpDeclareCountedComp{Institute}%
+    \tpDeclareCountedComp{Country}%
+    \tpDeclareCountedComp{Department}%
+    \tpDeclareCountedComp{AffilID}%
+  }%
+  \tpGroupHandler{tpAffil}{%
+    \tpIfComp{AffilID}{}{\expandafter\tpAffilID\expandafter{\tpAffilCnt}}%
+  }%
 }
 \def\tp@provide@hd@macros#1{%
   \tpDeclareComp{#1}{}{}%
@@ -368,7 +385,7 @@
      \tpIfComp{Number}
        {\tpUseProperty{hang-number}}
        {\leftskip0pt}%
-     {\tpUseComp{Title}}\par%
+     \tpUseComp{Title}\par%
      \tpIfComp{Subtitle}{{\tpUseProperty{subtitle-face}\tpUseComp{Subtitle}}\par}{}%
      \tpIfComp{AuthorNameList}{{\tpUseProperty{author-face}\tpUseComp{AuthorNameList}}\par}{}%
      \tpIfComp{Quote}{%
@@ -377,6 +394,7 @@
          \tpUseComp{Quote}\par
          \tpIfComp{QuoteSource}{{\tpUseProperty{quote-source-face}--\space\tpUseComp{Quote}}\par}{}%
        \egroup}{}%
+     \tpIfComp{AffilBlock}{{\tpUseProperty{affil-block-face}\tpUseComp{AffilBlock}}\par}{}%
     }%
   \tpSetProperty{extended-heading}{%
     \tpIfComp{Abstract}
@@ -451,7 +469,7 @@
     \tpUseComp{BMTitle}%
   }%
   \tpSetProperty{orcid-link}{% how the ORC-ID is rendered
-    \tpIfComp{ORCID}{\tpCompLink{ORCID}{\includegraphics[height=1ex]{logos/ORCID_iD.pdf}}}{}%
+    \tpIfComp{ORCID}{\tpCompLink{ORCID}{\includegraphics[height=1em]{logos/ORCID_iD.pdf}}}{}%
   }%
   %% a single Author's contact infomration block
   \tpSetProperty{author-contact-format}{%Format of a single author's contact information
@@ -462,6 +480,13 @@
   \tpSetProperty{author-list-format}{% Format of the whole contact information block
     \tpUseComp{FullName}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi
   }%
+  \tpSetProperty{author-contact-block-format}{% Format of the whole contact information block
+    \tpUseComp{AuthorContact}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi
+  }%
+  \tpSetProperty{affil-block-format}{% Format of the  affiliation block
+    \textsuperscript{\tpUseComp{AffilID}}\tpUseComp{Institute}, \tpUseComp{Department}, \tpUseComp{Address}\par
+  }%
+  \tpSetProperty{affil-block-face}{\small\normalfont}
 }
 \newdimen\tpnewparskip \AtBeginDocument{\ifdim\tpnewparskip=\z@\relax \tpnewparskip=1\baselineskip\relax\fi}
 \def\tpNewPar{\@ifnextchar[{\@tpnewpar}{\@tpnewpar[\the\tpnewparskip]}}%]

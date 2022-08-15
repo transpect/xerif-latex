@@ -120,8 +120,8 @@
 \long\protected\def\tpComp#1#2{%
   \ifx\tp@is@counted\relax
     \ifcsdef{tp@\tp@cur@cont @#1}{}
-      {\tp@def@counted@comp{\tp@cnt@grp-#1-\expandafter\the\csname \tp@cnt@grp-Cnt\endcsname}{#1}{}{}}%
-    \csgdef{tp@\tp@cur@cont @\tp@cnt@grp-#1-\expandafter\the\csname \tp@cnt@grp-Cnt\endcsname}{#2}%
+      {\tp@def@counted@comp{\tp@cnt@grp-#1-\csname \tp@cnt@grp Cnt\endcsname}{#1}{}{}}%
+    \csgdef{tp@\tp@cur@cont @\tp@cnt@grp-#1-\csname \tp@cnt@grp Cnt\endcsname}{#2}%
   \else
     \ifcsdef{tp@\tp@cur@cont @#1}{}{\tpDeclareComp{#1}{}{}}%
     \csname tp#1\endcsname{#2}%
@@ -142,13 +142,13 @@
        {\expandafter\expandafter\expandafter\let\expandafter\csname tp@#2@#4#3\expandafter\endcsname\csname tp@#2@#1#3\endcsname}
        {}}}
 \def\tpDeclareComponentGroup#1#2{%
-  \ifcsdef{#1-Cnt}{}{\expandafter\newcount\csname #1-Cnt\endcsname}%
+  \csnumgdef{#1Cnt}{\z@}%
   \csdef{#1}{\expandafter\tp@opt@empty\csname @#1\endcsname}%
   \csdef{@#1}[##1]{%
     \def\tp@cnt@grp{#1}%
-    \expandafter\global\expandafter\advance\csname #1-Cnt\endcsname\@ne
+    \csxdef{#1Cnt}{\expandafter\the\expandafter\numexpr\csname #1Cnt\endcsname+\@ne\relax}%
     \if!##1!\else
-      \csgdef{tp@\tp@cur@cont @#1-\expandafter\the\csname #1-Cnt\endcsname @attrs}{##1}\fi
+      \csgdef{tp@\tp@cur@cont @#1-\csname #1Cnt\endcsname @attrs}{##1}\fi
     #2%
   }%
   \csdef{end#1}{{\tpToggleCountedCond\csname tp@compose@group@#1\endcsname}}%
@@ -164,20 +164,20 @@
 \newcount\tpCurCount
 \def\tpComposeCollection#1#2#3{%
   \tpIfComp{#3}{}{%
-    \ifcsdef{#1-Cnt}{%
-      \expandafter\ifnum\csname #1-Cnt\endcsname > \z@\relax
+    \ifcsdef{#1Cnt}{%
+      \expandafter\ifnum\csname #1Cnt\endcsname > \z@\relax
         \edef\tp@iterate@res{%
           \noexpand\bgroup
-            \noexpand\def\noexpand\tpTotalCount{\the\csname #1-Cnt\endcsname}%
+            \noexpand\def\noexpand\tpTotalCount{\csname #1Cnt\endcsname}%
             \noexpand\tpToggleCountedCond
             \noexpand\def\noexpand\tp@cnt@grp{#1}}%
-          \expandafter\@tempcntb\csname #1-Cnt\endcsname
+          \expandafter\@tempcntb=\csname #1Cnt\endcsname\relax
           \tp@iterate{\@tempcnta}{\@ne}{\@tempcntb}{%
             \edef\@tempb{%
               %% top-level counter for user interaction
               \noexpand\tpCurCount=\the\@tempcnta
               %% internal counter for macro grabbing
-              \noexpand\csname #1-Cnt\endcsname=\noexpand\tpCurCount
+              \noexpand\csnumdef{#1Cnt}{\tpCurCount}%
               \noexpand\tpUseProperty{#2}}%
             \expandafter\expandafter\expandafter\def
             \expandafter\expandafter\expandafter\tp@iterate@res
@@ -185,7 +185,6 @@
           }%
           \expandafter\def\expandafter\tp@iterate@res\expandafter{\tp@iterate@res\egroup}%
         \expandafter\csname tp#3\expandafter\endcsname\expandafter{\tp@iterate@res}%
-\message{^^J==> composed \string\ tp@\tp@cur@cont @#3: \expandafter\meaning\csname tp@\tp@cur@cont @#3\endcsname}%\STOPP
       \fi
     }{}}%
 }
@@ -198,12 +197,12 @@
 \def\tp@apply@collection#1#2{%
   \begingroup
     \global\let\tp@iterate@res\relax
-    \edef\tpTotalCount{\the\csname #1-Cnt\endcsname}%
+    \letcs\tpTotalCount{#1Cnt}%
     \tp@iterate{\@tempcnta}{\@ne}{\tpTotalCount}{%
       \bgroup
         \tpToggleCountedCond
         \def\tp@cnt@grp{#1}%
-        \csname #1-Cnt\endcsname=\the\@tempcnta
+        \csnumdef{#1Cnt}{\the\@tempcnta}%
         \tpCurCount=\the\@tempcnta
         \protected@xdef\@tempb{\csname tp@\tp@cur@cont @#2\endcsname}%
         \@temptokena \expandafter{\@tempb}%
@@ -227,7 +226,7 @@
 \def\tpCompGDef{\tp@comp@def[\global]}
 \def\tpDeclareCountedComp#1{%
   \tp@def@counted@comp
-    {\tp@cnt@grp-#1-\expandafter\the\csname \tp@cnt@grp-Cnt\endcsname}
+    {\tp@cnt@grp-#1-\csname \tp@cnt@grp Cnt\endcsname}
     {#1}
     {}
     {\expandafter\global}%
@@ -249,13 +248,9 @@
 \long\def\tpToggleCountedCond{%
   \let\tp@is@counted\relax
   \long\def\tpIfComp##1##2##3{%
-    %\ifcsprotected{tp@\tp@cur@cont @##1}{##2}{##3}%
-    %\expandafter\expandafter\expandafter\ifx\csname tp@\tp@cur@cont @##1\endcsname\relax##2\else##3\fi
     \expandafter\let\expandafter\@tempa\csname tp@\tp@cur@cont @##1\endcsname\relax
     \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi%
-    % \expandafter\def\expandafter\@tempa\expandafter{\csname tp@\tp@cur@cont @##1\endcsname}%
-    % \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi%
-  }
+  }%
   \long\protected\def\tpIfCompEmpty##1##2##3{%
     \expandafter\expandafter\expandafter\ifx\csname tp@\tp@cur@cont @##1\endcsname\long@empty ##2\else ##3\fi}}
 \def\tpDeclareHook{\tp@opt@curcont\tp@declare@hook}
