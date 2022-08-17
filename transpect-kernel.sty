@@ -58,6 +58,7 @@
   \expandafter\x\endgroup
 }
 \@onlypreamble\tpDeclareContainer
+\def\tpAddToType#1#2#3{\csgappto{tp@type@#1@#2}{#3}}
 \def\tpEvalType{\tp@opt@curcont\tp@eval@type}
 \def\tp@eval@type[#1]#2{%
   \expandafter\ifx\csname tp@type@#2@#1\endcsname\relax
@@ -65,7 +66,7 @@
     {Data Type #2 in Container #1 undefined!}
     {You try to evaluate a data type `#2' from container `#1', but that data type has not been declared.}%
   \else
-    \tpKernelDebugMsg{Evaluating tp@type@#2@#1:^^J \expandafter\meaning\csname tp@type@#2@#1\endcsname}%
+    \tpKernelDebugMsg{Evaluating tp@type@#2@#1:^^J \csmeaning{tp@type@#2@#1}}%
     \csname tp@type@#2@#1\endcsname
   \fi
 }
@@ -127,6 +128,7 @@
     \csname tp#1\endcsname{#2}%
   \fi
 }
+\let\tpSetComp\tpComp
 \def\tpUseComp#1{\csname tp@\tp@cur@cont @#1\endcsname}
 \def\tpGetComp#1{\tpIfComp{#1}{\tpUseComp{#1}\par}{}}
 \long\def\tpIfComp#1#2#3{\expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\relax#3\else#2\fi}

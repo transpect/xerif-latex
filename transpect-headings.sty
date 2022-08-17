@@ -187,7 +187,7 @@
     \tpIfProp{toc-level}{\edef\tp@heading@name{\tpUseProperty{toc-level}}}{}%
     \protected@write\@auxout
       {\tpGobble}%
-      {\string\@writefile{toc}{\protect\tpContentsline{\tp@heading@name}{\tp@heading@toc@entry}{\thepage}\protected@file@percent}}\relax
+      {\string\@writefile{toc}{\protect\tpContentsline{\tp@heading@name}{\tp@heading@toc@entry}{\thepage}{\@currentHref}\protected@file@percent}}\relax
   \fi
 }
 \def\tp@check@author#1{%
@@ -202,7 +202,7 @@
     }%
   }%
 }%
-\long\def\tpContentsline#1{\csname tp@l@#1\endcsname}
+\long\def\tpContentsline#1#2#3#4{\bgroup\csletcs{l@#1}{tp@l@#1}\contentsline{#1}{#2}{#3}{#4}\egroup}
 \def\tp@toc@extract@data#1#2#3#4{%
   \tpNamespace{heading}%
   \tpCascadeProps{#2}{heading}%
@@ -226,7 +226,6 @@
 \def\tp@make@run{%
   \tp@check@empty{heading}{Title}{Run}%
   \tp@check@empty{heading}{Number}{Run}%
-  %\tp@check@empty{heading}{AuthorNameList}{Run}%
   \tp@check@author{Run}%
   \tp@check@empty{heading}{Subtitle}{Run}%
   \tpUseProperty{running-extra}%
@@ -239,7 +238,7 @@
   \ifx\tp@mark@name\relax\else
     \begingroup
       \tpGobble
-      \expandafter\tp@mark@name\expandafter{\csname tp@heading@running-heading\endcsname}%
+      \expandafter\expandafter\expandafter\tp@mark@name\expandafter\expandafter\expandafter{\csname tp@heading@running-heading\endcsname}%
     \endgroup
   \fi
 }
@@ -294,7 +293,7 @@
   \tpParseAttributes{heading}{#1}%
   \edef\tp@heading@name{#2}%
   \tp@heading@load@props%
-  \tpEvalType[tpHeading]{Components}%
+  \tpEvalType[#2]{Components}%
 }
 \def\end@heading{%
   \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
@@ -347,6 +346,7 @@
 \def\tp@heading@affils{%
   \tpDeclareComp{AffilBlock}{\expandafter\global}{}%
   \tpDeclareComponentGroup{tpAffil}{%
+    \tpDeclareCountedComp{Affiliation}%
     \tpDeclareCountedComp{Address}%
     \tpDeclareCountedComp{Institute}%
     \tpDeclareCountedComp{Country}%
@@ -355,6 +355,7 @@
   }%
   \tpGroupHandler{tpAffil}{%
     \tpIfComp{AffilID}{}{\expandafter\tpAffilID\expandafter{\tpAffilCnt}}%
+    \tpIfComp{Affiliation}{}{\tpAffiliation{\tpUseProperty{affiliation-format}}}%
   }%
 }
 \def\tp@provide@hd@macros#1{%
@@ -483,9 +484,10 @@
   \tpSetProperty{author-contact-block-format}{% Format of the whole contact information block
     \tpUseComp{AuthorContact}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi
   }%
-  \tpSetProperty{affil-block-format}{% Format of the  affiliation block
-    \textsuperscript{\tpUseComp{AffilID}}\tpUseComp{Institute}, \tpUseComp{Department}, \tpUseComp{Address}\par
+  \tpSetProperty{affiliation-format}{% Format of the  affiliation block
+    \tpUseComp{Institute}, \tpUseComp{Department}, \tpUseComp{Address}\par
   }%
+  \tpSetProperty{affil-block-format}{\textsuperscript{\tpUseComp{AffilID}}\tpUseComp{Affiliation}}
   \tpSetProperty{affil-block-face}{\small\normalfont}
 }
 \newdimen\tpnewparskip \AtBeginDocument{\ifdim\tpnewparskip=\z@\relax \tpnewparskip=1\baselineskip\relax\fi}

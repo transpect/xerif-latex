@@ -37,6 +37,7 @@
 \tpDeclareContainer{Meta}{%
   \tpDeclareType{Components}{%
     \tpDeclareRole[author]{Author}%
+    \tp@declare@meta@comp
   }%
   \tpDeclareType{Properties}{%
     \tp@Meta@default
@@ -86,6 +87,10 @@
       \ifcsdef{tp@meta@#1-\the\@tempcnta @attrs\endcsname}{%
         \tpParseAttributes{#1-\the\@tempcnta }{\csname tp@meta@#1-\the\@tempcnta @attrs\endcsname}%
       }{}}}
+\def\tp@declare@meta@comp{%
+    \tpDeclareComp{Copyright}{\expandafter\global}{}% Copyright text
+    \tpDeclareComp{DOI}{\expandafter\global}{}%         DOI
+}%
 \tpAddToDefault{Meta}{%
   \tpSetProperty{name-format}{\tpUseComp{FirstName}\space\tpUseComp{LastName}}%
   \tpSetProperty{name-list-format}{\tpUseComp{FullName}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi}%
