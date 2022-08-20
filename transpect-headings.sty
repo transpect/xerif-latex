@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.0}%
-\def\filedate{2021-05-23}%
+\def\fileversion{0.2.1}%
+\def\filedate{2021-08-20}%
 %%
 %% module for le-tex transpect.cls that extends heading objects.
 %%
@@ -143,16 +143,18 @@
   \tpDeclareHook{toc-after-hook-#1}%
   \tpDeclareHook{before-hook-#1}%
 }
-\def\tp@init@cnt#1{\tpIfPropVal{numbering}{auto}{\@definecounter{#1}}{}}
+\def\tp@init@cnt#1{\@definecounter{#1}}
 \tp@restore@init{heading}{toc-number-maxwd}
 \tp@restore@init{heading}{number-maxwd}
 \def\tp@auto@number#1#2{%
   \tpIfPropVal{numbering}{auto}
-    {\expandafter\ifx\csname tp@heading@attr@nonumber\endcsname\@empty
+    {\expandafter\ifx\csname c@#2\endcsname\relax\tp@init@cnt{#2}\fi
+     \expandafter\ifx\csname tp@heading@attr@nonumber\endcsname\@empty
      \else
-       \tpIfComp{Number}{}
+       \tpIfComp{Number}
+         {}
          {\ifnum #1>\c@secnumdepth\relax\else
-            \refstepcounter{#2}%
+            \stepcounter{#2}%
             \edef\@tempa{\csname the#2\endcsname}%
             \expandafter\tpNumber\expandafter{\@tempa}%
           \fi}%
@@ -164,12 +166,12 @@
     \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
   \fi
   \expandafter\ifx\csname tp@heading@attr@label\endcsname\relax\else
-    \tpIfComp{Number}{%
-      \edef\@tempa{\expandonce{\tp@heading@Number}}%
-      \let\@currentlabel\@tempa\relax
-      \let\@currentlabelname\tp@heading@Title
-      \expandafter\tpltx@label\expandafter{\tp@heading@attr@label}%
-    }{}%
+    \tpIfComp{Number}
+      {\edef\@tempa{\expandonce{\tp@heading@Number}}%
+       \let\@currentlabel\@tempa\relax
+       \let\@currentlabelname\tp@heading@Title}
+      {\phantomsection}
+    \expandafter\tpltx@label\expandafter{\tp@heading@attr@label}%
   \fi
   \global\let\label\tpltx@label}
 \def\tp@make@toc{%
