@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-floats.sty',
+%% This is file `coco-floats.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `floats')
+%% cocotex.dtx  (with options: `floats')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-floats.sty.
+%% with new filenames distinct from coco-floats.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -23,18 +23,18 @@
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
 %%
-%% module for le-tex transpect.cls that extends floating objects.
+%% module for CoCoTeX that extends floating objects.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
 %% lualatex  -  texlive > 2019
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-floats}
-    [\filedate \fileversion le-tex transpect floats module]
+\ProvidesPackage{coco-floats}
+    [\filedate \fileversion CoCoTeX floats module]
 \DeclareOptionX{nofigs}{\global\let\tp@nofigs\relax}
 \ProcessOptionsX
-\RequirePackage{transpect-common}
+\RequirePackage{coco-common}
 \RequirePackage{rotating}
 \RequirePackage{grffile}
 \RequirePackage{footnote}
@@ -113,7 +113,7 @@
     \tpParseAttributes{#2}{#1}%
     \expandafter\ifx\csname tp@#2@attr@class\endcsname\relax\else
       \expandafter\global\expandafter\let\expandafter\tp@current@class\csname tp@#2@attr@class\endcsname
-      \message{^^Jtranspect-floats.sty: Class of float \tp@captype\space is: `\csname tp@#2@attr@class\endcsname'.}%
+      \message{^^Jcoco-floats.sty: Class of float \tp@captype\space is: `\csname tp@#2@attr@class\endcsname'.}%
       \tpUseClass{default}{\tp@captype}%
       \expandafter\tpUseClass\expandafter{\csname tp@#2@attr@class\endcsname}{\tp@captype}%
     \fi
@@ -158,7 +158,7 @@
   \fi}
 \def\tp@flt@debug#1{%
   \expandafter\ifx\csname tp@#1@attr@debug\endcsname\relax\else
-    \message{^^Jtranspect-float debug:^^J
+    \message{^^Jcoco-float debug:^^J
         Textheight:\space\the\textheight^^J
         Type:\space\space\space\space\space\space\space\tp@cur@cont^^J
 \ifx\tp@captype\tp@str@figure
@@ -234,11 +234,11 @@
 \def\tpDeclareFloat{\@ifnextchar[{\@tpDeclareFloat}{\@tpDeclareFloat[]}}%]
 \def\@tpDeclareFloat[#1]#2#3#4#5{%
   \expandafter\ifx\csname #2\endcsname\relax
-    \PackageInfo{transpect}{Declaring #2 environment}%
+    \PackageInfo{coco-floats.sty}{Declaring #2 environment}%
     \newenvironment{#2}[1][]{\tp@float[##1]{#3}{#4}{#2}}{\endtp@float}%
     \newenvironment{#2*}[1][]{\let\tp@do@dblfloat\relax\tp@float[##1]{#3}{#4}{#2}}{\let\tp@do@dblfloat\relax\endtp@float}%
   \else
-    \PackageWarning{transpect}{#2 environment already exists. Re-Declaring.}%
+    \PackageWarning{coco-floats.sty}{#2 environment already exists. Re-Declaring.}%
     \renewenvironment{#2}[1][]{\tp@float[##1]{#3}{#4}{#2}}{\endtp@float}%
     \renewenvironment{#2*}[1][]{\let\tp@do@dblfloat\relax\tp@float[##1]{#3}{#4}{#2}}{\let\tp@do@dblfloat\relax\endtp@float}%
   \fi
@@ -531,7 +531,7 @@
 }
 \def\tpSubFloat{%
   \ifx\tp@is@subflt\relax
-    \PackageError{transpect-floats.sty}{Nested tpSubFloats detected!}{You cannot nest a `tpSubFloat' environment into another `tpSubFloat' environment! Use the `tpSubFloatRow' and `tpSubFloatCol' environments to create more complex structures, instead.}%
+    \PackageError{coco-floats.sty}{Nested tpSubFloats detected!}{You cannot nest a `tpSubFloat' environment into another `tpSubFloat' environment! Use the `tpSubFloatRow' and `tpSubFloatCol' environments to create more complex structures, instead.}%
   \else
     \let\tp@is@subflt\relax
     \global\advance\tpSubFloatCnt\@ne
@@ -710,7 +710,7 @@
       \let\tp@floatbox\htTableBox%
     \fi\fi}
 \def\tpSubTableHandler{%
-  \PackageError{transpect-floats.sty}{tpSubFloat does not support tables (yet)!}{You cannot use a tabular within the `tpSubFloat'!}
+  \PackageError{coco-floats.sty}{tpSubFloat does not support tables (yet)!}{You cannot use a tabular within the `tpSubFloat'!}
   % \tpGetTableContent
   % \setbox\tp@subfltbox\hbox{\tpGobble\copy\tp@floatbox}%
   % \tpGetTableContent
@@ -867,4 +867,4 @@
 \expandafter\let\csname endtabular*\endcsname=\endtabular
 \endinput
 %%
-%% End of file `transpect-floats.sty'.
+%% End of file `coco-floats.sty'.

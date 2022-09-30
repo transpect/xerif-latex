@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-endnotes.sty',
+%% This is file `coco-notes.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `endnotes')
+%% cocotex.dtx  (with options: `endnotes')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-endnotes.sty.
+%% with new filenames distinct from coco-notes.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -23,15 +23,15 @@
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
 %%
-%% module for le-tex transpect.cls that handles footnote/endnote switching.
+%% module for CoCoTeX that handles footnote/endnote switching.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
 %% lualatex  -  texlive > 2019
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-endnotes}
-    [\filedate \fileversion le-tex transpect endnotes module]
+\ProvidesPackage{coco-notes}
+    [\filedate \fileversion le-tex coco notes module]
 \newif\ifendnotes \endnotesfalse
 \DeclareOption{endnotes}{\global\endnotestrue}
 \DeclareOption{ennotoc}{\global\let\tp@ennotoc\relax}
@@ -43,7 +43,7 @@
 \AtBeginDocument{\edef\tpfn@parindent{\the\parindent}}
 \ifendnotes
   \RequirePackage{endnotes}
-  \@ifpackageloaded{transpect-headings}{\let\tp@useTeXHeading\relax}{}
+  \@ifpackageloaded{coco-headings}{\let\tp@useTeXHeading\relax}{}
   \let\footnote=\endnote
   \def\enotesize{\normalsize}%
   \def\enoteformat{%
@@ -151,4 +151,4 @@
    \@footnotemark\@footnotetext}
 \endinput
 %%
-%% End of file `transpect-endnotes.sty'.
+%% End of file `coco-notes.sty'.

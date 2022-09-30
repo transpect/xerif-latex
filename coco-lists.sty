@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-lists.sty',
+%% This is file `coco-lists.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `lists')
+%% cocotex.dtx  (with options: `lists')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-lists.sty.
+%% with new filenames distinct from coco-lists.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -23,16 +23,16 @@
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
 %%
-%% module for le-tex transpect.cls that handles lists.
+%% module for CoCoTeX that handles lists.
 %%
 %% Maintainer: marcus.hottenroth@le-tex.de
 %%
 %% lualatex – texlive ≥ 2019
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-lists}
-    [\filedate \fileversion le-tex transpect lists module]
-\RequirePackage{transpect-common}
+\ProvidesPackage{coco-lists}
+    [\filedate \fileversion CoCoTeX lists module]
+\RequirePackage{coco-common}
 \usepackage{enumerate}
 \ifx\labelitemfont\@undefined\let\labelitemfont\relax\fi
 \renewcommand\labelitemi  {\labelitemfont \textendash}
@@ -182,7 +182,7 @@
   \endlist%
   \global\advance\tp@currListDepth by -\@ne%
   \expandafter\ifx\csname tpUseList\tp@list@name\endcsname\relax
-    \PackageError{transpect.cls}{List \tp@list@name\space unknown!}{A list with name \tp@list@name\space is unknown. Use the \string\tpDeclareList\space macro to declare list types.}%
+    \PackageError{coco-lists.sty}{List \tp@list@name\space unknown!}{A list with name \tp@list@name\space is unknown. Use the \string\tpDeclareList\space macro to declare list types.}%
   \else
     % If the parent list ends, gather the sublists and write their label widths to the aux file.
     \ifnum\tp@currListDepth=-\@ne\relax%
@@ -300,4 +300,4 @@
 \def\tp@list@load@props{\csname tp@list@\tp@list@name @properties\endcsname}
 \endinput
 %%
-%% End of file `transpect-lists.sty'.
+%% End of file `coco-lists.sty'.

@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-frame.sty',
+%% This is file `coco-frame.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `frame')
+%% cocotex.dtx  (with options: `frame')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-frame.sty.
+%% with new filenames distinct from coco-frame.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -23,17 +23,17 @@
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
 %%
-%% module for le-tex transpect.cls for crop marks and print area frames.
+%% module for CoCoTeX for crop marks and print area frames.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
 %% lualatex  -  texlive > 2019
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-frame}
-    [2020/27/08 transpect-frame]\relax
+\ProvidesPackage{coco-frame}
+    [2020/27/08 coco-frame]\relax
 \let\tp@frame n
-\define@choicekey{transpect-frame.sty}{frame}[\tp@frame\nr]{none,crop,frame}{%
+\define@choicekey{coco-frame.sty}{frame}[\tp@frame\nr]{none,crop,frame}{%
   \ifcase\nr\relax% none
     \let\tp@frame n
   \or% crop
@@ -209,4 +209,4 @@
 \fi
 \endinput
 %%
-%% End of file `transpect-frame.sty'.
+%% End of file `coco-frame.sty'.

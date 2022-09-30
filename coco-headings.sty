@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-headings.sty',
+%% This is file `coco-headings.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `headings')
+%% cocotex.dtx  (with options: `headings')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-headings.sty.
+%% with new filenames distinct from coco-headings.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -23,16 +23,16 @@
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
 %%
-%% module for le-tex transpect.cls that extends heading objects.
+%% module for CoCoTeX that extends heading objects.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
 %% lualatex  -  texlive >= 2019
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-headings}
-    [\filedate \fileversion le-tex transpect headings module]
-\RequirePackage{transpect-meta}
+\ProvidesPackage{coco-headings}
+    [\filedate \fileversion CoCoTeX headings module]
+\RequirePackage{coco-meta}
 \RequirePackage{bookmark}
 \hypersetup{bookmarksdepth=-999}
 \tpDeclareContainer{tpHeading}{%
@@ -300,7 +300,7 @@
 }
 \def\end@heading{%
   \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
-    \PackageError{transpect.cls}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
+    \PackageError{coco-headings.sty}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
   \else
     \csname tpUseHeading\tp@heading@name\endcsname%
   \fi
@@ -508,4 +508,4 @@
 \let\TitleBreak\tpBreak
 \endinput
 %%
-%% End of file `transpect-headings.sty'.
+%% End of file `coco-headings.sty'.

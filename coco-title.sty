@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-title.sty',
+%% This is file `coco-title.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `title')
+%% cocotex.dtx  (with options: `title')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-title.sty.
+%% with new filenames distinct from coco-title.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -23,16 +23,16 @@
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
 %%
-%% module for le-tex transpect.cls for maketitle.
+%% module for CoCoTeX for maketitle.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
 %% lualatex  -  texlive > 2019
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-title}
-    [\filedate \fileversion le-tex transpect title module]
-\RequirePackage{transpect-meta}
+\ProvidesPackage{coco-title}
+    [\filedate \fileversion CoCoTeX title module]
+\RequirePackage{coco-meta}
 \tpDeclareContainer{titlepage}{%
   \tpInherit {Components,Properties} from Meta;
   \tpDeclareType{Components}{%
@@ -246,6 +246,11 @@
   \tp@title@macro{JournalName}% Full name of the journal
   \tp@title@macro{JournalAbbrev}% Short name of the journal
   \tp@title@macro{Issue}% Issue of the journal
+  %% Generic additional information
+  \tp@title@macro{AddNoteI}%                      Additional information, title page I
+  \tp@title@macro{AddNoteII}%                     Additional information, title page II
+  \tp@title@macro{AddNoteIII}%                    Additional information, title page III
+  \tp@title@macro{AddNoteIV}%                     Additional information, title page IV
 }
 \def\tp@titlepage@default{%
   \tpSetProperty{article-title}{}%
@@ -485,4 +490,4 @@
 }
 \endinput
 %%
-%% End of file `transpect-title.sty'.
+%% End of file `coco-title.sty'.

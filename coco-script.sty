@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-script.sty',
+%% This is file `coco-script.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `script')
+%% cocotex.dtx  (with options: `script')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-script.sty.
+%% with new filenames distinct from coco-script.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -22,17 +22,17 @@
 %% in the same archive or directory.)
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
-%% module for le-tex transpect.cls that handles script switching.
+%% module for CoCoTeX that handles script switching.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
 %% lualatex  -  texlive > 2019
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-script}
-    [\filedate \fileversion le-tex transpect script module]
+\ProvidesPackage{coco-script}
+    [\filedate \fileversion CoCoTeX script module]
 \let\usescript\relax
-\define@key{transpect-script.sty}{usescript}{\def\usescript{#1}}
+\define@key{coco-script.sty}{usescript}{\def\usescript{#1}}
 \ProcessOptionsX
 \RequirePackage[quiet]{fontspec}
 \RequirePackage[bidi=basic,silent]{babel}
@@ -47,7 +47,7 @@
   \def\tp@script@callback#1{\expandafter\global\expandafter\let\csname use@script@#1\endcsname\@empty}%
   \expandafter\parse@script\usescript,,\relax
 \fi
-\message{^^J  [transpect-script Fonts loaded: \meaning\usescript]^^J}
+\message{^^J  [coco-script Fonts loaded: \meaning\usescript]^^J}
 \newfontfamily\fallbackfont{NotoSerif-Regular.ttf}%
 [BoldFont = NotoSerif-Bold.ttf,%
  ItalicFont = NotoSerif-Italic.ttf,%
@@ -65,7 +65,7 @@
 \def\tpDeclareBabelFont#1#2#3{%
   \expandafter\ifx\csname use@script@#1\endcsname\@empty
     \babelprovide{#1}%
-    \message{^^J  [transpect-script Loaded Script: #1]^^J}%
+    \message{^^J  [coco-script Loaded Script: #1]^^J}%
     %%
     \expandafter\gdef\csname tp@babel@rm@font@#1\endcsname{#2}%
     \expandafter\gdef\csname tp@babel@sf@font@#1\endcsname{#3}%
@@ -85,7 +85,7 @@
       \expandafter\ifx\csname tp@no@fallback@##1\endcsname\relax
         \expandafter\ifx\csname tp@babel@#2@font@##1\endcsname\relax
           \PackageError
-            {transpect-script.sty}
+            {coco-script.sty}
             {\expandafter\string\csname #2family\endcsname\space for Language `##1' was not declared!}
             {You attempted to declare an alias towards a font family that has not been declared for the language `##1', yet.}%
         \else
@@ -93,12 +93,12 @@
           \expandafter\expandafter\expandafter\tp@tempa\csname tp@babel@#2@font@##1\endcsname
         \fi
       \else
-        \PackageInfo{transpect-script.sty}{^^J\space\space\space\space No fallback for `##1';^^J\space\space\space\space Skipping font family `#1'->`#2'}%
+        \PackageInfo{coco-script.sty}{^^J\space\space\space\space No fallback for `##1';^^J\space\space\space\space Skipping font family `#1'->`#2'}%
       \fi}%
     \expandafter\parse@script\usescript,,\relax
   \fi}
 \ifx\use@script@armenian\@empty
-  \message{^^J  [transpect-script Loaded Script: Armenian]^^J}
+  \message{^^J  [coco-script Loaded Script: Armenian]^^J}
   \def\NotoArmenianPath{./fonts/Noto/Armenian/}
   \newfontfamily\fallbackfont@armenian{NotoSansArmenian-Regular.ttf}%
     [BoldFont = NotoSansArmenian-Bold.ttf,%
@@ -161,4 +161,4 @@
   }
 \endinput
 %%
-%% End of file `transpect-script.sty'.
+%% End of file `coco-script.sty'.

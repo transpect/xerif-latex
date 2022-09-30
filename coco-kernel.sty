@@ -1,20 +1,20 @@
 %%
-%% This is file `transpect-kernel.sty',
+%% This is file `coco-kernel.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% transpect.dtx  (with options: `kernel')
+%% cocotex.dtx  (with options: `kernel')
 %% 
 %% IMPORTANT NOTICE:
 %% 
 %% For the copyright see the source file.
 %% 
 %% Any modified versions of this file must be renamed
-%% with new filenames distinct from transpect-kernel.sty.
+%% with new filenames distinct from coco-kernel.sty.
 %% 
 %% For distribution of the original source see the terms
-%% for copying and modification in the file transpect.dtx.
+%% for copying and modification in the file cocotex.dtx.
 %% 
 %% This generated file may be distributed as long as the
 %% original source files, as listed above, are part of the
@@ -23,8 +23,8 @@
 \def\fileversion{0.2.1}%
 \def\filedate{2021-08-20}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{transpect-kernel}
-    [\filedate \fileversion le-tex transpect kernel]
+\ProvidesPackage{coco-kernel}
+    [\filedate \fileversion cocotex kernel]
 \newif\if@tp@debug \@tp@debugfalse
 \DeclareOption{debug}{\global\@tp@debugtrue}%
 \ProcessOptions
@@ -358,7 +358,7 @@
 \def\tpUseClass#1#2{%
   \expandafter\ifx\csname tp@#2@class@#1\endcsname\relax
     \expandafter\ifx\csname tp@default@class@#1\endcsname\relax
-      \PackageError{transpect.cls}{Class `#1' with scope `#2' not defined!}{Please declare the class `#1'!}%
+      \PackageError{cocotex.cls}{Class `#1' with scope `#2' not defined!}{Please declare the class `#1'!}%
     \fi
   \fi
   \csname tp@default@class@#1\endcsname%
@@ -366,7 +366,8 @@
     \expandafter\tpUseClass\expandafter{\csname tp@#2@class@#1@parent\endcsname}{#2}%
   \fi
   \csname tp@#2@class@#1\endcsname}
+\def\CoCoTeX{{\ttfamily CoCo\TeX}}
  \def\tpNamespace#1{\def\tp@cur@cont{#1}}
 \endinput
 %%
-%% End of file `transpect-kernel.sty'.
+%% End of file `coco-kernel.sty'.
