@@ -699,6 +699,33 @@
   \gdef\@tp@fig@path{#2}%
   \expandafter\tpltx@includegraphics\expandafter[\@igopts]{#2}%
 }
+\def\tpGenericRender{\tpUseComp{Content}}
+\def\tpGenericHandler{\tpMakeFltComp{content}}
+\def\tpSubGenericHandler{}
+\def\tpFigureHandler{\tpMakeFltComp{Fig}}
+\def\tpSubFigureHandler{%
+  \ifx\tp@nofigs\relax
+    \setbox\tp@subfltbox\hbox{\rule{0pt}{1pt}\rule{1pt}{0pt}}%
+  \else
+    \setbox\tp@subfltbox\hbox{\tpGobble\tp@flt@create@natural}%
+  \fi
+}
+\def\tpFigureRender{%
+  \bgroup
+    \let\includegraphics\tp@includesubgraphics
+    \expandafter\ifx\csname tp@\tp@captype @attr@orientation\endcsname\tp@str@landscape\relax
+      \let\hsize\textwidth%
+    \fi%
+    \hskip\tp@flt@marg@l
+    \strut\tpUseComp{Fig}\strut
+  \egroup%
+}%
+\def\tpSubFigureRender{%
+  \hskip\tp@flt@marg@l
+  \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
+    \tp@render@sub@floats{\the\@tempcnta}{Fig}%
+  }%
+}
 \def\tp@reserve@tabular{%
   \@tp@reserve@tab{x}%
   \@tp@reserve@tab{y}%
@@ -832,7 +859,7 @@
   \tpSetProperty{list-of-before-entry}{%
     \tpGobble
     \leftskip\tpUseProperty{list-of-margin-left}\relax%
-    \rightskip \tpUseProperty{list-of-margin-right}\relax
+    \rightskip \tpUseProperty{list-of-margin-right} \@plus 1fil\relax%
     \parfillskip \tpUseProperty{list-of-parfillskip}\relax
     \parindent\z@
     \@afterindenttrue
