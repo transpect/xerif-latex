@@ -99,7 +99,7 @@
   \global\let\tp@has@capt@bottom\@undefined
   \global\let\tp@has@subcapt@top\@undefined
   \global\let\tp@has@subcapt@bottom\@undefined
-  \global\let\tp@@savecontentsline\@empty
+  \global\let\tp@sub@contentsline@store\@empty
   \global\tp@subfloat@row=\z@
   \global\tp@subfloat@col=\z@
   \global\tp@subflt@maxheight=\z@\relax
@@ -110,7 +110,6 @@
   \def\tp@caplisttype{#2}%
   \let\ht@cur@element\tp@captype
   \global\let\tp@current@class\relax
-  \global\let\tp@subfloat@parent=f\relax
 }
 \def\tp@get@flt@attr#1#2{%
   \if!#1!\else
@@ -298,20 +297,30 @@
       \tpIfComp{ListofNumber}{\csgappto{@tp@listof@entry}{\string\tpListofNumber{\tpUseComp{ListofNumber}}}}{}%
       \tpIfComp{ListofLegend}{\csgappto{@tp@listof@entry}{\string\tpListofLegend{\tpUseComp{ListofLegend}}}}{}%
       \tpIfComp{ListofSource}{\csgappto{@tp@listof@entry}{\string\tpListofSource{\tpUseComp{ListofSource}}}}{}%
-      \ifx\@tp@listof@entry\relax\else
+      \ifx\@tp@listof@entry\relax
+        \ifx\tp@is@subflt\relax\else
+          \tp@restore@contentsline
+        \fi
+      \else
         \protected@edef\tp@listof@entry{\@tp@listof@entry}%
-        %\ifx\tp@is@subflt\relax
-        %  \tp@savecontentsline{#1}{\tp@captype}{\expandonce{\tp@listof@entry}}%
-        %\else
+        \ifx\tp@is@subflt\relax
+          \tp@store@sub@contentsline{#1}{\tp@captype}{\expandonce{\tp@listof@entry}}%
+        \else
           \tp@flt@addcontentsline{#1}{\tp@captype}{\expandonce{\tp@listof@entry}}%
-          \tp@@savecontentsline
-        %\fi
+          \tp@restore@contentsline
+        \fi
       \fi
     \fi
   }%
 }
-\def\tp@savecontentsline#1#2#3{%
-  \protected@xdef\tp@@savecontentsline{\expandonce{\tp@@savecontentsline}\noexpand\tp@flt@addcontentsline{#1}{#2}{#3}\relax}}
+\def\tp@store@sub@contentsline#1#2#3{%
+  \protected@xdef\tp@sub@contentsline@store{\expandonce{\tp@sub@contentsline@store}\noexpand\tp@flt@addcontentsline{#1}{#2}{#3}\relax}}
+\def\tp@restore@contentsline{%
+  \ifx\tp@sub@contentsline@store\@empty\else
+    \tp@sub@contentsline@store
+    \global\let\tp@sub@contentsline@store\@empty
+  \fi
+}
 \def\tp@flt@addcontentsline#1#2#3{%
   \protected@write\@auxout
     {\tpGobble}%
@@ -412,7 +421,7 @@
 }
 \def\tpSubFloat{%
   \ifx\tp@is@subflt\relax
-    \PackageError{coco-floats.sty}{Nested tpSubFloats detected!}{You cannot nest a `tpSubFloat' environment into another `tpSubFloat' environment! Use the `tpSubFloatRow' and `tpSubFloatCol' environments to create more complex structures, instead.}%
+    \PackageError{coco-floats.sty}{Nested tpSubFloats detected!}{You cannot (yet) nest a `tpSubFloat' environment into another `tpSubFloat' environment!}%
   \else
     \let\tp@is@subflt\relax
     \global\advance\tpSubFloatCnt\@ne
@@ -427,26 +436,8 @@
   \expandafter\xdef\csname tp@\tp@cur@cont @row-\the\tpSubFloatCnt\endcsname{\the\tp@subfloat@row}%
   \@tempdima=\dimexpr\the\ht\tp@subfltbox+\the\dp\tp@subfltbox\relax
   \@tempdimb=\dimexpr\the\wd\tp@subfltbox\relax
-  \ifx\tp@subfloat@parent r\relax
-    \expandafter\expandafter\expandafter\edef\expandafter\csname tp@flt@max@row@width@\the\tp@subfloat@row\expandafter\endcsname\expandafter
-      {\dimexpr\csname tp@flt@max@row@width@\the\tp@subfloat@row\endcsname+\the\wd\tp@subfltbox\relax}%
-    \expandafter\expandafter\expandafter\ifdim\expandafter\@tempdima>\csname tp@flt@max@row@height@\the\tp@subfloat@row\endcsname\relax
-      \expandafter\edef\csname tp@flt@max@row@height@\the\tp@subfloat@row\endcsname{\the\@tempdima}%
-    \fi
-  \else
-    \ifx\tp@subfloat@parent c\relax
-      \expandafter\expandafter\expandafter\edef\expandafter\csname tp@flt@max@col@height@\the\tp@subfloat@col\expandafter\endcsname\expandafter
-        {\dimexpr\csname tp@flt@max@col@height@\the\tp@subfloat@col\endcsname+\the\ht\tp@subfltbox+\the\dp\tp@subfltbox\relax}%
-      \expandafter\expandafter\expandafter\ifdim\expandafter\@tempdimb>\csname tp@flt@max@col@width@\the\tp@subfloat@col\endcsname\relax
-        \expandafter\edef\csname tp@flt@max@col@width@\the\tp@subfloat@col\endcsname{\the\@tempdimb}%
-      \fi
-    \else
-      \ifx\tp@subfloat@parent f\relax
-        \ifdim\@tempdima>\tp@subflt@maxheight\relax
-          \global\tp@subflt@maxheight=\@tempdima\relax
-        \fi
-      \fi
-    \fi
+  \ifdim\@tempdima>\tp@subflt@maxheight\relax
+    \global\tp@subflt@maxheight=\@tempdima\relax
   \fi
   \ignorespaces
   \expandafter\ifx\csname tp@\tp@captype @attr@subfloat\endcsname\relax
@@ -580,25 +571,6 @@
     \ifx\@argi\tp@str@top\nopagebreak\fi
   \fi
 }
-\def\tpSubFloatRow{%
-  \advance\tp@subfloat@row\@ne
-  \let\tp@subfloat@prev@parent\tp@subfloat@parent
-  \let\tp@subfloat@parent=r\relax
-  \expandafter\def\csname tp@flt@max@row@height@\the\tp@subfloat@row\endcsname{\z@}%
-  \expandafter\def\csname tp@flt@max@row@width@\the\tp@subfloat@row\endcsname{\z@}%
-}
-\def\endtpSubFloatRow{%
-  \let\tp@subfloat@parent\tp@subfloat@prev@parent
-}
-\def\tpSubFloatCol{%
-  \advance\tp@subfloat@col\@ne
-  \let\tp@subfloat@prev@parent\tp@subfloat@parent
-  \let\tp@subfloat@parent=c\relax
-  \expandafter\let\csname tp@flt@max@col@width@\the\tp@subfloat@col\endcsname=\z@\relax
-}
-\def\endtpSubFloatCol{%
-  \let\tp@subfloat@parent\tp@subfloat@prev@parent
-}
 \long\def\tpRenderSubFloats#1#2{%
   \leavevmode
   \savenotes
@@ -678,6 +650,9 @@
 \def\tpFigureRender{%
   \bgroup
     \let\includegraphics\tp@includesubgraphics
+    \expandafter\ifx\csname tp@\tp@captype @attr@orientation\endcsname\tp@str@landscape\relax
+      \let\hsize\textwidth%
+    \fi%
     \hskip\tp@flt@marg@l
     \strut\tpUseComp{Fig}\strut
   \egroup}
@@ -698,33 +673,6 @@
   \fi
   \gdef\@tp@fig@path{#2}%
   \expandafter\tpltx@includegraphics\expandafter[\@igopts]{#2}%
-}
-\def\tpGenericRender{\tpUseComp{Content}}
-\def\tpGenericHandler{\tpMakeFltComp{content}}
-\def\tpSubGenericHandler{}
-\def\tpFigureHandler{\tpMakeFltComp{Fig}}
-\def\tpSubFigureHandler{%
-  \ifx\tp@nofigs\relax
-    \setbox\tp@subfltbox\hbox{\rule{0pt}{1pt}\rule{1pt}{0pt}}%
-  \else
-    \setbox\tp@subfltbox\hbox{\tpGobble\tp@flt@create@natural}%
-  \fi
-}
-\def\tpFigureRender{%
-  \bgroup
-    \let\includegraphics\tp@includesubgraphics
-    \expandafter\ifx\csname tp@\tp@captype @attr@orientation\endcsname\tp@str@landscape\relax
-      \let\hsize\textwidth%
-    \fi%
-    \hskip\tp@flt@marg@l
-    \strut\tpUseComp{Fig}\strut
-  \egroup%
-}%
-\def\tpSubFigureRender{%
-  \hskip\tp@flt@marg@l
-  \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
-    \tp@render@sub@float{\the\@tempcnta}{Fig}%
-  }%
 }
 \def\tp@reserve@tabular{%
   \@tp@reserve@tab{}%
@@ -776,11 +724,7 @@
       \let\tp@floatbox\htTableBox%
     \fi\fi}
 \def\tpSubTableHandler{%
-  \PackageError{coco-floats.sty}{tpSubFloat does not support tables (yet)!}{You cannot use a tabular within the `tpSubFloat'!}%
-  % \tpGetTableContent
-  % \setbox\tp@subfltbox\hbox{\tpGobble\copy\tp@floatbox}%
-  % \tpGetTableContent
-  % \setbox\tp@subfltbox\hbox{\strut\quad}%
+  \PackageError{coco-floats.sty}{tpSubFloat does not support sub-tables (yet)!}{You cannot yet use a tables within the `tpSubFloat'!}%
 }
 \def\tpTableRender{%
   \tpGetTableContent
