@@ -723,42 +723,53 @@
 \def\tpSubFigureRender{%
   \hskip\tp@flt@marg@l
   \tp@iterate{\@tempcnta}{\@ne}{\tpSubFloatCnt}{%
-    \tp@render@sub@floats{\the\@tempcnta}{Fig}%
+    \tp@render@sub@float{\the\@tempcnta}{Fig}%
   }%
 }
 \def\tp@reserve@tabular{%
+  \@tp@reserve@tab{}%
   \@tp@reserve@tab{x}%
   \@tp@reserve@tab{y}%
-  % \@tp@reserve@tab{}% TODO: tabularx and tabulary both use LaTeX's default tabular macros, so we can't re-define them
+  \@tp@reserve@htmltab%
 }
 \def\@tp@reserve@tab#1{%
   \expandafter\expandafter\expandafter\let\expandafter\csname orig@tabular#1\expandafter\endcsname\csname tabular#1\endcsname
   \expandafter\expandafter\expandafter\let\expandafter\csname orig@endtabular#1\expandafter\endcsname\csname endtabular#1\endcsname
-  \expandafter\def\csname tabular#1\endcsname{\global\setbox\tp@floatbox\vbox\bgroup\csname orig@tabular#1\endcsname}%
+  \expandafter\def\csname tabular#1\endcsname{%
+    \global\setbox\tp@floatbox
+    \vbox\bgroup
+      \if!#1!\else
+        \let\tabular\orig@tabular
+        \let\endtabular\orig@endtabular
+      \fi
+      \csname orig@tabular#1\endcsname}%
   \expandafter\def\csname endtabular#1\endcsname{\csname orig@endtabular#1\endcsname\egroup}%
 }
+\@ifpackageloaded{htmltabs}{%
+\def\@tp@reserve@htmltab{%
+  \let\tp@addstyle\@empty
+  \ifx\tp@fps\@empty
+    \expandafter\ifx\csname tpFloat\the\tp@int@flt@cnt Captop\endcsname\relax\else
+      \htInitSkip\csname tpFloat\the\tp@int@flt@cnt Captop\endcsname
+      \advance\htInitSkip\tp@flt@sep@top%
+    \fi
+    \expandafter\ifx\csname tpFloat\the\tp@int@flt@cnt Capbottom\endcsname\relax\else
+      \htAddToBottom\csname tpFloat\the\tp@int@flt@cnt Capbottom\endcsname
+      \advance\htAddToBottom\tp@flt@sep@bottom%
+    \fi
+  \else
+    \def\tp@addstyle{;break-table:false;}%
+  \fi
+  \edef\tp@tempa{margin-left:\tp@flt@marg@l\tp@addstyle}%
+  \expandafter\htAddStyle\expandafter{\tp@tempa}%
+  \global\setbox\htTableBox\box\voidb@x
+  \let\htOutputTable\relax
+}%
+}{\let\@tp@reserve@htmltab\relax}
 \def\tpTableHandler{%
   \tpMakeFltComp{Content}%
   \tp@reserve@tabular
-  \ifx\tp@uses@htmltabs\relax
-    \let\tp@addstyle\@empty
-    \ifx\tp@fps\@empty
-      \expandafter\ifx\csname tpFloat\the\tp@int@flt@cnt Captop\endcsname\relax\else
-        \htInitSkip\csname tpFloat\the\tp@int@flt@cnt Captop\endcsname
-        \advance\htInitSkip\tp@flt@sep@top%
-      \fi
-      \expandafter\ifx\csname tpFloat\the\tp@int@flt@cnt Capbottom\endcsname\relax\else
-        \htAddToBottom\csname tpFloat\the\tp@int@flt@cnt Capbottom\endcsname
-        \advance\htAddToBottom\tp@flt@sep@bottom%
-      \fi
-    \else
-      \def\tp@addstyle{;break-table:false;}%
-    \fi
-    \edef\tp@tempa{margin-left:\tp@flt@marg@l\tp@addstyle}%
-    \expandafter\htAddStyle\expandafter{\tp@tempa}%
-    \global\setbox\htTableBox\box\voidb@x
-    \let\htOutputTable\relax
-  \fi}
+  }
 \def\tpGetTableContent{%
   \ifx\htTableBox\@undefined\else
     \ifvoid\htTableBox\else
