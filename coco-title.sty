@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.6}%
-\def\filedate{2023-07-05}%
+\def\fileversion{0.3.0}%
+\def\filedate{2023-08-03}%
 %%
 %% module for CoCoTeX for maketitle.
 %%
@@ -38,6 +38,7 @@
   \tpDeclareType{Components}{%
     \tp@title@simple@comps
     \tp@meta@generic@comp
+    \tp@extended@meta@macros
     \tp@title@fundings@comp
     \tp@title@role@handlers{author}{Author}%
     \tp@titlepage@role{editor}{Editor}%
@@ -252,6 +253,14 @@
   \tp@title@macro{PubCycle}                      % Publication cycle
   \tp@title@macro{Prices}                        % Prices of the journal issues or subscription models
   \tp@title@macro{MemberList}                    % In case of publishing organizations, this macro may hold a list of members.
+  %% for single articles
+  \tp@title@macro{StartPage}                     % Start page of a single article
+  \tp@title@macro{EndPage}                       % End page of a single article
+  \tp@title@macro{Received}                      % Date the article was recieved
+  \tp@title@macro{Reviewed}                      % Date the article was reviewed
+  \tp@title@macro{Accepted}                      % Date the article was accepted
+  \tp@title@macro{Published}                     % Date the article was published
+  \tp@provide@ext@meta@macros[Conflict of Interest]{COIStatement}% Conflict of Interest statement (and title)
   %% Generic additional information
   \tp@title@macro{AddNoteI}                      % Additional information, title page I
   \tp@title@macro{AddNoteII}                     % Additional information, title page II

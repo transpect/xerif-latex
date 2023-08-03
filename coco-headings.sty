@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.6}%
-\def\filedate{2023-07-05}%
+\def\fileversion{0.3.0}%
+\def\filedate{2023-08-03}%
 %%
 %% module for CoCoTeX that extends heading objects.
 %%
@@ -45,7 +45,7 @@
     \tp@provide@hd@macros{LicenceLogo}%
     \tp@provide@hd@macros{LicenceName}%
     \tpIfProp{extended}{%
-      \tp@extended@ht@macros
+      \tp@extended@meta@macros
     }{}%
     \tp@heading@quotes
   }%
@@ -140,9 +140,9 @@
       \rightskip\tpUseProperty{margin-right}%
       \bgroup
         \tpUseProperty{heading-block}%
-      \tpIfPropVal{no-toc}{true}{}{\tp@make@toc}% ToC entries
-      \tpIfPropVal{no-BM}{true}{}{\tp@make@bookmarks}% Bookmarks
-      \tpUseProperty{toc-hook}%
+        \tpIfPropVal{no-toc}{true}{}{\tp@make@toc}% ToC entries
+        \tpIfPropVal{no-BM}{true}{}{\tp@make@bookmarks}% Bookmarks
+        \tpUseProperty{toc-hook}%
         \tpIfProp{extended}{\tpUseProperty{extended-heading}}{}%
       \egroup%
       \tp@make@run% Running headers
@@ -369,16 +369,6 @@
   \let\tp@heading@name\relax
   \let\tp@heading@label\relax
   }
-\def\tp@extended@ht@macros{%
-  \tp@provide@ext@hd@macros{Abstract}%
-  \tp@provide@ext@hd@macros{Keywords}%
-  \tp@provide@ext@hd@macros{DOI}%
-  \tp@provide@ext@hd@macros{TitleEn}%
-}
-\def\tp@provide@ext@hd@macros#1{%
-  \tpDeclareComp{#1}{}{}%
-  \tpDeclareComp{#1Title}{}{}%
-}
 \def\tp@heading@quotes{%
   \tpDeclareComp{QuoteBlock}{}{}%
   \tpDeclareComponentGroup{tpQuote}{%
@@ -395,22 +385,6 @@
     \tpIfComp{AuthorContact}{}{\csname tpAuthorContact\endcsname{\tpUseProperty{author-contact-format}}}{}%
   }%
   \tp@provide@hd@overrides{AuthorNameList}%
-  \tp@heading@affils
-}
-\def\tp@heading@affils{%
-  \tpDeclareComp{AffilBlock}{\expandafter\global}{}%
-  \tpDeclareComponentGroup{tpAffil}{%
-    \tpDeclareCountedComp{Affiliation}%
-    \tpDeclareCountedComp{Address}%
-    \tpDeclareCountedComp{Institute}%
-    \tpDeclareCountedComp{Country}%
-    \tpDeclareCountedComp{Department}%
-    \tpDeclareCountedComp{AffilID}%
-  }%
-  \tpGroupHandler{tpAffil}{%
-    \tpIfComp{AffilID}{}{\expandafter\tpAffilID\expandafter{\tpAffilCnt}}%
-    \tpIfComp{Affiliation}{}{\tpAffiliation{\tpUseProperty{affiliation-format}}}%
-  }%
 }
 \def\tp@provide@hd@macros#1{%
   \tpDeclareComp{#1}{}{}%
@@ -468,7 +442,7 @@
   \tpSetProperty{before-skip}{\z@skip}% TODOC: values < 0pt use \minusvspace, else \addvspace. LaTeX's default behaviour of @afterindent is relocated to the after-indent property.
   \tpSetProperty{after-heading-block}{}%
   \tpSetProperty{before-heading-block}{\parindent\z@ \parskip\z@}%
-  \tpSetProperty{toc-hook}{}% Called, after toc ans BM entries have been written to the .aux file
+  \tpSetProperty{toc-hook}{}% Called, after ToC and BM entries have been written to the .aux file
   \tpSetProperty{after-indent}{}%
   \tpSetProperty{margin-left}{\z@}%
   \tpSetProperty{margin-right}{\@flushglue}%
@@ -541,15 +515,6 @@
   \tpSetProperty{author-contact-block-format}{% Format of the whole contact information block
     \tpUseComp{AuthorContact}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi
   }%
-  \tpSetProperty{affiliation-format}{% Format of the  affiliation block
-    \tpIfComp{Institute}{\tpUseComp{Institute}}{}%
-    \tpIfComp{Department}{, \tpUseComp{Department}}{}%
-    \tpIfComp{Address}{, \tpUseComp{Address}}{}%
-    \tpUseProperty{affil-sep}%
-  }%
-  \tpSetProperty{affil-sep}{\par}
-  \tpSetProperty{affil-block-format}{\textsuperscript{\tpUseComp{AffilID}}\tpUseComp{Affiliation}}
-  \tpSetProperty{affil-block-face}{\small\normalfont}
 }
 \newdimen\tpnewparskip \AtBeginDocument{\ifdim\tpnewparskip=\z@\relax \tpnewparskip=1\baselineskip\relax\fi}
 \def\tpNewPar{\@ifnextchar[{\@tpnewpar}{\@tpnewpar[\the\tpnewparskip]}}%]

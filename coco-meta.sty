@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.6}%
-\def\filedate{2023-07-05}%
+\def\fileversion{0.3.0}%
+\def\filedate{2023-08-03}%
 %%
 %% module for CoCoTeX that provides handling of a document's meta data.
 %%
@@ -37,6 +37,7 @@
   \tpDeclareType{Components}{%
     \tpDeclareRole[author]{Author}%
     \tp@declare@meta@comp
+    \tp@declare@meta@affils
   }%
   \tpDeclareType{Properties}{%
     \tp@Meta@default
@@ -90,6 +91,35 @@
     \tpDeclareComp{Copyright}{\expandafter\global}{}% Copyright text
     \tpDeclareComp{DOI}{\expandafter\global}{}%         DOI
 }%
+\def\tp@extended@meta@macros{%
+  \tp@provide@ext@meta@macros[Abstract]{Abstract}%
+  \tp@provide@ext@meta@macros[Keywords]{Keywords}%
+  \tp@provide@ext@meta@macros{DOI}%
+  \tp@provide@ext@meta@macros{TitleEn}%
+}
+\def\tp@provide@ext@meta@macros{\tp@opt@empty\@tp@provide@ext@meta@macros}%
+\def\@tp@provide@ext@meta@macros[#1]#2{%
+  \tpDeclareComp{#2}{}{}%
+  \tpDeclareComp{#2Title}{}{}%
+  \if!#1!\else
+    \expandafter\long\expandafter\def\csname tp@\tp@cur@cont @#1\endcsname{#2}%
+  \fi
+}
+\def\tp@declare@meta@affils{%
+  \tpDeclareComp{AffilBlock}{\expandafter\global}{}%
+  \tpDeclareComponentGroup{tpAffil}{%
+    \tpDeclareCountedComp{Affiliation}%
+    \tpDeclareCountedComp{Address}%
+    \tpDeclareCountedComp{Institute}%
+    \tpDeclareCountedComp{Country}%
+    \tpDeclareCountedComp{Department}%
+    \tpDeclareCountedComp{AffilID}%
+  }%
+  \tpGroupHandler{tpAffil}{%
+    \tpIfComp{AffilID}{}{\expandafter\tpAffilID\expandafter{\tpAffilCnt}}%
+    \tpIfComp{Affiliation}{}{\tpAffiliation{\tpUseProperty{affiliation-format}}}%
+  }%
+}
 \tpAddToDefault{Meta}{%
   \tpSetProperty{name-format}{\tpUseComp{FirstName}\space\tpUseComp{LastName}}%
   \tpSetProperty{name-list-format}{\tpUseComp{FullName}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi}%
@@ -99,6 +129,16 @@
   \tpSetProperty{name-etal}{\space et~al.}%
   \tpSetProperty{name-sep}{,\space}%
   \tpSetProperty{corresp-mark}{*}%
+  % Affiliation Properties
+  \tpSetProperty{affiliation-format}{% Format of the  affiliation block
+    \tpIfComp{Institute}{\tpUseComp{Institute}}{}%
+    \tpIfComp{Department}{, \tpUseComp{Department}}{}%
+    \tpIfComp{Address}{, \tpUseComp{Address}}{}%
+    \tpUseProperty{affil-sep}%
+  }%
+  \tpSetProperty{affil-sep}{\par}
+  \tpSetProperty{affil-block-format}{\textsuperscript{\tpUseComp{AffilID}}\tpUseComp{Affiliation}}
+  \tpSetProperty{affil-block-face}{\small\normalfont}
 }
 \endinput
 %%
