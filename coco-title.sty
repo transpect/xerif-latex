@@ -93,7 +93,7 @@
 }
 \def\tp@title@process@bkt{%
   \let\tpBreak\space
-  \expandafter\title\expandafter{\tpUseComp{Title}}%
+  \xdef\@title{\tpUseComp{Title}}%
   \tp@write@pdf@meta{pdftitle}{\tpUseComp{Title}}%
   \protected@edef\tp@run@book@title{\tpUseProperty{run-book-title}}%
   \expandafter\gdef\expandafter\tpRunBookTitle\expandafter{\tp@run@book@title}%
