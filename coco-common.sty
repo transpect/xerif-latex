@@ -73,7 +73,7 @@
   \let\label\@gobble
 }%
 \def\CalcRatio#1#2{\strip@pt\dimexpr\number\numexpr\number\dimexpr#1\relax*65536/\number\dimexpr#2\relax\relax sp}
-\def\CalcModulo#1#2{\numexpr#1-(#1/#2)*#2\relax}
+\def\CalcModulo#1#2{\number\numexpr#1+#2-((#1+#2/2)/#2)*#2\relax}
 \def\@xminusvskip{%
   \ifdim\lastskip<\@tempskipb
   \else
@@ -181,12 +181,13 @@
   \sbox\z@{\def\numberline##1{\expandafter\gdef\csname tp@#2@#3Number\endcsname{##1}}#1}%
   \ifdim\wd\z@>\z@
     \let\numberline\@gobble%
-    \expandafter\xdef\csname tp@#2@#3#4\endcsname{#1}%
+    \protected@csxdef{tp@#2@#3#4}{#1}%
   \else
     #1%
   \fi}
 \def\tp@format@number#1#2#3{%
   \tpSetProperty{#1formatted-number}{}%
+  \tpSetValProp{#1curr-number-level}{#3}%
   \tpIfComp{#2Number}{%
     \tpSetProperty{#1formatted-number}{%
       \bgroup
