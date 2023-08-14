@@ -380,18 +380,7 @@
       \tpUseProperty{EditorNameList}%
     \fi%
     \par
-    \bgroup
-      \tpUseProperty{title-face}%
-      \tpUseComp{Title}\par
-    \egroup
-    \tpIfComp{Subtitle}{%
-      \bgroup
-        \tpUseProperty{subtitle-face}%
-        \tpUseComp{Subtitle}%
-      \egroup
-      \par}{}%
-    \tpGetComp{Statement}%
-    \vskip\baselineskip
+    \tpUseProperty{title-format}
     \tpGetComp{Edition}%
     \tpGetComp{EditionNote}%
     \vfill
@@ -411,9 +400,25 @@
     \egroup
     \clearpage
   }%
-  %% predefined face Properties
+  %% predefined face and format Properties
   \tpSetProperty{title-face}{\Huge\sffamily\bfseries}%
+  \tpSetProperty{title-format}{%
+    \bgroup
+      \tpUseProperty{title-face}%
+      \tpUseComp{Title}\par
+    \egroup
+    \tpIfComp{Subtitle}{\tpUseProperty{subtitle-format}}{}%
+    \tpGetComp{Statement}%
+    \vskip\baselineskip
+  }
   \tpSetProperty{subtitle-face}{\Large\sffamily\bfseries}%
+  \tpSetProperty{subtitle-format}{%
+    \bgroup
+      \tpUseProperty{subtitle-face}%
+      \tpUseComp{Subtitle}%
+    \egroup
+    \par
+  }
   %% Imprint
   \tpSetProperty{imprint-face}{\footnotesize}%
   \tpSetProperty{imprint-sep}{\ifhmode\par\fi\addvspace{\baselineskip}}%
