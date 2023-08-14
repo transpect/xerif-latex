@@ -124,16 +124,23 @@
   \tp@write@pdf@meta{pdfcreator}{\tpIfComp{PDFCreator}{\tpUseComp{PDFCreator}}{\tpUseComp{Publisher}\tpIfComp{PubPlace}{, \tpUseComp{PubPlace}}{}}}%
   \tp@write@pdf@meta{pdfproducer}{\tpUseComp{PDFProducer}}%
 }
+\tpDeclareHook[titlepage]{before-maketitle-hook}
 \def\tp@maketitle{%
   %\csname tp@titlepage\endcsname
   \ifarticle
     \gdef\tpMaketitle{%
-      \csname tp@titlepage\endcsname
-      \tpUseProperty{article-title}%
+      \let\tp@cnt@grp\@empty
+      \tpUseHook[titlepage]{before-maketitle-hook}%
+      \bgroup
+        \tpNamespace{titlepage}%
+        \tpEvalType{Properties}%
+        \tpUseProperty{article-title}%
+      \egroup
     }%
   \else
     \gdef\tpMaketitle{%
       \let\tp@cnt@grp\@empty
+      \tpUseHook[titlepage]{before-maketitle-hook}%
       \bgroup
         \tpNamespace{titlepage}%
         \tpEvalType{Properties}%
@@ -270,6 +277,7 @@
 \def\tp@titlepage@default{%
   \tpSetProperty{article-title}{}%
   % Title page hooks
+  % Before \tpMaketitle and outside the group
   \tpSetProperty{before-titlepage}{%
     \pagestyle{empty}%
     \parindent\z@
@@ -353,7 +361,9 @@
       \tpUseProperty{EditorNameList}%
     \fi%
     \vskip\baselineskip
-    \tpUseComp{Title}%
+    \bgroup
+      \tpUseProperty{title-face}\tpUseComp{Title}%
+    \egroup
     \expandafter\meaning\csname tp@titlepage@editor-2@FullName\endcsname
   }%
   \tpSetProperty{titlepage-ii}{%
@@ -370,8 +380,16 @@
       \tpUseProperty{EditorNameList}%
     \fi%
     \par
-    \tpUseComp{Title}\par
-    \tpGetComp{Subtitle}%
+    \bgroup
+      \tpUseProperty{title-face}%
+      \tpUseComp{Title}\par
+    \egroup
+    \tpIfComp{Subtitle}{%
+      \bgroup
+        \tpUseProperty{subtitle-face}%
+        \tpUseComp{Subtitle}%
+      \egroup
+      \par}{}%
     \tpGetComp{Statement}%
     \vskip\baselineskip
     \tpGetComp{Edition}%
@@ -393,6 +411,9 @@
     \egroup
     \clearpage
   }%
+  %% predefined face Properties
+  \tpSetProperty{title-face}{\Huge\sffamily\bfseries}%
+  \tpSetProperty{subtitle-face}{\Large\sffamily\bfseries}%
   %% Imprint
   \tpSetProperty{imprint-face}{\footnotesize}%
   \tpSetProperty{imprint-sep}{\ifhmode\par\fi\addvspace{\baselineskip}}%
