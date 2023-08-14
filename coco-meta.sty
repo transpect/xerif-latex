@@ -57,6 +57,9 @@
 \def\tp@declare@role[#1]#2{%
   \tpDeclareComponentGroup{tp#2}{%
     \tpDeclareCountedComp{FullName}%
+    \tpDeclareCountedComp{CiteName}%
+    \tpDeclareCountedComp{ShortCiteName}%
+    \tpDeclareCountedComp{Initial}%
     \tpDeclareCountedComp{LastName}%
     \tpDeclareCountedComp{FirstName}%
     \tpDeclareCountedComp{MidName}%
@@ -67,43 +70,74 @@
   }%
   \tpGroupHandler{tp#2}{%
     \tpIfComp{FullName}{}{\tpFullName{\tpUseProperty{name-format}}}%
+    \tpIfComp{Initial}{}{\tpInitial{\tpUseProperty{initials-format}}}%
+    \tpIfComp{CiteName}{}{\tpCiteName{\tpUseProperty{cite-name-format}}}%
+    \tpIfComp{ShortCiteName}{}{\tpShortCiteName{\tpUseProperty{short-cite-name-format}}}%
   }%
   \tpDeclareRoleBlock{#2}{NameList}{#1-list-format}%
+  \tpDeclareRoleBlock{#2}{CitationList}{#1-citation-format}%
+  \tpDeclareRoleBlock{#2}{ShortCitationList}{#1-short-citation-format}%
 }
 \def\tpAddToRole#1#2{\csgappto{tp#1}{#2}}
 \def\tpDeclareRoleBlock#1#2#3{%
   \tpDeclareComp{#1#2}{\expandafter\global}{}%
   \csgdef{tp@meta@role@#1@#2}{#3}}
 \def\tp@meta@role@eval#1{{%
-  \tpIfComp{#1NameList}{}{%
+    \@tp@meta@role@eval{#1}{NameList}%
+    \@tp@meta@role@eval{#1}{CitationList}%
+    \@tp@meta@role@eval{#1}{ShortCitationList}%
+  }}
+\def\@tp@meta@role@eval#1#2{%
+  \tpIfComp{#1#2}{}{%
     \ifcsdef{tp#1Cnt}
       {\expandafter\ifnum\csname tp#1Cnt\endcsname>\z@
           \tp@eval@role@attrs{#1}%
-          \tpApplyCollection{tp#1}{\csname tp@meta@role@#1@NameList\endcsname}{#1NameList}%
+          \tpApplyCollection{tp#1}{\csname tp@meta@role@#1@#2\endcsname}{#1#2}%
         \fi
-      }{}}}}%
+      }{}}}
 \def\tp@eval@role@attrs#1{%
     \tp@iterate{\@tempcnta}{\@ne}{\csname tp#1Cnt\endcsname}{%
       \ifcsdef{tp@meta@#1-\the\@tempcnta @attrs\endcsname}{%
         \tpParseAttributes{#1-\the\@tempcnta }{\csname tp@meta@#1-\the\@tempcnta @attrs\endcsname}%
       }{}}}
+\def\tpDeclareLabeledComp{\tp@opt@empty\tp@declare@labeled@comp}
+\def\tp@declare@labeled@comp[#1]#2#3{%
+  \tpDeclareComp{#2}{\expandafter\global}{}%
+  \tpDeclareComp{#2Label}{\expandafter\global}{}%
+  \csxdef{property-infix-\tp@cur@cont-#2}{#3}%
+  \if!#1!\else\expandafter\long\expandafter\def\csname tp@\tp@cur@cont @#2Label\endcsname{#1}\fi
+}
+\def\tpUseLabeledComp#1{%
+  \tpIfComp{#1}{%
+    \letcs\tp@infix{property-infix-\tp@cur@cont-#1}%
+    \tpIfProp{meta-before-\tp@infix}{\tpUseProperty{meta-before-\tp@infix}}{\tpMetaBeforeLabeledComp}%
+    \bgroup
+      \tpIfProp{meta-\tp@infix-face}{\tpUseProperty{meta-\tp@infix-face}}{\tpMetaLabeledCompFace}%
+      \tpIfComp{#1Label}{%
+        \bgroup
+          \tpIfProp{meta-\tp@infix-label-face}{\tpUseProperty{meta-\tp@infix-label-face}}{\tpMetaLabeledCompLabelFace}%
+          \tpUseComp{#1Label}%
+          \tpIfProp{meta-\tp@infix-sep}{\tpUseProperty{meta-\tp@infix-sep}}{\tpMetaLabeledCompLabelSep}%
+        \egroup
+      }{}%
+      \tpUseComp{#1}%
+    \egroup
+    \tpIfProp{meta-after-\tp@infix}{\tpUseProperty{meta-after-\tp@infix}}{\tpMetaAfterLabeledComp}%
+  }{}}
+\def\tpMetaBeforeLabeledComp{}
+\def\tpMetaAfterLabeledComp{\par}
+\def\tpMetaLabeledCompFace{}
+\def\tpMetaLabeledCompLabelFace{\bfseries}
+\def\tpMetaLabeledCompLabelSep{:\enskip}
 \def\tp@declare@meta@comp{%
     \tpDeclareComp{Copyright}{\expandafter\global}{}% Copyright text
     \tpDeclareComp{DOI}{\expandafter\global}{}%         DOI
 }%
 \def\tp@extended@meta@macros{%
-  \tp@provide@ext@meta@macros[Abstract]{Abstract}%
-  \tp@provide@ext@meta@macros[Keywords]{Keywords}%
-  \tp@provide@ext@meta@macros{DOI}%
-  \tp@provide@ext@meta@macros{TitleEn}%
-}
-\def\tp@provide@ext@meta@macros{\tp@opt@empty\@tp@provide@ext@meta@macros}%
-\def\@tp@provide@ext@meta@macros[#1]#2{%
-  \tpDeclareComp{#2}{}{}%
-  \tpDeclareComp{#2Title}{}{}%
-  \if!#1!\else
-    \expandafter\long\expandafter\def\csname tp@\tp@cur@cont @#1\endcsname{#2}%
-  \fi
+  \tpDeclareLabeledComp[Abstract]{Abstract}{abstract}%
+  \tpDeclareLabeledComp[Keywords]{Keywords}{keyword}%
+  \tpDeclareLabeledComp{DOI}{doi}%
+  \tpDeclareLabeledComp{TitleEn}{title-en}%
 }
 \def\tp@declare@meta@affils{%
   \tpDeclareComp{AffilBlock}{\expandafter\global}{}%
@@ -121,10 +155,32 @@
   }%
 }
 \tpAddToDefault{Meta}{%
+  \tpSetProperty{initials-format}{%
+    \expandafter\ifx\csname tp@\tp@cur@cont @\tp@cnt@grp-FirstName-\the\tpCurCount\endcsname\long@empty\else
+      \expandafter\ifx\csname tp@\tp@cur@cont @\tp@cnt@grp-FirstName-\the\tpCurCount\endcsname\relax\else
+        \expandafter\expandafter\expandafter\@car\csname tp@\tp@cur@cont @\tp@cnt@grp-FirstName-\the\tpCurCount\endcsname\relax\@nil\tpUseProperty{initials-period}
+      \expandafter\ifx\csname tp@\tp@cur@cont @\tp@cnt@grp-MidName-\the\tpCurCount\endcsname\long@empty\else
+        \expandafter\ifx\csname tp@\tp@cur@cont @\tp@cnt@grp-MidName-\the\tpCurCount\endcsname\relax\else
+          \tpUseProperty{initials-sep}%
+          \expandafter\expandafter\expandafter\@car\csname tp@\tp@cur@cont @\tp@cnt@grp-MidName-\the\tpCurCount\endcsname\relax\@nil\tpUseProperty{initials-period}%
+        \fi\fi
+    \fi\fi
+  }
+  \tpSetProperty{initials-sep}{~}
+  \tpSetProperty{initials-period}{.}
   \tpSetProperty{name-format}{\tpUseComp{FirstName}\space\tpUseComp{LastName}}%
+  \tpSetProperty{cite-name-format}{\tpUseComp{LastName}}%
+  \tpSetProperty{short-cite-name-format}{\tpUseComp{LastName},~\tpUseComp{Initial}}%
   \tpSetProperty{name-list-format}{\tpUseComp{FullName}\ifnum\tpCurCount<\tpTotalCount\tpUseProperty{counted-name-sep}\fi}%
-  \tpSetProperty{counted-name-sep}{,\space}%
+  \tpSetProperty{name-citation-format}{\tpUseComp{CiteName}}%
+  \tpSetProperty{name-short-citation-format}{\tpUseComp{ShortCiteName}}%
+  % Aliasses
   \tpPropertyLet{author-format}{name-format}% Override for single author names
+  \tpPropertyLet{author-list-format}            {name-list-format}% Override for single author names
+  \tpPropertyLet{author-citation-format}        {name-citation-format}% Override for single author names
+  \tpPropertyLet{author-short-citation-format}  {name-short-citation-format}% Override for single author names
+  %
+  \tpSetProperty{counted-name-sep}{,\space}%
   \tpSetProperty{name-and}{\space and\space}%
   \tpSetProperty{name-etal}{\space et~al.}%
   \tpSetProperty{name-sep}{,\space}%
