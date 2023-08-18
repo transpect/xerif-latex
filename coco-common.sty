@@ -171,13 +171,17 @@
 \def\tp@extract@generic#1#2#3#4{}
 \def\tp@print@generic#1{}
 \def\tp@expand@l@contents#1#2#3#4{%
-  \sbox\z@{\def\numberline##1{\expandafter\gdef\csname tp@#2@#3Number\endcsname{##1}}#1}%
+  \global\let\tp@tempa\relax
+  \sbox\z@{\def\numberline##1{\xdef\tp@tempa{\noexpand\csdef{tp@#2@#3Number}{##1}}}#1}%
   \ifdim\wd\z@>\z@
     \let\numberline\@gobble%
-    \protected@csxdef{tp@#2@#3#4}{#1}%
+    \protected@csedef{tp@#2@#3#4}{#1}%
+    \tp@tempa
   \else
     #1%
-  \fi}
+  \fi
+  \global\let\tp@tempa\relax
+}
 \def\tp@store@latest#1#2{%
   \expandafter\ifx\csname tp-\tp@cur@cont-#1\endcsname\relax\csxdef{tp-\tp@cur@cont-#1}{#2}\fi
   \expandafter\ifx\csname tp-\tp@cur@cont-#1-local\endcsname\relax
@@ -193,7 +197,6 @@
          \noexpand\string\noexpand\csgdef{tp-\tp@cur@cont-#1}{%
            \noexpand\csname tp-\tp@cur@cont-#1-local\noexpand\endcsname}}}%
      \expandafter\AtEndDocument\expandafter{\@tempa}%
-\message{^^J===>added {\meaning\@tempa} to the @enddocumenthook (now: \meaning\@enddocumenthook). Setting tp-\tp@cur@cont-#1-stored-trigger.}%
      \csgdef{tp-\tp@cur@cont-#1-stored-trigger}{\@empty}}}
 \def\tp@format@number#1#2#3{%
   \tpSetValProp{#1curr-number-level}{#3}%
