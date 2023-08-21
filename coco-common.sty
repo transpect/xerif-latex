@@ -183,7 +183,13 @@
   \global\let\tp@tempa\relax
 }
 \def\tp@store@latest#1#2{%
-  \expandafter\ifx\csname tp-\tp@cur@cont-#1\endcsname\relax\csxdef{tp-\tp@cur@cont-#1}{#2}\fi
+  \expandafter\ifx\csname tp-\tp@cur@cont-#1\endcsname\relax
+    \csxdef{tp-\tp@cur@cont-#1}{#2}%
+  \else
+    \expandafter\ifdim\csname tp-\tp@cur@cont-#1\endcsname<#2\relax
+      \csxdef{tp-\tp@cur@cont-#1}{#2}%
+    \fi
+  \fi
   \expandafter\ifx\csname tp-\tp@cur@cont-#1-local\endcsname\relax
     \csxdef{tp-\tp@cur@cont-#1-local}{#2}%
   \else
@@ -222,10 +228,10 @@
            \tpUseProperty{#1number-format}%
            \tpIfPropVal{#1number-align}{right}{}{\hss}}}%
      \fi}{}}
-\def\tp@det@margin@left#1#2{%
+\def\tp@calc@margin@left#1#2{%
   \@tempcnta\numexpr#2-1\relax
   \expandafter\ifx\csname tp-\tp@cur@cont-#1\the\@tempcnta-margin-left\endcsname\relax
-    \@tempdima=\tpUseProperty{#1indent}\relax%
+    \@tempdima=-\tpUseProperty{#1indent}\relax%
   \else
     \@tempdima=\dimexpr\csname tp-\tp@cur@cont-#1\the\@tempcnta-margin-left\endcsname-\tpUseProperty{#1indent}\relax
   \fi
@@ -243,7 +249,7 @@
           {\tpIfProp{int-#1indent}
              {\tpSetPropertyX{#1indent}{\tpUseProperty{int-#1indent}}}
              {\tpSetProperty{#1indent}{\z@}}}%
-        \tp@det@margin@left{#1}{#2}}
+        \tp@calc@margin@left{#1}{#2}}
        {\tpIfProp{int-#1margin-left}
           {\tpIfPropVal{int-#1indent}{auto}
             {\tpSetPropertyX{#1indent}{-\tpUseProperty{#1number-width-level-max}}}
