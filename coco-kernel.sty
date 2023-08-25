@@ -317,9 +317,9 @@
   \fi
   \csname tp@#2@#1@properties\endcsname
 }
-\long\def\tpIfProp#1#2#3{\long\def\@tempa{}%
+\long\def\tpIfProp#1#2#3{%
   \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\relax#3\else
-    \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\@tempa #3\else#2\fi
+    \expandafter\ifx\csname tp@\tp@cur@cont @#1\endcsname\long@empty #3\else#2\fi
   \fi
 \ignorespaces}
 \long\def\tpIfPropVal#1#2#3#4{\long\def\@tempa{#2}%
