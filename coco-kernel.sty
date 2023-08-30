@@ -164,13 +164,13 @@
        {}}}
 \def\tpDeclareComponentGroup#1#2{%
   \csnumgdef{#1Cnt}{\z@}%
-  \csdef{#1}{\expandafter\tp@opt@empty\csname @#1\endcsname}%
+  \csdef{#1}{\tp@opt@empty{\csname @#1\endcsname}}%
   \csdef{@#1}[##1]{%
     \def\tp@cnt@grp{#1}%
     \csxdef{#1Cnt}{\expandafter\the\expandafter\numexpr\csname #1Cnt\endcsname+\@ne\relax}%
-    \if!##1!\else
-      \csgdef{tp@\tp@cur@cont @#1-\csname #1Cnt\endcsname @attrs}{##1}\fi
+    \if!##1!\else\csgdef{tp@\tp@cur@cont @#1-\csname #1Cnt\endcsname @attrs}{##1}\fi
     #2%
+    \csname @#1@hook\endcsname
   }%
   \csdef{end#1}{{\tpToggleCountedCond\csname tp@compose@group@#1\endcsname}}%
 }
@@ -361,6 +361,10 @@
       \expandafter\def\csname tp@\tp@cur@node @attr@#1\endcsname{#2}%
     \fi
   \fi}
+\def\tpGetAttr#1#2{\csuse{tp@#1@attr@#2}}
+\def\tpIfAttr#1#2#3#4{\ifcsdef{tp@#1@attr@#2}{#3}{#4}}
+\def\tpIfAttrStr#1#2#3#4#5{\tpIfAttr{#1}{#2}{\ifcsstring{tp@#1@attr@#2}{#3}{#4}{#5}}{#5}}
+\def\tpIfAttrIsset#1#2#3#4{\tpIfAttr{#1}{#2}{\expandafter\ifx\csname tp@#1@attr@#2\endcsname\@empty#3\else#4\fi}{#4}}
 \long\def\tpDeclareClass{\@ifnextchar [{\@tp@set@class}{\@tp@set@class[default]}}%]
 \long\def\@tp@set@class[#1]#2{\tp@opt@empty{\tp@set@class[#1]{#2}}}%
 \long\gdef\tp@default@class@default{}

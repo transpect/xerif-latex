@@ -81,7 +81,9 @@
   \tpDeclareRoleBlock{#2}{ShortCitationList}{#1-list-short-cite-format}%
   \tpDeclareRoleBlock{#2}{PDFInfo}{#1-list-pdfinfo-format}%
 }
-\def\tpAddToRole#1#2{\csgappto{tp#1}{#2}}
+\def\tpAddToRole#1#2{%
+  \csgappto{@tp#1@hook}{#2}%
+}
 \def\tpDeclareRoleBlock#1#2#3{%
   \tpDeclareComp{#1#2}{\expandafter\global}{}%
   \csgdef{tp@meta@role@#1@#2}{#3}}
