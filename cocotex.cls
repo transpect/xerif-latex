@@ -20,8 +20,6 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.3.0}%
-\def\filedate{2023-12-11}%
 %%
 %% Common document class for \textit{xerif} projects.
 %%
@@ -31,19 +29,10 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [\filedate \fileversion cocotex]
+    [2023/12/18 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \PassOptionsToPackage{cmyk}{xcolor}
-\RequirePackage{coco-common}
-\DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
-\DeclareOption{es-noindentfirst}{\PassOptionsToPackage{es-noindentfirst}{babel}}
-\DeclareOption{es-noshorthands}{\PassOptionsToPackage{es-noshorthands}{babel}}
-\PassOptionsToPackage{shorthands=off}{babel}
-\DeclareOptionX{ennotoc}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
-\DeclareOptionX{endnotes}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
-\DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
-\DeclareOptionX{endnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
 \newif\ifcollection \collectionfalse
 \newif\ifarticle    \articlefalse
 \newif\ifmonograph  \monographfalse
@@ -61,10 +50,8 @@
 }
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
-\DeclareOptionX{debug}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
-\DeclareOptionX{usescript}{\PassOptionsToPackage{\CurrentOption}{coco-script}}
-\DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
 \ProcessOptionsX
+\RequirePackage{coco-common}
 \ifarticle
   \LoadClass[10pt,a4paper]{article}
 \else
