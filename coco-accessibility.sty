@@ -4,7 +4,7 @@
 %%
 %% The original source files were:
 %%
-%% cocotex.dtx  (with options: `a11y')
+%% cocotex.dtx  (with options: `a11y-sty')
 %% 
 %% IMPORTANT NOTICE:
 %% 
@@ -25,11 +25,16 @@
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
-%% lualatex  -  texlive > 2019
+%% lualatex  -  texlive > 2018
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-common}
-    [2023/12/18 0.4.0 CoCoTeX common module]
+    [2023/12/19 0.4.0 CoCoTeX common module]
+\RequirePackage[pdftex,pdflang=De,noautotag]{ltpdfa}%,nodetree,dospaces,doparas,,debug
+\addToConfig{metadata}{xmpfile=\jobname.xmp}
+\directlua{cocotex = require('coco-accessibility')}
+\directlua{cocotex.extract_meta()}
+ % \setDocInfo{conformance}{pdfaid=2;level=A;pdfuaid=1}%
 \endinput
 %%
 %% End of file `coco-accessibility.sty'.

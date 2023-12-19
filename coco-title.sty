@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-title}
-    [2023/12/18 0.4.0 CoCoTeX title module]
+    [2023/12/19 0.4.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \tpDeclareContainer{titlepage}{%
   \tpInherit {Components,Properties} from Meta;
@@ -90,7 +90,11 @@
   \let\tp@cur@cont\@empty
 }
 \def\tp@title@set@pdfmeta{%
-  \def\tp@write@pdf@meta##1##2{\protected\def\@tempa{##2}\edef\x{\noexpand\hypersetup{##1={\expandonce{\@tempa}}}}\x}%
+  \def\tp@write@pdf@meta##1##2##3{%
+    \protected\def\@tempa{##3}%
+    \edef\x{\noexpand\hypersetup{##1={\expandonce{\@tempa}}}}%
+    \x
+  }%
   \tp@title@process@bkt
   \tp@title@process@bka
   \tp@title@process@bkc
@@ -99,7 +103,7 @@
 \def\tp@title@process@bkt{%
   \let\tpBreak\space
   \protected@xdef\@title{\tpUseComp{Title}}%
-  \tp@write@pdf@meta{pdftitle}{\tpUseComp{Title}}%
+  \tp@write@pdf@meta{pdftitle}{Title}{\tpUseComp{Title}}%
   \protected@edef\tp@run@book@title{\tpUseProperty{run-book-title}}%
   \expandafter\gdef\expandafter\tpRunBookTitle\expandafter{\tp@run@book@title}%
 }
@@ -121,13 +125,14 @@
     \fi
     \if@tempswa
       \expandafter\author\expandafter{\tpRunBookName}%
-      \tp@write@pdf@meta{pdfauthor}{\tpRunBookName}%
+      \tp@write@pdf@meta{pdfauthor}{Author}{\tpRunBookName}%
     \fi
   \endgroup
 }
 \def\tp@title@process@bkc{%
-  \tp@write@pdf@meta{pdfcreator}{\tpIfComp{PDFCreator}{\tpUseComp{PDFCreator}}{\tpUseComp{Publisher}\tpIfComp{PubPlace}{, \tpUseComp{PubPlace}}{}}}%
-  \tp@write@pdf@meta{pdfproducer}{\tpUseComp{PDFProducer}}%
+  \tp@write@pdf@meta{pdfcreator}{Creator}{\tpIfComp{PDFCreator}{\tpUseComp{PDFCreator}}{\tpUseComp{Publisher}\tpIfComp{PubPlace}{, \tpUseComp{PubPlace}}{}}}%
+  \tp@write@pdf@meta{pdfproducer}{Producer}{\tpUseComp{PDFProducer}}%
+  \tp@write@pdf@meta{pdfkeywords}{Keywords}{\tpUseComp{Keywords}}%
 }
 \tpDeclareHook[titlepage]{before-maketitle-hook}
 \tpDeclareHook[titlepage]{document-meta-hook}

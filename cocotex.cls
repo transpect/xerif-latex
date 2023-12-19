@@ -29,10 +29,14 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [2023/12/18 0.4.0 cocotex]
+    [2023/12/19 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \PassOptionsToPackage{cmyk}{xcolor}
+\DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
+\DeclareOption{es-noindentfirst}{\PassOptionsToPackage{es-noindentfirst}{babel}}
+\DeclareOption{es-noshorthands}{\PassOptionsToPackage{es-noshorthands}{babel}}
+\PassOptionsToPackage{shorthands=off}{babel}
 \newif\ifcollection \collectionfalse
 \newif\ifarticle    \articlefalse
 \newif\ifmonograph  \monographfalse
@@ -50,6 +54,14 @@
 }
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
+\DeclareOptionX{debug}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
+\DeclareOptionX{a11y}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
+\DeclareOptionX{usescript}{\PassOptionsToPackage{\CurrentOption}{coco-script}}
+\DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
+\DeclareOptionX{ennotoc}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
+\DeclareOptionX{endnotes}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
+\DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
+\DeclareOptionX{endnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
 \ProcessOptionsX
 \RequirePackage{coco-common}
 \ifarticle
@@ -101,6 +113,9 @@
 \RequirePackage{index}
 \makeindex
 \RequirePackage{hyperref}
+\ifx\tp@do@ally\relax
+  \RequirePackage{coco-accessibility}
+\fi
 \endinput
 %%
 %% End of file `cocotex.cls'.
