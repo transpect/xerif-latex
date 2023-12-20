@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-title}
-    [2023/12/19 0.4.0 CoCoTeX title module]
+    [2023/12/20 0.4.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \tpDeclareContainer{titlepage}{%
   \tpInherit {Components,Properties} from Meta;
@@ -91,9 +91,14 @@
 }
 \def\tp@title@set@pdfmeta{%
   \def\tp@write@pdf@meta##1##2##3{%
-    \protected\def\@tempa{##3}%
-    \edef\x{\noexpand\hypersetup{##1={\expandonce{\@tempa}}}}%
-    \x
+\message{^^J===> Writing ##1 (##2): }
+    \@ifpackageloaded{coco-accessibility}
+      {\edef\@tempa{\directlua{tex.print(cocotex.ally.meta.##2)}}}
+      {\protected\def\@tempa{##3}}%
+\message{\meaning\@tempa }
+    \ifx\@tempa\@empty\else
+      \edef\x{\noexpand\hypersetup{##1={\expandonce{\@tempa}}}}\message{^^J====>\meaning\x}\x
+    \fi
   }%
   \tp@title@process@bkt
   \tp@title@process@bka

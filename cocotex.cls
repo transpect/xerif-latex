@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [2023/12/19 0.4.0 cocotex]
+    [2023/12/20 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \PassOptionsToPackage{cmyk}{xcolor}
