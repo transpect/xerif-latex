@@ -38,6 +38,10 @@
 \directlua{ally = require('coco-accessibility')}
 \directlua{ally.extract_meta()}
  % \setDocInfo{conformance}{pdfaid=2;level=A;pdfuaid=1}%
+\protected\def\pdfglyphtounicode{\pdfextension glyphtounicode}
+\input glyphtounicode
+\edef\pdfgentounicode{\pdfvariable gentounicode}
+\pdfgentounicode = 1
 \endinput
 %%
 %% End of file `coco-accessibility.sty'.
