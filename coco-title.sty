@@ -57,11 +57,7 @@
   }%
   \tpDeclareRoleBlock{#2}{BioBlock}{#1-bio-block-format}%
 }
-\long\def\tpDeclareTitlepage#1{%
-  \tpNamespace{titlepage}%
-  #1%
-}
-\tpDeclareTitlepage{}
+\def\tpDeclareTitlepage{\tpAddToType{Properties}{titlepage}}
 \def\tp@Meta{%
   \tpEvalType{Components}%
 }

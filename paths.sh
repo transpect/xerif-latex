@@ -22,11 +22,11 @@ fi
 echo "xindy path: $XINDY"
 
 # dependencies for accessibility
-export LUAINPUTS=.:ltpdfa:
-export CLUAINPUTS=.:ltpdfa//:
-export TEXINPUTS=.:ltpdfa:
-export T1FONTS=.:ltpdfa:
-export TFMFONTS=.:ltpdfa:
-export ENCFONTS=.:ltpdfa:
-export DVIPSHEADERS=.:suppl:
-echo "tex input path: $TEXINPUTS"
+# export LUAINPUTS=.:ltpdfa:
+# export CLUAINPUTS=.:ltpdfa//:
+# export TEXINPUTS=.:ltpdfa:
+# export T1FONTS=.:ltpdfa:
+# export TFMFONTS=.:ltpdfa:
+# export ENCFONTS=.:ltpdfa:
+# export DVIPSHEADERS=.:suppl:
+# echo "tex input path: $TEXINPUTS"
