@@ -29,10 +29,9 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [2023/12/20 0.4.0 cocotex]
+    [2024/01/09 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
-\PassOptionsToPackage{cmyk}{xcolor}
 \DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
 \DeclareOption{es-noindentfirst}{\PassOptionsToPackage{es-noindentfirst}{babel}}
 \DeclareOption{es-noshorthands}{\PassOptionsToPackage{es-noshorthands}{babel}}
@@ -56,6 +55,7 @@
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
 \DeclareOptionX{debug}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
 \DeclareOptionX{a11y}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
+\DeclareOptionX{color-enc}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
 \DeclareOptionX{usescript}{\PassOptionsToPackage{\CurrentOption}{coco-script}}
 \DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
 \DeclareOptionX{ennotoc}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}

@@ -29,12 +29,12 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-headings}
-    [2023/12/20 0.4.0 CoCoTeX headings module]
+    [2024/01/09 0.4.0 CoCoTeX headings module]
 \RequirePackage{coco-meta}
 \RequirePackage{bookmark}%
 \hypersetup{bookmarksdepth=-999}%
-\tpDeclareContainer{tpHeading}{%
-  \tpInherit {Components,Properties} from Meta;
+\tpDeclareContainer{heading}{%
+  \tpInherit {Components,Properties} from CommonMeta;
   \tpDeclareType{Components}{%
     \tp@heading@authors%
     \tp@provide@hd@macros{Title}%
@@ -44,8 +44,8 @@
     \tp@provide@hd@macros{LicenceName}%
     \tp@heading@quotes
   }%
-  \tpDeclareType{Properties}{\tp@heading@default}%
-  \tpDeclareEnv{\@heading}{\end@heading}%
+  \tpDeclareType{Properties}{}%
+  \tpDeclareEnv{\heading}{\endheading}%
 }
 \long\def\tpDeclareHeading{\tp@opt@empty\@tpDeclareHeading}
 \long\def\@tpDeclareHeading[#1]#2#3#4{%
@@ -80,8 +80,9 @@
       \tpPackageInfo{Headings}{}{Declaring heading `#3'}%
       \edef\@argi{#1}%
       \tpDeclareType{Parent}{\tp@heading@create@parent{#1}{#3}}
+      \tpInherit {Components,Properties} from CommonMeta;
       \ifx\@argi\@empty
-        \tpInherit {Components,Properties} from tpHeading;
+        \tpInherit {Components,Properties} from heading;
       \else
         \tpInherit {Components,Properties,Parent} from #1;
       \fi
@@ -334,14 +335,14 @@
     \vskip \@tempskipa
     \@afterheading
     \ignorespaces}}
-\def\@heading{\@ifnextchar [{\@@heading}{\@@heading[]}}%]
-\def\@@heading[#1]#2{%
+\def\heading{\@ifnextchar [{\@heading}{\@heading[]}}%]
+\def\@heading[#1]#2{%
   \tp@heading@reserve
   \tpParseAttributes{heading}{#1}%
   \edef\tp@heading@name{#2}%
   \tpEvalType[#2]{Components}%
 }
-\def\end@heading{%
+\def\endheading{%
   \expandafter\ifx\csname tpUseHeading\tp@heading@name\endcsname\relax
     \PackageError{coco-headings.sty}{Heading level \tp@heading@name\space unknown!}{A Heading with level \tp@heading@name\space is unknown. Use the \string\tpDeclareHeading\space macro to declare heading levels.}%
   \else
@@ -349,8 +350,6 @@
   \fi
   \tp@heading@reset
 }
-\let\heading\tpHeading
-\let\endheading\endtpHeading
 \def\tp@heading@reserve{%
   \tpNamespace{heading}%
   \let\tpltx@dbl@backslash\\

@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-floats}
-    [2023/12/20 0.4.0 CoCoTeX floats module]
+    [2024/01/09 0.4.0 CoCoTeX floats module]
 \DeclareOptionX{nofigs}{\global\let\tp@nofigs\relax}
 \ProcessOptionsX
 \RequirePackage{coco-common}
@@ -208,7 +208,7 @@
     \advance\tp@flt@marg@r\tp@flt@marg@i
   \fi
 }
-\tpDeclareContainer{tpFloat}{%
+\tpDeclareContainer{float}{%
   \tpDeclareType{Components}{%
     \tpMakeFltCompL{Caption}%
     \tpMakeFltCompL{Legend}%
@@ -217,7 +217,7 @@
     \tpMakeFltComp{RefLabel}%
     \tpMakeFltComp{AltText}% neu: 2023-06-08; TODO: muss noch implementiert werden
   }%
-  \tpDeclareType{Properties}{\tp@float@default}%
+  \tpDeclareType{Properties}{}%
 }
 \def\tpDeclareFloat{\tp@opt@empty\@tpDeclareFloat}
 \long\def\@tpDeclareFloat[#1]#2#3#4#5{%
@@ -240,7 +240,7 @@ Use \string\tpAddToType{<Type>}{#2}{<code>}\space to alter the #2 container!}
     \tpDeclareContainer{#2}{%
       \tpPackageInfo{Floats}{}{Declaring float `#2'}%
       \ifx\tp@float@parent\@empty
-        \tpInherit {Properties,Components} from tpFloat;
+        \tpInherit {Properties,Components} from float;
       \else
         \tpInherit {Properties,Components} from \tp@float@parent;
       \fi

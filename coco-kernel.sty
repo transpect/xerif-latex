@@ -22,7 +22,7 @@
 %% in the same archive or directory.)
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-kernel}
-    [2023/12/20 0.4.0 cocotex kernel]
+    [2024/01/09 0.4.0 cocotex kernel]
 \newif\if@tp@debug \@tp@debugfalse
 \DeclareOption{debug}{\global\@tp@debugtrue}%
 \ProcessOptions
@@ -131,6 +131,11 @@
   \ltx@LocalExpandAfter\global\expandafter\let\csname tp@\tp@cur@cont @#1\endcsname\relax
   \expandafter\long\expandafter\def\csname tp#2\endcsname##1{%
     #3\expandafter\long\expandafter\def\csname tp@\tp@cur@cont @#1\endcsname{##1}\ignorespaces#4}%
+}
+\def\tpDeclareGComp{\tp@opt@empty\tp@declare@global@comp}%
+\def\tp@declare@global@comp[#1]#2{%
+  \tpDeclareComp{#2}{\expandafter\global}{}%
+  \if!#1!\else\csname tp#2\endcsname{#1}\fi%
 }
 \long\protected\def\tpComp#1#2{%
   \ifx\tp@is@counted\relax
@@ -319,7 +324,7 @@
 \long\def\tpPropertyLetX#1#2{\long\csedef{tp@\tp@cur@cont @#1}{\csuse{tp@\tp@cur@cont @#2}}}
 \long\def\tpSetValProp#1#2{\def\@tempa{\tpSetProperty{#1}}\expandafter\@tempa\expandafter{#2}}
 \long\def\tpSetPropertyX#1#2{\long\csedef{tp@\tp@cur@cont @#1}{#2}}
-\long\def\tpAddToDefault#1#2{\csgappto{tp@#1@default}{#2}}
+\long\def\tpAddToDefault#1{\tpAddToType{Properties}{#1}}
 \def\tpUseProperty#1{\csuse{tp@\tp@cur@cont @#1}}
 \def\tpUsePropEnv#1{\cslet{tp@#1@active}{\relax}\csuse{tp@\tp@cur@cont @#1}\csundef{tp@#1@active}}
 \DeclareRobustCommand\tpPI[2]{\ifcsdef{tp@#1@active}{#2}{}}

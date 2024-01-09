@@ -21,7 +21,7 @@
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
 %%
-%% Common document class for \textit{xerif} projects.
+%% Accessibility features for \textit{xerif} projects.
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
@@ -29,9 +29,21 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-common}
-    [2023/12/20 0.4.0 CoCoTeX common module]
+    [2024/01/09 0.4.0 CoCoTeX common module]
 \RequirePackage[pdftex,pdflang=De,noautotag]{ltpdfa}%,nodetree,dospaces,doparas,,debug
-\addToConfig{metadata}{xmpfile=\jobname.xmp}
+\RequirePackage{coco-title}%
+\tpAddToType{Components}{titlepage}{\tp@ally@comps}
+\def\tp@ally@comps{%
+  %% ICC profiles
+  \tpDeclareGComp[suppl/cmyk.icc]{IccProfileFile}
+  \tpDeclareGComp[4]{IccComponents}
+  \tpDeclareGComp[Coated FOGRA39]{IccIdentifier}
+  %% XMP Meta
+  \tpDeclareGComp[\jobname]{XmpFile}
+}
+\def\tp@Ally{}
+\def\tp@endAlly{}
+\addToConfig{metadata}{xmpfile=\tpUseGComp{Meta}{XmpFile}.xmp}
  %\edef\pdfobjcompresslevel{\pdfvariable objcompresslevel}
  %\pdfcompresslevel=0
  %\pdfobjcompresslevel=0
@@ -42,6 +54,14 @@
 \input glyphtounicode
 \edef\pdfgentounicode{\pdfvariable gentounicode}
 \pdfgentounicode = 1
+\newif\if@tp@use@default@icc\@tp@use@default@iccfalse
+\IfFileExists{suppl/cmyk.icc}{\IfFileExists{suppl/srbg.icc}{\@tp@use@default@icctrue}{}}{}
+\ifx\tp@icc@profile\@undefined
+  \if@tp@use@default@icc
+    \addToConfig{intent}{profile=suppl/\tp@color@enc.icc;components=4;identifier=PSO Uncoated ISO12647 (ECI)}
+    \addToConfig{intent}{profile=suppl/srgb.icc;components=3;identifier=sRGB IEC61966-2.1}
+  \fi
+\fi
 \endinput
 %%
 %% End of file `coco-accessibility.sty'.
