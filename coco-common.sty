@@ -32,7 +32,7 @@
     [2024/01/09 0.4.0 CoCoTeX common module]
 \RequirePackage{iftex}
 \DeclareOptionX{a11y}{\let\tp@do@ally\relax}
-\def\tp@color@enc{cmyk}
+\def\@tp@color@enc{cmyk}
 \define@choicekey{coco-common.sty}{color-enc}[\tp@color@enc\nr]{srgb,rgb,gray,cmy,cmyk,natural}[cmyk]{%
   \let\@tp@color@enc\tp@color@enc
   \ifcase\nr\relax% srgb
@@ -43,9 +43,9 @@
   \or% cmyk
   \else% natural, i.e. no conversion of color spaces takes place
   \fi
-  \PassOptionsToPackage{\@tp@color@enc}{xcolor}%
 }
 \ProcessOptionsX
+\PassOptionsToPackage{\@tp@color@enc}{xcolor}%
 \RequirePackage{coco-kernel}
 \RequirePackage{xcolor}
 \RequirePackage{graphicx}
