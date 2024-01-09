@@ -30,12 +30,10 @@
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-common}
     [2024/01/09 0.4.0 CoCoTeX common module]
-\RequirePackage{kvoptions-patch}
-\RequirePackage{xkeyval}
 \RequirePackage{iftex}
 \DeclareOptionX{a11y}{\let\tp@do@ally\relax}
-\def\tp@color@enc{natural}
-\define@choicekey{coco-common.sty}{color-enc}[\tp@color@enc\nr]{srgb,rgb,gray,cmy,cmyk,natural}[natural]{%
+\def\tp@color@enc{cmyk}
+\define@choicekey{coco-common.sty}{color-enc}[\tp@color@enc\nr]{srgb,rgb,gray,cmy,cmyk,natural}[cmyk]{%
   \let\@tp@color@enc\tp@color@enc
   \ifcase\nr\relax% srgb
     \def\@tp@color@enc{rgb}
