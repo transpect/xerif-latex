@@ -20,8 +20,8 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\def\fileversion{0.2.14}%
-\def\filedate{2023-10-10}%
+\def\fileversion{0.2.15}%
+\def\filedate{2024-01-09}%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{htmltabs}
     [\filedate\space\fileversion\space htmltabs]
@@ -1988,7 +1988,7 @@
   \SetCellProp{class}{\htTdClass}%
   \SetCellContent{%
     \if@ht@no@init@strut\strut\hrule \@height\z@\vskip-\baselineskip\vskip\z@skip\else\strut\fi
-    \if@ht@hyph@first@word\hskip\z@skip\fi
+    \if@ht@hyph@first@word\kern\z@skip\fi
     \ignorespaces
     #1%
     \if@ht@hyph@first@word\kern\z@\fi% to ensure hyphenation is applied when there is only a single word in the cell.
