@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-title}
-    [2024/01/12 0.4.0 CoCoTeX title module]
+    [2024/01/15 0.4.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \tpDeclareContainer{titlepage}{%
   \tpInherit {Components,Properties} from CommonMeta;
@@ -79,7 +79,7 @@
   \tp@meta@generic@eval
   \tp@title@fundings@eval
   \tp@title@add@eval
-  \tp@if@preamble\tp@title@set@pdfmeta\relax%
+  \tp@if@preamble\tp@title@set@pdfmeta\relax
   \tpUseHook{document-meta-hook}%
   \let\tp@cur@cont\@empty
 }
