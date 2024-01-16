@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [2024/01/15 0.4.0 cocotex]
+    [2024/01/16 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
