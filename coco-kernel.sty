@@ -185,7 +185,7 @@
     #2%
     \csname @#1@hook\endcsname
   }%
-  \csdef{end#1}{{\tpToggleCountedCond\csname tp@compose@group@#1\endcsname}}%
+  \csdef{end#1}{{\tpToggleCountedCond\csuse{tp@compose@group@#1}}}%
 }
 \def\tpGroupHandler#1#2{%
   \ifcsdef{@#1}
@@ -269,7 +269,8 @@
     }%
   \endgroup
 }
-\def\tp@comp@def[#1]#2#3#4{%
+\def\tp@comp@def{\tp@opt@empty\@tp@comp@def}
+\def\@tp@comp@def[#1]#2#3#4{%
   \tp@apply@collection{#3}{#4}%
   \ifx\tp@iterate@res\relax
     #1\let#2\relax%
@@ -278,7 +279,7 @@
     \tp@assign@res{@tempa}%
   \fi
 }
-\def\tpCompDef{\tp@comp@def[]}
+\def\tpCompDef{\tp@comp@def}
 \def\tpCompGDef{\tp@comp@def[\global]}
 \def\tpDeclareCountedComp#1{%
   \tp@def@counted@comp
@@ -303,10 +304,10 @@
 \long\def\tpToggleCountedCond{%
   \let\tp@is@counted\relax
   \long\def\tpIfComp##1##2##3{%
-    \expandafter\let\expandafter\@tempa\csname tp@\tp@cur@cont @##1\endcsname\relax
-    \expandafter\expandafter\expandafter\ifx\@tempa\relax##3\else##2\fi%
+    \expandafter\expandafter\expandafter\let\expandafter\csname tp@comp@name\expandafter\endcsname\csname tp@\tp@cur@cont @##1\endcsname%
+    \expandafter\expandafter\expandafter\ifx\tp@comp@name\relax##3\else##2\fi%
   }%
-  \long\protected\def\tpIfCompEmpty##1##2##3{%
+  \long\def\tpIfCompEmpty##1##2##3{%
     \expandafter\expandafter\expandafter\ifx\csname tp@\tp@cur@cont @##1\endcsname\long@empty ##2\else ##3\fi}}
 \def\tpDeclareHook{\tp@opt@curcont\tp@declare@hook}
 \def\tp@declare@hook[#1]#2{\expandafter\global\expandafter\let\csname tp@hook@#1@#2\endcsname\@empty}
@@ -361,7 +362,6 @@
     #5%
     \tp@iterate[#1]{#2}{\the#2}{#4}{#5}%
   \fi}%
-\def\csmean#1{\expandafter\meaning\csname#1\endcsname}%
 \begingroup
 \catcode`"=12
 \gdef\tpParseAttributes#1#2{%
