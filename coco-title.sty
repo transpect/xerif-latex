@@ -85,17 +85,22 @@
 }
 \def\tp@title@set@pdfmeta{%
   \def\tp@write@pdf@meta##1##2##3{%
+    \let\@tempa\@empty
     \@ifpackageloaded{coco-accessibility}
-      {\edef\@tempa{\directlua{tex.print(cocotex.ally.meta.##2)}}}
-      {\protected\def\@tempa{##3}}%
-    \ifx\@tempa\@empty\else
-      \edef\x{\noexpand\hypersetup{##1={\expandonce{\@tempa}}}}\x
+      {\edef\@tempa{\directlua{tex.print(cocotex.ally.meta.##2)}}}{}%
+    \ifx\@tempa\@empty
+      \protected\def\@tempa{##3}%
+      \ifx\@tempa\@empty\else
+        \@ifpackageloaded{coco-accessibility}
+          {\pdfstringdef\x{##3}\setDocInfo{##2}{\x}}
+          {\edef\x{\noexpand\hypersetup{##1={\expandonce\@tempa}}}\x}%
+      \fi
     \fi
   }%
+  \tp@title@insert@xmp
   \tp@title@process@bkt
   \tp@title@process@bka
   \tp@title@process@bkc
-  \tp@title@insert@xmp
 }
 \def\tp@title@process@bkt{%
   \let\tpBreak\space

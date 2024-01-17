@@ -47,9 +47,12 @@
 \directlua{ally = require('coco-accessibility')}
  % \setDocInfo{conformance}{pdfaid=2;level=A;pdfuaid=1}%
 \def\tp@title@insert@xmp{%
-  \addToConfig{metadata}{xmpfile=\tpUseGComp{titlepage}{XmpFile}.xmp}%
-  \directlua{ally.extract_meta()}%
-}
+  \edef\tp@xmp@file@name{\tpUseGComp{titlepage}{XmpFile}.xmp}%
+  \IfFileExists{\tp@xmp@file@name}
+    {\addToConfig{metadata}{xmpfile=\tp@xmp@file@name}%
+     \directlua{ally.extract_meta()}}
+    {\tpPackageError{A11y}{File}{\tp@xmp@file@name\space not found!}
+      {Please make sure that the \tp@xmp@file@name\space exists.}}}
 \protected\def\pdfglyphtounicode{\pdfextension glyphtounicode}
 \input glyphtounicode
 \edef\pdfgentounicode{\pdfvariable gentounicode}
