@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [2024/01/16 0.4.0 cocotex]
+    [2024/01/17 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
@@ -55,6 +55,7 @@
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
 \DeclareOptionX{debug}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
 \DeclareOptionX{a11y}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
+\DeclareOptionX{no-compress}{\let\tp@no@pdf@compression\relax}
 \DeclareOptionX{color-enc}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
 \DeclareOptionX{usescript}{\PassOptionsToPackage{\CurrentOption}{coco-script}}
 \DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
@@ -63,6 +64,15 @@
 \DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
 \DeclareOptionX{endnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
 \ProcessOptionsX
+\ifx\tp@no@pdf@compression\relax
+  \AtBeginDocument{%
+    \ifx\pdfobjcompresslevel\@undefined
+      \edef\pdfobjcompresslevel{\pdfvariable objcompresslevel}%
+    \fi
+    \pdfcompresslevel=0
+    \pdfobjcompresslevel=0
+  }%
+\fi
 \RequirePackage{coco-common}
 \ifarticle
   \LoadClass[10pt,a4paper]{article}
