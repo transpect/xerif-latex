@@ -33,40 +33,42 @@
 \def\tp@if@ally{\expandafter\@firstoftwo}
 \RequirePackage[pdftex,pdflang=De,noautotag]{ltpdfa}%,nodetree,dospaces,doparas,,debug
 \RequirePackage{coco-title}%
-\tpAddToType{Components}{titlepage}{\tp@ally@comps}
-\def\tp@ally@comps{%
-  %% ICC profiles
-  \tpDeclareGComp[suppl/cmyk.icc]{IccProfileFile}
-  \tpDeclareGComp[4]{IccComponents}
-  \tpDeclareGComp[Coated FOGRA39]{IccIdentifier}
-}
-\def\tp@set@ally@conf{%
-  \addToConfig{intent}{profile=\tpUseComp{IccProfileFile};components=\tpUseComp{IccComponents};identifier=\tpUseComp{IccIdentifier}}%
-}
-\tpAddToHook[titlepage]{document-meta-hook}{\tp@set@ally@conf}
 \directlua{ally = require('coco-accessibility')}
 \def\tp@title@insert@xmp{%
   \edef\tp@xmp@file@name{\tpUseGComp{titlepage}{XmpFile}.xmp}%
   \IfFileExists{\tp@xmp@file@name}
     {\addToConfig{metadata}{xmpfile=\tp@xmp@file@name}%
-     \directlua{ally.extract_meta()}}
+     \directlua{ally.meta.extract()}}
     {\tpPackageWarning{A11y}{File}{%
 \tp@xmp@file@name\space not found.^^J
 Note that the ltpdfa package will create one^^J
 from the Components given in the tpMeta Container.}}}
+\tpAddToType{Components}{titlepage}{%
+  \tpDeclareGComp{IccProfileFile}
+  \tpDeclareGComp{IccComponents}
+  \tpDeclareGComp{IccIdentifier}}
+\tpAddToType{Properties}{titlepage}{%
+  \tpSetProperty{output-intent}{%
+    profile=\tpIfComp{IccProfileFile}{\tpUseComp{IccProfileFile}}{suppl/\tp@color@enc.icc};%
+    components=\tpIfComp{IccComponents}{\tpUseComp{IccComponents}}{\ifdefstring\tp@color@enc{cmyk}{4}{3}};%
+    identifier=\tpIfComp{IccIdentifier}{\tpUseComp{IccIdentifier}}{\ifdefstring\tp@color@enc{cmyk}{Coated FOGRA39}{sRGB IEC61966-2.1}}%
+  }}
+\tpAddToHook[titlepage]{document-meta-hook}{\edef\x{\noexpand\addToConfig{intent}{\tpUseProperty{output-intent}}}\x}
 \protected\def\pdfglyphtounicode{\pdfextension glyphtounicode}
 \input glyphtounicode
 \edef\pdfgentounicode{\pdfvariable gentounicode}
 \pdfgentounicode = 1
- % \setDocInfo{conformance}{pdfaid=2;level=A;pdfuaid=1}%
-\newif\if@tp@use@default@icc\@tp@use@default@iccfalse
-\IfFileExists{suppl/cmyk.icc}{\IfFileExists{suppl/srbg.icc}{\@tp@use@default@icctrue}{}}{}
-\ifx\tp@icc@profile\@undefined
-  \if@tp@use@default@icc
-    \addToConfig{intent}{profile=suppl/\tp@color@enc.icc;components=4;identifier=PSO Uncoated ISO12647 (ECI)}
-    \addToConfig{intent}{profile=suppl/srgb.icc;components=3;identifier=sRGB IEC61966-2.1}
-  \fi
-\fi
+\tpAddToType{Components}{titlepage}{%
+  \tpDeclareGComp[2]{PDFAID}%
+  \tpDeclareGComp[A]{PDFALevel}%
+  \tpDeclareGComp[1]{PDFUAID}}%
+\tpAddToHook[titlepage]{document-meta-hook}{%
+  \tpIfCompEmpty{PDFAID}{}{\tpIfCompEmpty{PDFALevel}{}{%
+      \edef\x{\noexpand\setDocInfo{conformance}{%
+          pdfaid=\tpUseComp{PDFAID};%
+          level=\tpUseComp{PDFALevel}%
+          \tpIfCompEmpty{PDFUAID}{}{;pdfuaid=\tpUseComp{PDFUAID}}}}%
+      \x}}}
 \AtBeginShipout{\directlua{ltpdfa.pageprocessor(tex.box["AtBeginShipoutBox"])}}%
 \addRolemap{document}{Document}
 \AtBeginDocument{\structStart{document}}
