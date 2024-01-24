@@ -28,10 +28,10 @@
 %% lualatex  -  texlive > 2018
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
-\ProvidesPackage{coco-common}
-    [2024/01/19 0.4.0 CoCoTeX common module]
+\ProvidesPackage{coco-accessibility}
+    [2024/01/24 0.4.0 CoCoTeX accessibility module]
 \def\tp@if@ally{\expandafter\@firstoftwo}
-\RequirePackage[pdftex,pdflang=De,noautotag]{ltpdfa}%,nodetree,dospaces,doparas,,debug
+\RequirePackage[pdftex,pdflang=De]{ltpdfa}%,nodetree,dospaces,doparas,,debug
 \RequirePackage{coco-title}%
 \directlua{ally = require('coco-accessibility')}
 \def\tp@title@insert@xmp{%

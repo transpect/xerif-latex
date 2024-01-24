@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesPackage{coco-title}
-    [2024/01/19 0.4.0 CoCoTeX title module]
+    [2024/01/24 0.4.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \tpDeclareContainer{titlepage}{%
   \tpInherit {Components,Properties} from CommonMeta;
@@ -44,6 +44,10 @@
   \tpDeclareType{Properties}{}%
   \tpDeclareEnv[tpMeta]{\tp@Meta}{\tp@endMeta}%
 }
+\tpIfAlly{%
+  \AtBeginEnvironment{tpMeta}{\let\@lt@beginBhook\@gobble}
+  \AtEndEnvironment{tpMeta}{\let\@lt@endBhook\@gobble}
+}{}
 \def\tp@titlepage@role#1#2{%
   \tpDeclareRole[#1]{#2}%
   \tp@title@role@handlers{#1}{#2}%

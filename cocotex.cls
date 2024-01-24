@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [2024/01/19 0.4.0 cocotex]
+    [2024/01/24 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
@@ -115,7 +115,6 @@
 \else
 \RequirePackage{babel}
 \fi
-\PassOptionsToPackage{breaklinks,linktoc=none,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}{hyperref}
 \RequirePackage{coco-headings}
 \RequirePackage{coco-floats}
 \RequirePackage{coco-title}
@@ -123,6 +122,7 @@
 \RequirePackage{index}
 \makeindex
 \RequirePackage{hyperref}
+\AtBeginDocument{\hypersetup{breaklinks,linktoc=none,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}}
 \ifx\tp@do@ally\relax
   \RequirePackage{coco-accessibility}
 \fi
