@@ -60,7 +60,7 @@
     {\csdef{tp@container@#1}{}}%
   \csdef{tp@cur@cont}{#1}%
   \begingroup
-    \def\tpInherit ##1 from ##2;{\@tp@inherit{##1}{##2}{#1}}%
+    \def\tpInherit##1##2{\@tp@inherit{##1}{##2}{#1}}%
     \long\def\tpDeclareType##1##2{\csgappto{tp@type@##1@#1}{##2}}%
     \def\tpDeclareEnv{\@ifnextchar [{\tp@declare@env}{\tp@declare@env[#1]}}%]
     \def\tp@declare@env[##1]##2##3{%

@@ -32,7 +32,7 @@
     [2024/01/26 0.4.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \tpDeclareContainer{titlepage}{%
-  \tpInherit {Components,Properties} from CommonMeta;
+  \tpInherit {Components,Properties}{CommonMeta}%
   \tpDeclareType{Components}{%
     \tp@title@simple@comps
     \tp@meta@generic@comp
