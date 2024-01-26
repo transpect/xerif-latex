@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2018/12/01]
 \ProvidesClass{cocotex}
-    [2024/01/24 0.4.0 cocotex]
+    [2024/01/26 0.4.0 cocotex]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
@@ -122,7 +122,13 @@
 \RequirePackage{index}
 \makeindex
 \RequirePackage{hyperref}
-\AtBeginDocument{\hypersetup{breaklinks,linktoc=none,pdfborder={0 0 0},pdfencoding=auto,bookmarksnumbered=true}}
+  \hypersetup{%
+    breaklinks%
+   ,linktoc=none%
+   ,pdfborder={0 0 0}%
+   ,pdfencoding=auto%
+   ,bookmarksnumbered=true%
+}
 \ifx\tp@do@ally\relax
   \RequirePackage{coco-accessibility}
 \fi
