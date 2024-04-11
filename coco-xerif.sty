@@ -1,0 +1,83 @@
+%%
+%% This package provides compatibility features for when CoCoTex is
+%% used in conjunction with \textit{xerif}.
+%%
+%% The coco-xerif module is NO official part of the CoCoTeX framework,
+%% but contains code necessary for CoCoTeX to play nicely with tex
+%% files generated via xerif, like the `tp'-prefix for Component
+%% names, and other specialties. The module must be loaded before the
+%% CoCoTeX kernel.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive > 2018
+%%
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-xerif}
+    [2024-04-11 0.1 CoCoTeX xerif compatibility module]
+\message{^^J[CoCoTeX Kernel Info]  Using the xerif compatibility module.^^J^^J}
+
+\def\ccPrefix{tp}
+
+%%
+%% Please check your style files if any of the following aliases is
+%% used and replace them with the new versions.
+%%
+%% DO NOT REDEFINE THE ALIASES OR THE NEW MACROS LOCALLY!
+%%
+\g@addto@macro\ccAfterClassHook{%
+  %% from coco-kernel.sty
+  \let\tpDeclareContainer\ccDeclareContainer
+  \let\tpAddToType\ccAddToType
+  \let\tpSetComp\ccComponent
+  \let\tpStoreComp\ccdefFromComp
+  \let\tpGStoreComp\ccgdefFromComp
+  \let\tpUseGComp\ccUseComponentFrom
+  \let\tpGetComp\ccGetComp
+  \let\tpIfComp\ccIfComp
+  \let\tpWhenComp\ccWhenComp
+  \let\tp@check@empty\cc@check@empty
+  \let\tpGroupHandler\ccDeclareGroupHandler
+  \let\tpUseGroupProp\ccUsePropFrom
+  \let\tpIfCompOverride\ccIfComponentOverride
+  \let\tpCompGDef\ccgdefFromCountedComp
+  \let\tpDeclareCountedComp\ccDeclareCountedComponent
+  \let\tpAddToHook\ccAddToHook
+  \let\tpUseHook\ccUseHook
+  \let\tpSetProperty\ccSetProperty
+  \let\tpPropertyLet\ccPropertyLet
+  \let\tpPropertyLetX\ccPropertyLetX
+  \let\tpSetPropVal\ccSetPropertyVal
+  \let\tpSetPropertyX\ccSetPropertyX
+  \let\tpAddToDefault\ccAddToProperties
+  \let\tpUseProperty\ccUseProperty
+  \let\tpUsePropEnv\ccUsePropertyEnv
+  \let\tpIfProp\ccIfProp
+  \let\tpIfPropVal\ccIfPropVal
+  \let\tpDeclareClass\ccDeclareClass
+  %% from coco-common.sty
+  \let\tp@str@table\cc@str@table
+  \let\tp@str@figure\cc@str@figure
+  \let\tpGobble\ccGobble
+  \let\tpBreak\ccBreak
+  \let\tpContentsline\ccContentsline
+  \let\tp@store@latest\cc@store@latest
+  \let\tpSetBabelLabel\ccSetBabelLabel
+  \let\tpPageLabel\ccPageLabel
+  %% from coco-floats.sty
+  \let\tpSubFloat\ccSubFloat
+  \let\endtpSubFloat\endccSubFloat
+  \let\tp@make@caption\ccf@make@caption
+  \let\tp@str@bottom\ccf@str@bottom
+  \let\tp@str@top\ccf@str@top
+  \let\tpDeclareFloat\ccDeclareFloat
+  \let\tp@flt@process\ccf@process
+  \let\tpFloatBarrier\ccFloatBarrier
+}
+
+\g@addto@macro\ccToggleCountedConditionalsHook{%
+  \let\tpIfComp\ccIfComp
+  \let\tpWhenComp\ccWhenComp
+  \let\tpIfCompEmpty\ccIfCompEmpty
+}
+
