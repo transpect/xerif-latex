@@ -32,6 +32,7 @@
   \let\tpSetComp\ccComponent
   \let\tpStoreComp\ccdefFromComp
   \let\tpGStoreComp\ccgdefFromComp
+  \let\tpUseComp\ccUseComp
   \let\tpUseGComp\ccUseComponentFrom
   \let\tpGetComp\ccGetComp
   \let\tpIfComp\ccIfComp
@@ -73,6 +74,9 @@
   \let\tpDeclareFloat\ccDeclareFloat
   \let\tp@flt@process\ccf@process
   \let\tpFloatBarrier\ccFloatBarrier
+  %% from coco-heading.sty
+  \def\heading{\tpHeading}
+  \def\endheading{\endtpHeading}
 }
 
 \g@addto@macro\ccToggleCountedConditionalsHook{%
