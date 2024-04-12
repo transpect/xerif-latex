@@ -56,6 +56,8 @@
   \let\tpIfProp\ccIfProp
   \let\tpIfPropVal\ccIfPropVal
   \let\tpDeclareClass\ccDeclareClass
+  \let\tpIfAttrStr\ccIfAttrIsStr
+  \let\tpNamespace\ccSetContainer
   %% from coco-common.sty
   \let\tp@str@table\cc@str@table
   \let\tp@str@figure\cc@str@figure
@@ -65,6 +67,7 @@
   \let\tp@store@latest\cc@store@latest
   \let\tpSetBabelLabel\ccSetBabelLabel
   \let\tpPageLabel\ccPageLabel
+  \let\tpTocLink\ccTocLink
   %% from coco-floats.sty
   \let\tpSubFloat\ccSubFloat
   \let\endtpSubFloat\endccSubFloat
@@ -74,9 +77,16 @@
   \let\tpDeclareFloat\ccDeclareFloat
   \let\tp@flt@process\ccf@process
   \let\tpFloatBarrier\ccFloatBarrier
+  \let\tp@captype\ccf@cap@type% legacy
+  \let\tp@caplisttype\ccf@cap@list@type% legacy
   %% from coco-heading.sty
   \def\heading{\tpHeading}
   \def\endheading{\endtpHeading}
+  %% from coco-meta.sty
+  \let\tpUseLabeledComp\ccUseLabeledComp
+  %% from coco-script.sty
+  \let\tpBabelAlias\ccBabelAlias
+  \let\tpDeclareBabelFont\ccDeclareBabelFont
 }
 
 \g@addto@macro\ccToggleCountedConditionalsHook{%
