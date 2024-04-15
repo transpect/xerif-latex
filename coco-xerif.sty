@@ -25,6 +25,11 @@
 %%
 %% DO NOT REDEFINE THE ALIASES OR THE NEW MACROS LOCALLY!
 %%
+%% Note: Top-level CS tokens are aliase'd with '\let' while CS tokens
+%% whose definitions may change during processing are alias'd with
+%% \def to ensure that they expand according to their respective
+%% context.
+%%
 \g@addto@macro\ccAfterClassHook{%
   %% from coco-kernel.sty
   \let\tpDeclareContainer\ccDeclareContainer
@@ -58,16 +63,20 @@
   \let\tpDeclareClass\ccDeclareClass
   \let\tpIfAttrStr\ccIfAttrIsStr
   \let\tpNamespace\ccSetContainer
+  \def\tpIfComp{\ccIfComp}%
+  \def\tpWhenComp{\ccWhenComp}%
+  \def\tpUnlessComp{\ccUnlessComp}%
+  \def\tpIfCompEmpty{\ccIfCompEmpty}%
   %% from coco-common.sty
   \let\tp@str@table\cc@str@table
   \let\tp@str@figure\cc@str@figure
-  \let\tpGobble\ccGobble
-  \let\tpBreak\ccBreak
+  \def\tpGobble{\ccGobble}%
+  \def\tpBreak{\ccBreak}%
   \let\tpContentsline\ccContentsline
   \let\tp@store@latest\cc@store@latest
   \let\tpSetBabelLabel\ccSetBabelLabel
   \let\tpPageLabel\ccPageLabel
-  \let\tpTocLink\ccTocLink
+  \def\tpTocLink{\ccTocLink}%
   %% from coco-floats.sty
   \let\tpSubFloat\ccSubFloat
   \let\endtpSubFloat\endccSubFloat
@@ -75,11 +84,16 @@
   \let\tp@str@bottom\ccf@str@bottom
   \let\tp@str@top\ccf@str@top
   \let\tpDeclareFloat\ccDeclareFloat
-  \let\tp@flt@process\ccf@process
+  \def\tp@flt@process{\ccf@process}%
   \let\tpFloatBarrier\ccFloatBarrier
-  \let\tp@captype\ccf@cap@type% legacy
-  \let\tp@caplisttype\ccf@cap@list@type% legacy
+  \def\tp@captype{\ccf@cap@type}%
+  \def\tp@caplisttype{\ccf@cap@list@type}%
   %% from coco-heading.sty
+  %
+  % The old "heading" environment was replaced with the |\ccPrefix
+  % Heading| environment. With 'Heading' as name of the respective
+  % Container, and the '\ccPrefix' set to 'tp', this makes
+  % the actual "official" env name |tpheading|.
   \def\heading{\tpHeading}
   \def\endheading{\endtpHeading}
   %% from coco-meta.sty
