@@ -1,0 +1,619 @@
+%%
+%% This is file `coco-headings.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `headings')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-headings.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% module for CoCoTeX that extends heading objects.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive >= 2019
+%%
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-headings}
+    [2024/07/16 0.5.0 CoCoTeX headings module]
+\RequirePackage{coco-meta}
+\RequirePackage{bookmark}%
+\hypersetup{bookmarksdepth=-999}%
+\ccDeclareContainer{Heading}{%
+  \ccInherit{Components,Properties}{CommonMeta}%
+  \ccDeclareType{Parent}{}%
+  \ccDeclareType{Components}{%
+    \cch@provide@authors%
+    \cch@provide@comp{Title}%
+    \cch@provide@comp{Subtitle}%
+    \cch@provide@comp{Number}%
+    \ccDeclareComponent{RefLabel}{}{}%
+    \cch@provide@quotes
+  }%
+  \ccDeclareType{Attributes}{%
+    \ccDeclareAttributeHandler{class}{%
+      \let\cch@current@class\ccAttrVal
+      \expandafter\ccUseStyleClass\expandafter{\ccAttrVal}{Heading}%
+    }%
+  }
+  \ccDeclareType{Properties}{}%
+  \ccDeclareEnv{\cch@heading}{\cch@end@heading}%
+}
+\long\def\ccDeclareHeading{\cc@opt@empty\cc@declare@heading}
+\long\def\cc@declare@heading[#1]#2#3#4{%
+  \ifcsdef{cc@container@#3}{%
+    \ccPackageInfo{Headings}{}{Appending to `#3'}%
+    \ifcsstring{cch@#3@level}{#2}{}{%
+        \ccPackageError{Headings}
+          {Level Mismatch}
+          {Level of heading `#3' cannot be altered!}
+          {The already existing heading `#3' has toc level `\csname cch@#3@level\endcsname', but your^^J%
+           re-declaration states `#2'.^^J%
+           ^^J%
+           Consider declaring a new heading alltogether with `#3' as parent,^^J%
+           or add Properties to `#3' using \string\ccAddToType\string{Properties\string}\string{#3\string}.}%
+       }%
+    \if!#1!\else
+      \ifcsstring{cc@parent@#3}{#1}{}{%
+        \ccPackageError{Headings}
+          {Parent Mismatch}
+          {Parent of heading `#3'^^J cannot be altered!}
+          {The already existing heading `#3' inherits from `\csname cc@parent@#3\endcsname',^^J%
+           but your re-declaration sets Parent to `#1'.^^J%
+           ^^J%
+           Consider declaring a new heading alltogether with `#1' as parent.}%
+      }%
+    \fi
+    \ccAddToType{Properties}{#3}{#4}%
+    \cch@declare@heading{#2}{#3}%
+  }{% ifcsdef cc@container@#3 else
+    \ccDeclareContainer{#3}{%
+      \csgdef{cch@#3@level}{#2}%
+      \ifcsdef{cch@#2@unique}{}{\csgdef{cch@#2@unique}{#3}}%%
+      \ccPackageInfo{Headings}{}{Declaring heading `#3'}%
+      \edef\@argi{#1}%
+      \ccDeclareType{Parent}{\cch@create@parent{#1}{#3}}
+      \ifx\@argi\@empty
+        \ccInherit{Components,Properties}{Heading}%
+      \else
+        \ccInherit{Components,Properties,Parent}{#1}%
+      \fi
+      \ccDeclareType{Properties}{%
+        #4%
+      }%
+      \ccDeclareType{Init}{%
+        \cch@init@hooks{#3}%
+        \let\@cch@cur@cont\cc@cur@cont
+        \def\cc@cur@cont{Heading}%
+        \cc@init@l@{toc}{#2}{#3}%
+        \let\cc@cur@cont\@cch@cur@cont
+        \cch@init@cnt{#3}%
+      }%
+      \cch@declare@heading{#2}{#3}%
+    }% \ccDeclareContainer{#3}
+  }% \ifcsdef cc@container@#3 fi
+  \ccIfAlly{\cch@add@autoclose{#2}{#3}}{}% \AtBeginDocument\ccIfAlly
+}% \cc@declare@heading
+\newcount\cch@tempcnta \cch@tempcnta\z@
+\def\cch@add@autoclose#1#2{%
+  \ccAddToHook[document]{cca/at/begin/document}{%
+    \ccaAddRolemap{#2}{Sect}%
+    \cch@tempcnta=\numexpr\tw@-\cch@highest@level\relax
+    \advance\cch@tempcnta by #1\relax
+    \ccaAddRolemap{#2head}{H\the\cch@tempcnta}%
+    \ifnum\cch@tempcnta>6\relax
+      \ccaAddRolemap{H\the\cch@tempcnta}{H}%
+    \fi
+    \cch@tempcnta=#1\relax
+    \ccDebugMsg[a11y]{^^J===> Comparing #2 (\the\cch@tempcnta) with lowest \cch@lowest@level, and highest \cch@highest@level}%
+    \ifnum\cch@tempcnta=\cch@highest@level
+      \ccDebugMsg[a11y]{^^J===> #2 is highest, setting it as child of document}%
+      \edef\x{\noexpand\ccaAddToConfig{autoclose}{document={Type:Sectioning}{Child:\csname cch@#1@unique\endcsname}{Egroup:false}}}\x%
+    \fi
+    \ifnum\cch@tempcnta=\cch@lowest@level\relax
+      \ccDebugMsg[a11y]{^^J===> #2 is lowest, Setting Child to none}%
+      \ifcsstring{cch@#1@unique}{#2}
+        {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:none}{Egroup:false}}}\x}
+        {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:none}{Egroup:false}{Alias:\csname cch@#1@unique\endcsname}}}\x}%
+    \else
+      \ifnum\the\cch@tempcnta<\cch@highest@level\relax
+        \@tempswafalse
+      \else
+        \ccDebugMsg[a11y]{^^J===> #2 goes into the Loop...}%
+        \@tempswatrue
+      \fi
+      \loop
+        \advance\cch@tempcnta\@ne\relax
+      \if@tempswa
+        \ifnum\cch@tempcnta>\cch@lowest@level\relax
+          \ccDebugMsg[a11y]{^^J===> #2's next \csmeaning{cch@\the\cch@tempcnta @unique} is too low, breaking loop...}%
+          \@tempswafalse
+        \else
+          \expandafter\ifx\csname cch@\the\cch@tempcnta @unique\endcsname\relax
+          \ccDebugMsg[a11y]{^^J===> #2's next \csmeaning{cch@\the\cch@tempcnta @unique} is in range, going on (cur: \the\cch@tempcnta)...}%
+            \@tempswatrue
+          \else
+            \ccDebugMsg[a11y]{^^J===> Setting \csmeaning{cch@\the\cch@tempcnta @unique} as Child of #2 with cnt: \the\cch@tempcnta...}%
+            \ifcsstring{cch@#1@unique}{#2}
+              {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:\csname cch@\the\cch@tempcnta @unique\endcsname}{Egroup:false}}}\x}
+              {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:\csname cch@\the\cch@tempcnta @unique\endcsname}{Egroup:false}{Alias:\csname cch@#1@unique\endcsname}}}\x}%
+            \@tempswafalse
+          \fi
+        \fi
+      \repeat
+    \fi
+  }}
+\newcount\cch@min@level \cch@min@level=99\relax
+\newcount\cch@max@level \cch@max@level=-99\relax
+\ifx\cch@highest@level\@undefined \def\cch@highest@level{-99}\fi
+\ifx\cch@lowest@level\@undefined  \def\cch@lowest@level{99}\fi
+\AtEndDocument{%
+  \immediate\write\@mainaux{\string\gdef\string\cch@highest@level{\the\cch@min@level}}%
+  \immediate\write\@mainaux{\string\gdef\string\cch@lowest@level{\the\cch@max@level}}%
+}%
+\def\cch@create@parent#1#2{%
+  \def\ccCurSecName{#2}%
+  \if!#1!\else
+    \ccCheckParent{#1}{#2}%
+  \fi%
+}
+\def\cch@declare@heading#1#2{%
+  \ccEvalType{Parent}%
+  \ccEvalType{Init}%
+  \csgdef{ccUseHeading#2}{%
+    \ccSetContainer{Heading}%
+    \@setpar{\@@par}%
+    \def\cchLevel{#1}%
+    \ccEvalType[#2]{Properties}%
+    \ccm@role@eval{Author}%
+    \ccComposeCollection{Author}{author-contact-block-format}{AuthorContactBlock}%
+    \ccComposeCollection{Affil}{affil-block-item-format}{AffilBlock}%
+    \ccComposeCollection{Quote}{quote-block-format}{QuoteBlock}%
+    \def\Hy@toclevel{#1}%
+    \cch@auto@number{#1}{#2}%
+    \ccUseProperty{heading-par}%
+    \cch@use@hook{before}{#2}%
+    \ccUseProperty{before-heading}%
+    \cch@add@before@skip
+    \cc@format@number{}{}{#1}%
+    \ccIfProp{after-skip}{\expandafter\global\expandafter\@tempskipa\expandafter=\ccUseProperty{after-skip}\relax}{\global\@tempskipa=1sp\relax}%
+    \ifnum#1<\cch@min@level\relax\global\cch@min@level=#1\relax\fi
+    \ifnum#1>\cch@max@level\relax\global\cch@max@level=#1\relax\fi
+    \cch@use@hook{print/before}{#2}%
+    \def\@svsec{%
+      \ccUseProperty{before-heading-block}%
+      \ccCreateLabel{#2}% label facility
+      \leftskip\ccUseProperty{margin-left}%
+      \rightskip\ccUseProperty{margin-right}%
+      \bgroup
+        \ccUseProperty{heading-block}%
+        \ccIfPropVal{no-toc}{true}{}{\cch@make@toc}% ToC entries
+        \ccIfPropVal{no-BM}{true}{}{\cch@make@bookmarks}% Bookmarks
+        \ccUseProperty{toc-hook}%
+        \ccIfProp{extended}{\ccUseProperty{extended-heading}}{}%
+      \egroup%
+      \cch@make@run% Running headers
+      \cch@use@hook{run/after}{#2}%
+      \ccUseProperty{after-heading-block}%
+      \cch@use@hook{after}{#2}%
+    }%
+    \ifdim\@tempskipa <\z@\relax
+      \cch@make@inline%
+    \else
+      \cch@make@block%
+    \fi
+    \aftergroup\next%
+  }%
+}
+\def\cch@use@hook#1#2{%
+  \expandafter\ifx\csname cc@parent@#2\endcsname\relax\else
+    \letcs\@cch@parent{cc@parent@#2}%
+    \cch@use@hook{#1}{\csname cc@parent@#2\endcsname}%
+  \fi
+  \UseHook{cc/headings/#2/#1}%
+  \ignorespaces}
+\def\cch@add@before@skip{%
+  \setlength\@tempskipa{\ccUseProperty{before-skip}}%
+  \ifdim\@tempskipa<\z@\relax
+    \def\do@skip{\minusvspace{-\@tempskipa}}%
+  \else
+    \def\do@skip{\addvspace{\@tempskipa}}%
+  \fi%
+  \if@nobreak
+    \everypar{}%
+    \do@skip
+  \else
+    \addpenalty\@secpenalty
+    \do@skip
+  \fi}
+\def\cch@init@hooks#1{%
+  \NewHook{cc/headings/#1/toc/before}%
+  \NewHook{cc/headings/#1/toc/after}%
+  \NewHook{cc/headings/#1/before}%
+  \NewHook{cc/headings/#1/after}%
+  \NewHook{cc/headings/#1/print/before}%
+  \NewHook{cc/headings/#1/run/after}%% Expanded after the local RunTitle has been generated
+}
+\def\cch@init@cnt#1{\ifcsname c@#1\endcsname\else\@definecounter{#1}\fi}
+\def\cch@auto@number#1#2{%
+  \ccIfPropVal{numbering}{auto}
+    {\expandafter\ifx\csname c@#2\endcsname\relax\cch@init@cnt{#2}\fi
+     \ccIfAttrIsSet{Heading}{nonumber}
+       {}
+       {\ccIfComp{Number}
+         {}
+         {\ifnum #1>\c@secnumdepth\relax\else
+            \stepcounter{#2}%
+            \edef\@tempa{\csname the#2\endcsname}%
+            \ccComponentEA{Number}{\@tempa}%
+          \fi}}
+     }{}}
+\def\cch@set@author@name@list#1{%
+  \ccUnlessComp{#1AuthorNameList}{%
+    \ifx\cc@used@AuthorNameList@override\@empty
+      \ccComponent{#1AuthorNameList}{\cc@Heading@AuthorNameList}%
+    \else
+      \ifnum\ccAuthorCnt>\z@
+        \ccdefFromCountedComp\cch@tempa{Author}{author-list-print-format}%
+        \ifx\cch@tempa\relax\else
+          \ccComponent{#1AuthorNameList}{\cch@tempa}%
+        \fi
+      \fi
+    \fi
+  }}%
+\def\cch@make@toc{%
+  \cc@check@empty{Heading}{Title}{Toc}%
+  \cc@check@empty{Heading}{Number}{Toc}%
+  \cc@check@empty{Heading}{Subtitle}{Toc}%
+  \cch@set@author@name@list{Toc}%
+  \ccIfAttrIsSet{Heading}{notoc}{}
+    {\protected@edef\cch@toc@entry{%
+       \ccIfComp{TocTitle}{\string\ccComponent{TocTitle}{\string\ignorespaces\space\expandonce{\cc@Heading@TocTitle}}}{}%
+       \ccIfComp{TocNumber}{\string\ccComponent{TocNumber}{\string\ignorespaces\space\expandonce{\cc@Heading@TocNumber}}}{}%
+       \ccIfComp{TocAuthorNameList}{\string\ccComponent{TocAuthorNameList}{\string\ignorespaces\space\expandonce{\cc@Heading@TocAuthorNameList}}}{}%
+       \ccIfComp{TocSubtitle}{\string\ccComponent{TocSubtitle}{\string\ignorespaces\space\expandonce{\cc@Heading@TocSubtitle}}}{}%
+     }%
+     \ccIfProp{toc-level}
+       {\edef\cch@toc@sec@name{\ccUseProperty{toc-level}}}
+       {\let\cch@toc@sec@name\ccCurSecName}%
+     \protected@write\@auxout
+       {\ccGobble}%
+       {\string\@writefile{toc}{\protect\ccContentsline{\cch@toc@sec@name}{\cch@toc@entry}{\thepage}{\@currentHref}\protected@file@percent}}\relax
+     \ccCreateContentListEntries{Heading}{\cch@toc@sec@name}{\cch@toc@entry}{\thepage}{\@currentHref}%
+     \ccCreateContentListEntries{\cch@toc@sec@name}{\cch@toc@sec@name}{\cch@toc@entry}{\thepage}{\@currentHref}%
+   }}
+\def\cc@toc@extract@data#1#2#3#4{%
+  \ccSetContainer{Heading}%
+  \ccEvalType[#2]{Properties}%
+  \ccDeclareComponent{TocPage}{}{}%
+  \ccComponent{TocPage}{\ccUseProperty{toc-page-face}#4}%
+  \ccDeclareComponent{TocTitle}{}{}%
+  \ccDeclareComponent{TocSubtitle}{}{}%
+  \ccDeclareComponent{TocNumber}{}{}%
+  \ccDeclareComponent{TocAuthorNameList}{}{}%
+  \cc@expand@l@contents{#3}{Heading}{Toc}{Title}%%
+  \cc@format@number{toc-}{Toc}{#1}%
+}
+\def\cc@toc@print@entry#1{%
+  \bgroup
+    \cch@use@hook{toc/before}{#1}%
+    \ccUseProperty{toc-before-entry}%
+    \ccUseProperty{toc-format}%
+    \cch@use@hook{toc/after}{#1}%
+    \ccUseProperty{toc-after-entry}%
+  \egroup}
+\def\cch@make@run{%
+  \cc@check@empty{Heading}{Title}{Run}%
+  \cc@check@empty{Heading}{Number}{Run}%
+  \cc@check@empty{Heading}{Subtitle}{Run}%
+  \cch@set@author@name@list{Run}%
+  \ccUseProperty{running-extra}%
+  \ccIfProp{running-level}
+    {\letcs\cch@mark@name{\ccUseProperty{running-level}mark}}
+    {\letcs\cch@mark@name{\ccCurSecName mark}}%
+    \letcs\cch@parent{cc@parent@\ccCurSecName}%
+    \ifx\cch@mark@name\@undefined
+      \ifx\cch@parent\relax\else
+        \letcs\cch@mark@name{\cch@parent mark}%
+      \fi
+    \fi
+  \ifx\cch@mark@name\@undefined\else
+    \begingroup
+      \ccGobble
+      \protected@edef\@tempa{\csname cc@Heading@running-heading\endcsname}%
+      \expandafter\cch@mark@name\expandafter{\@tempa}%
+    \endgroup
+  \fi
+}
+\def\cch@make@bookmarks{%
+  \cc@check@empty[Toc]{Heading}{Title}{BM}%
+  \cc@check@empty[Toc]{Heading}{Number}{BM}%
+  \cc@check@empty[Toc]{Heading}{AuthorNameList}{BM}%
+  \cc@check@empty[Toc]{Heading}{Subtitle}{BM}%
+  \ccIfAttrIsSet{Heading}{noBM}
+    {}
+    {\ccIfProp{bookmark-level}{\edef\Hy@toclevel{\ccUseProperty{bookmark-level}}}{}%
+     \begingroup
+       \ccGobble
+       \protected@edef\@tempa{\csname cc@Heading@bookmark\endcsname}%
+       \bookmark[level=\Hy@toclevel,dest=\@currentHref]{\expandonce{\@tempa}}%
+     \endgroup
+   }}
+\newbox\cch@inline@sec@box
+\def\cch@make@inline{%
+  \ccIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
+  \ccIfProp{interline-para}
+    {\global\setbox\cch@inline@sec@box\hbox{\ifvoid\cch@inline@sec@box\else\unhbox\cch@inline@sec@box\ccUseProperty{interline-para-sep}\fi\@svsec}}%
+    {\global\setbox\cch@inline@sec@box\hbox{\@svsec}}
+  \@nobreakfalse
+  \global\@noskipsectrue
+  \gdef\next{%
+    \global\everypar{%
+      \if@noskipsec
+        \global\@noskipsecfalse
+        {\setbox\z@\lastbox}%
+        \clubpenalty\@M
+        \begingroup
+          \unhbox\cch@inline@sec@box
+        \endgroup
+        \unskip
+        \hskip -\@tempskipa
+      \else
+        \clubpenalty \@clubpenalty
+        \global\setbox\cch@inline@sec@box\box\voidb@x
+        \everypar{}%
+      \fi}%
+    \ignorespaces}}
+\def\cch@make@block{%
+  \@svsec
+  \ccUseProperty{after-heading-par}%
+  \ccIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
+  \gdef\next{%
+    \ifdim\parskip>\z@\relax\advance\@tempskipa-\parskip\relax\fi
+    \vskip \@tempskipa
+    \@afterheading
+    \ignorespaces}}
+\def\cch@heading{\cc@opt@empty\@cch@heading}%
+\def\@cch@heading[#1]#2{%
+  \ifhmode\unskip\fi%
+  \ccIfAlly
+    {\global\let\cch@currenvir\@currenvir
+     \endgroup
+     \ccaVstructStart{#2}%
+     \UseHook{env/\ccPrefix Heading/before}%
+     \@ignorefalse
+     \begingroup
+       \@endpefalse
+       \let\@currenvir\cch@currenvir
+       \edef\@currenvline{\on@line}%
+       \@execute@begin@hook{\ccPrefix Heading}%
+    }{}%
+  \cch@reserve
+  \edef\ccCurSecName{#2}%
+  \ccEvalAttributes[Heading]{#1}%
+  \ccEvalType[#2]{Components}%
+  \ignorespaces
+}
+\def\cch@end@heading{%
+  \expandafter\ifx\csname ccUseHeading\ccCurSecName\endcsname\relax
+    \PackageError{coco-headings.sty}{Heading level \ccCurSecName\space unknown!}{A Heading with level \ccCurSecName\space is unknown. Use the \string\ccDeclareHeading\space macro to declare heading levels.}%
+  \else
+    \csname ccUseHeading\ccCurSecName\endcsname%
+  \fi
+  \cch@reset
+}
+\def\cch@reserve{%
+  \ccSetContainer{Heading}%
+  \let\cch@ltx@dbl@backslash\\%
+  \letcs\\{\ccPrefix Break}%
+  \let\cc@ltx@label\label%
+  \def\ccAuthorCnt{\z@}%
+  \def\ccAffilCnt{\z@}%
+  \cc@reset@components{\cc@cur@cont}%
+  \let\cch@current@class\relax
+  \ignorespaces}
+\def\cch@reset{%
+  \let\cc@cur@cont\relax
+  \let\\\cch@ltx@dbl@backslash
+  \let\label\cc@ltx@label
+  \let\ccCurSecName\relax
+  }
+\def\cch@provide@quotes{%
+  \ccDeclareComponent{QuoteBlock}{}{}%
+  \ccDeclareComponentGroup{Quote}{%
+    \ccDeclareCountedComponent{QuoteText}%
+    \ccDeclareCountedComponent{QuoteSource}%
+  }%
+}
+\def\cch@provide@authors{%
+  \ccAddToRole{Author}{%
+    \ccDeclareCountedComponent{AuthorContact}%
+  }%
+  \ccDeclareRoleBlock{Author}{ContactBlock}{author-contact-block-format}%
+  \ccDeclareGroupHandler{Author}{%
+    \ccIfComp{AuthorContact}{}{\ccComponent{AuthorContact}{\ccUseProperty{author-contact-format}}}{}%
+  }%
+  \cc@provide@overrides{AuthorNameList}%
+}
+\def\cch@provide@comp#1{%
+  \ccDeclareComponent{#1}{}{}%
+  \cc@provide@overrides{#1}%
+}
+\def\cc@provide@overrides#1{%
+  \ccDeclareComponent{Toc#1}{}{}% toc overrides
+  \ccDeclareComponent{Run#1}{}{}% running overrides
+  \ccDeclareComponent{BM#1}{}{}% bookmark overrides
+}
+\ccAddToProperties{Heading}{%
+  \ccSetProperty{interline-para}{}%
+  \ccSetProperty{interline-para-sep}{\space}
+  \ccSetProperty{heading-par}{%
+    \ccIfProp{interline-para}{\if@noskipsec \leavevmode \fi}{}%
+    \par
+    \global\@afterindenttrue
+  }%
+  \ccSetProperty{after-heading-par}{\par \nobreak}%
+  \ccSetProperty{before-heading}{}%
+  \ccSetProperty{title-face}{\bfseries}%
+  \ccSetProperty{subtitle-face}{\normalfont}%
+  \ccSetProperty{author-face}{\normalfont}%
+  \ccSetProperty{quote-face}{\raggedleft}%
+  \ccSetProperty{quote-source-face}{}%
+  \ccSetProperty{quote-block-format}{%
+    \bgroup
+      \ccUseProperty{quote-face}%
+      \ccUseComp{QuoteText}\par
+      \ccIfComp{QuoteSource}{{\ccUseProperty{quote-source-face}--\space\ccUseComp{QuoteSource}}\par}{}%
+    \egroup}
+  \ccSetProperty{heading-block}
+    {\ccUseProperty{main-title-format}%
+     \ccIfComp{Subtitle}{{\ccUseProperty{subtitle-face}\ccUseComp{Subtitle}}\par}{}%
+     \ccIfComp{AuthorNameList}{{\ccUseProperty{author-face}\ccUseComp{AuthorNameList}}\par}{}%
+     \ccIfComp{QuoteBlock}{\ccUseComp{QuoteBlock}}{}%
+     \ccIfComp{AffilBlock}{{\ccUseProperty{affil-block-face}\ccUseComp{AffilBlock}}\par}{}%
+    }%
+  \ccSetProperty{main-title-format}{%
+    \ccUseProperty{title-face}%
+    \ccaVstructStart{\ccCurSecName head}%
+    \ccIfComp{Number}%
+    {\ccUseProperty{hang-number}}%
+    {\leftskip0pt}%
+    \ccUseComp{Title}%
+    \ccaVstructEnd{\ccCurSecName head}%
+    \par
+  }
+  \ccSetProperty{extended-heading}{%
+    \ccIfComp{Abstract}
+      {\par\vskip\baselineskip
+       {\bfseries\ccIfComp{AbstractLabel}{\ccUseComp{AbstractLabel}}{Abstract}}\par
+       {\itshape\small\ccUseComp{Abstract}}\par}
+      {}%
+    \ccIfComp{Keywords}
+      {\par\vskip\baselineskip
+       {\bfseries\ccIfComp{KeywordsLabel}{\ccUseComp{KeywordsLabel}}{Keywords}}\par
+       {\itshape\small\ccUseComp{Keywords}\par}}
+     {}%
+   }%
+  \ccSetProperty{before-skip}{\z@skip}%
+  \ccSetProperty{after-heading-block}{}%
+  \ccSetProperty{before-heading-block}{\parindent\z@ \parskip\z@}%
+  \ccSetProperty{toc-hook}{}% Called, after ToC and BM entries have been written to the .aux file
+  \ccSetProperty{after-indent}{}%
+  \ccSetProperty{margin-left}{}%
+  \ccSetProperty{margin-right}{\@flushglue}%
+  \ccSetProperty{after-skip}{1sp}%
+  \ccSetProperty{indent}{auto}%
+  \ccSetProperty{number-width}{}%
+  \ccSetProperty{number-sep}{\space}%
+  \ccSetProperty{number-align}{left}%
+  \ccSetProperty{number-format}{%
+    \bgroup
+      \ccUseProperty{title-face}%
+      \ccUseProperty{number-face}%
+      \ccUseComp{Number}%
+      \ccUseProperty{number-sep}%
+    \egroup}
+  \ccSetProperty{numbering}{auto}%
+  \ccSetProperty{running-level}{}% override level for running title, name
+  \ccSetProperty{running-heading}{%
+    \ccIfComp{RunAuthorNameList}{\ccUseComp{RunAuthorNameList}:\space}{}%
+    \ccUseComp{RunTitle}%
+  }%
+  %% ToC
+  \ccSetProperty{no-toc}{false}% toc entries are generally disabled iff true
+  \ccSetProperty{no-BM}{false}% bookmark entries are generally disabled, iff true
+  \ccSetProperty{toc-margin-top}{\z@}% left indent of the whole entry
+  \ccSetProperty{toc-margin-bottom}{\z@}% bottom margin of the whole entry
+  \ccSetProperty{toc-margin-left}{auto}% left indent of the whole entry
+  \ccSetProperty{toc-margin-right}{\@pnumwidth}% right margin of the whole entry
+  \ccSetProperty{toc-title-face}{}% appearance of title
+  \ccSetProperty{toc-indent}{auto}%
+  \ccSetProperty{toc-number-width}{}% current width of the TocNumber
+  \ccSetProperty{toc-number-align}{left}% alignment of TocNumber within the hbox when hanging
+  \ccPropertyLet{toc-number-face}{toc-title-face}% appearance of the TocNumber
+  \ccSetProperty{toc-number-sep}{\enskip}% thing between TocNumber and TocTitle
+  \ccSetProperty{toc-number-format}{% Format of the TocNumber
+    \bgroup
+      \ccUseProperty{toc-number-face}%
+      \ccUseComp{TocNumber}%
+      \ccUseProperty{toc-number-sep}%
+    \egroup}
+  \ccSetProperty{toc-page-sep}{\dotfill}% between TocTitle and the page counter
+  \ccSetProperty{toc-page-face}{}% appearance of the page value
+  \ccSetProperty{toc-page-format}{% format of the page value
+    \ccUseProperty{toc-page-sep}%
+    \bgroup
+      \ccUseProperty{toc-page-face}%
+      \ccUseComp{TocPage}%
+    \egroup}%
+  \ccSetProperty{toc-level}{}%
+  \ccSetProperty{toc-before-entry}{%
+    \addvspace{\ccUseProperty{toc-margin-top}}%
+    \parindent \z@
+    \let\\\@centercr
+    \hyphenpenalty=\@M
+    \rightskip \ccUseProperty{toc-margin-right} \@plus 1fil\relax
+    \parfillskip -\rightskip
+    \leftskip\ccUseProperty{toc-margin-left}%
+  }%
+  \ccSetProperty{toc-after-entry}{\par\addvspace{\ccUseProperty{toc-margin-bottom}}}%
+  \ccSetProperty{toc-format}{%
+    \ccUseProperty{toc-title-face}%
+    \ccaVstructStart{TOCI}%
+    \ccIfComp{TocNumber}
+      {\ccaStructStart{P}\ccaStructStart{Reference}\ccaStructStart{Lbl}\ccUseProperty{toc-hang-number}\ccaStructEnd{Lbl}}
+      {\leftskip0pt\leavevmode}%
+    \ccaVstructStart{Span}%
+    \ccTocLink{%
+      \ccWhenComp{TocAuthorNameList}{\ccUseComp{TocAuthorNameList}:\space}%
+      \ccUseComp{TocTitle}%
+      \ccUseProperty{toc-page-format}%
+    }%
+    \ccaVstructEnd{Span}%
+    \ccWhenComp{TocNumber}{\ccaStructEnd{Reference}\ccaStructEnd{P}}%
+    \ccaVstructEnd{TOCI}%
+  }%
+  \ccSetProperty{bookmark-level}{}%
+  \ccSetProperty{bookmark}{%
+    \ccIfComp{BMNumber}{\ccUseComp{BMNumber}\space}{}%
+    \ccUseComp{BMTitle}%
+  }%
+  \ccSetProperty{orcid-link}{%
+    \ccIfComp{ORCID}{\ccCompLink{ORCID}{\includegraphics[height=1em]{logos/ORCID.pdf}}}{}%
+  }%
+  %% a single Author's contact infomration block
+  \ccSetProperty{author-contact-format}{%
+    \ccUseComp{FullName}\ccWhenComp{RefAffil}{\textsuperscript{\ccUseComp{AffilRef}}}%
+    \ccUseProperty{orcid-link}%
+  }%
+  \ccPropertyLet{author-list-format}{author-list-print-format}%
+  \ccSetProperty{author-contact-block-format}{% Format of the whole contact information block
+    \ccUseComp{AuthorContact}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi
+  }%
+}
+\newdimen\ccnewparskip \AtBeginDocument{\ifdim\ccnewparskip=\z@\relax \ccnewparskip=1\baselineskip\relax\fi}
+\def\ccNewPar{\@ifnextchar[{\cc@newpar}{\cc@newpar[\the\ccnewparskip]}}%]
+\def\cc@newpar[#1]{%
+  \ifhmode\par\fi
+  \vskip#1\relax
+  \@afterheading
+}
+\cslet{\ccPrefix NewPar}\ccNewPar
+\letcs\TitleBreak{\ccPrefix Break}
+\endinput
+%%
+%% End of file `coco-headings.sty'.

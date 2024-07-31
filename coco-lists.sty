@@ -1,0 +1,393 @@
+%%
+%% This is file `coco-lists.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `lists')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-lists.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-lists}
+    [2024/07/16 0.5.0 CoCoTeX lists module]
+\RequirePackage{coco-common}
+\newif\if@ccl@replace \@ccl@replacefalse
+\DeclareOptionX{replace}{\global\@ccl@replacetrue}%
+\def\ccl@ih@common{common}
+\def\ccl@ih@conseq{conseq}%
+\def\ccl@str@local{local}%
+\def\ccl@str@global{global}%
+\let\ccl@inherit\ccl@ih@common
+\define@choicekey{coco-lists.sty}{inherit}[\@ccl@inherit\nr]{conseq,common}{%
+  \ifcase\nr\relax% conseq: nested lists of the same type inherit only from the previous level
+    \global\let\ccl@inherit\ccl@ih@conseq
+  \fi
+}
+\let\ccl@nesting\ccl@str@global
+\define@choicekey{coco-lists.sty}{nesting}[\@ccl@nesting\nr]{local,global}{%
+  \ifcase\nr\relax% local
+    \global\let\ccl@nesting\ccl@str@local
+  \fi
+}
+\ProcessOptionsX
+\ccDeclareContainer{List}{%
+  \ccDeclareType{Properties}{%
+    \ccSetProperty{before-list}{% at the very beginning of each (nested) list
+      \if@noskipsec \leavevmode \fi
+      \ifvmode\else
+        \unskip \par
+      \fi
+      \ccaStructStart{L}%
+    }%
+    \ccSetProperty{after-list}{%
+      \ccUseProperty{after-item}%
+      \ccaStructEnd{L}% end tag for the (nested) list
+    }%
+    %% list margins
+    \ccSetProperty{margin-top}{\z@}%
+    \ccSetProperty{margin-bottom}{\z@}% vertical space before the list.
+    \ccSetProperty{margin-left}{\csname leftmargin\@roman\cclCurDepth\endcsname-\ccUseProperty{label-sep}+\ccUseProperty{prev-margin-left}}%
+    \ccSetProperty{max-label-width}{.33\textwidth}%
+    \ccSetProperty{margin-right}{\z@}% horizontal space to the right of each list item
+    \ccSetProperty{item-sep}{\z@}%
+    \ccSetProperty{after-indent}{false}%
+    \ccSetProperty{at-begin-item-body}{\ccaVstructStart{LBody}}%
+    \ccSetProperty{at-end-item-body}{\ccaVstructEnd{LBody}}%
+    \ccSetProperty{after-item}{%
+      \ccUseProperty{at-end-item-body}%
+      \ccaVstructEnd{LI}% Close list item tags
+      \par}%
+    \ccSetProperty{before-item}{%
+      \ifcclFirst
+        \global\cclFirstfalse
+      \else
+        \ccUseProperty{after-item}%
+        \vskip\ccUseProperty{item-sep}%
+      \fi
+      \parindent\ccUseProperty{par-indent}\relax%
+      \parskip\ccUseProperty{par-skip}\relax%
+      \parfillskip\ccUseProperty{par-fill-skip}\relax%
+      \noindent
+      \leavevmode
+      \ccaVstructStart{LI}% Start tag for a list item
+    }%
+    \ccSetProperty{item-offset}{%
+      \cclItemIndent\ccUseProperty{indent}%
+      \advance\cclItemIndent\dimexpr-\ccUseProperty{label-sep}\relax
+      \hskip\cclItemIndent\relax%
+      \ifdim\ccUseProperty{indent}>\z@
+        \cclItemIndent\ccUseProperty{indent}%
+      \else
+        \cclItemIndent-\ccUseProperty{indent}%
+      \fi
+    }%
+    \ccSetProperty{par-indent}{\parindent}%
+    \ccSetProperty{par-fill-skip}{\@flushglue}%
+    \ccSetProperty{par-skip}{\z@}%
+    \ccSetProperty{label}{\ccUseComp{Label}}%
+    \ccSetProperty{indent}{-\dimexpr\csname leftmargin\@roman\cclCurDepth\endcsname-\ccUseProperty{label-sep}\relax}%
+    \ccSetProperty{label-sep}{.5em}%
+    \ccSetProperty{label-face}{}%
+    \ccSetProperty{label-align}{left}%
+    \ccSetProperty{label-format}{%
+      \ccUseProperty{label-face}%
+      \ccaVstructStart{Lbl}%
+      \ccUseProperty{label}%
+      \ccaVstructEnd{Lbl}%
+    }%
+    \ccSetProperty{label-box}{%
+      \hbox to \cclItemIndent{%
+        \ccIfPropVal{label-align}{left}{}{\hss}%
+        \ccUseProperty{label-format}%
+        \ccIfPropVal{label-align}{right}{}{\hss}}%
+    }%
+    \ccSetProperty{item-format}{%
+      \ccUseProperty{before-item}%
+      \ccUseProperty{item-offset}%
+      \ccUseProperty{label-box}%
+      \hskip\ccUseProperty{label-sep}%
+    }%
+  }%
+  \ccDeclareType{Components}{%
+    \ccDeclareComponent{Label}%
+  }%
+  \ccDeclareEnv{cc@list}{endcc@list}%
+}
+\long\def\ccDeclareListType#1#2#3{%
+  \def\DeclareAttributeHandler##1{\csdef{ccl@eval@attrs@#1}{##1}}%
+  \def\DeclareLabelHandler##1{\csdef{ccl@make@label@#1}{##1}}%
+  \ccDeclareContainer{#1List}{%
+    \ccInherit{Components,Properties}{List}%
+    \ccDeclareType{Properties}{%
+      \ccSetProperty{list-type}{#1}%
+      #3%
+    }%
+    \ccDeclareEnv[#1-list]{\cc@list}{\endcc@list}%
+  }%
+  #2%
+}
+\def\ccDeclareList#1#2#3{%
+  \csxdef{cc@cur@depth@#1}{\z@}%
+  \ccDeclareContainer{#1}{%
+    \ccInherit{Properties,Components}{#2List}%
+    \ccDeclareType{Properties}{#3}%
+    \ccDeclareEnv[#1]{\cc@list}{\endcc@list}%
+  }%
+  \ccDeclareNested{#1}{\z@}{#3}%
+}
+\def\ccDeclareNested#1#2#3{%
+  \@tempcnta=#2\relax
+  \ifx\@tempcnta<\@ne\relax
+    \ccPackageError{lists}{Nesting}{Invalid nesting level!}{You cannot declare nesting levels less than 1!}%
+  \fi
+  \advance\@tempcnta\@ne\relax
+  \ccDeclareContainer{#1-\the\@tempcnta}{%
+    \ifcsdef{cc@container@#1}
+      {\ccInherit{Properties,Components}{#1}}
+      {\ccPackageError{lists}{Inheritance}
+        {List `#1' undefined!}
+        {You need to define the list `#1' before you can declare nested list overrides!}}%
+      \ccDeclareType{Properties}{#3}%
+    }%
+}
+\newcount\ccl@depth
+\newcount\ccl@item@cnt
+\newif\ifcclFirst \cclFirsttrue
+\def\ccl@advance@depth#1{\csname ccl@advance@depth@\ccl@nesting\endcsname{#1}}
+\def\ccl@advance@depth@global#1{%
+  \edef\cclPrevDepth{\the\ccl@depth}%
+  \global\advance\ccl@depth#1\relax
+  \edef\cclCurDepth{\the\ccl@depth}%
+}
+\def\ccl@advance@depth@local#1{%
+  \letcs\cclPrevDepth{cc@cur@depth@\cc@cur@cont}%
+  \expandafter\@tempcnta\csname cc@cur@depth@\cc@cur@cont\endcsname\relax
+  \advance\@tempcnta#1\relax
+  \csxdef{cc@cur@depth@\cc@cur@cont}{\the\@tempcnta}%
+  \edef\cclCurDepth{\csname cc@cur@depth@\cc@cur@cont\endcsname}%
+  \global\advance\ccl@depth#1\relax
+}
+\newskip\cclItemIndent
+\newcount\cclTopID       \cclTopID\z@\relax
+\newcount\cclID \cclID\z@\relax
+\newcount\ccl@total@list@cnt \ccl@total@list@cnt\z@\relax
+\def\ccl@incr@count{%
+  \csxdef{ccl@prev@cnt@\the\ccl@depth}{\the\cclID}%
+  \global\advance\ccl@total@list@cnt\@ne\relax
+  \global\cclID\ccl@total@list@cnt\relax
+  \ifnum\cclCurDepth=\@ne\relax
+    \global\advance\cclTopID\@ne\relax
+  \fi
+}
+\def\ccl@decr@count{%
+  \global\cclID\csname ccl@prev@cnt@\the\ccl@depth\endcsname\relax
+}
+\def\cc@list{\cc@opt@empty\@cc@list}
+\def\@cc@list[#1]{%
+  \ccl@advance@depth\@ne%
+  \ccl@incr@count%
+  \edef\ccl@cur@cont{\cc@cur@cont-\cclCurDepth}%
+  \global\cclFirsttrue
+  \ifcsdef{cc@container@\ccl@cur@cont}{}
+    {\ifx\ccl@inherit\ccl@ih@common
+       \let\ccl@cur@cont\cc@cur@cont%
+     \else
+       \global\csletcs
+         {cc@type@Properties@\cc@cur@cont-\cclCurDepth}
+         {cc@type@Properties@\cc@cur@cont-\cclPrevDepth}%
+     \fi}%
+  \edef\ccl@leftskip{\the\dimexpr\leftskip\relax}%
+  \edef\ccl@rightskip{\the\dimexpr\leftskip\relax}%
+  \ccSetPropertyX{prev-margin-left}{\ccl@leftskip}%
+  \ccSetPropertyX{prev-margin-right}{\ccl@rightskip}%
+  \ccEvalType[\ccl@cur@cont]{Properties}%
+  \edef\ccl@list@type{\ccUseProperty{list-type}}%
+  \cclUseAttributeHandler{#1}%
+  \cclCalculateMarginLeft%
+  \cclCalculateVMargin{top}%
+  \cclCalculateVMargin{bottom}%
+  \csdef{\ccPrefix Item}{\cc@opt@empty\ccl@item}%
+  \def\ccl@item[##1]{%
+    \edef\ccl@item@label{##1}%
+    \ifx\ccl@item@label\@empty
+      \cclUseLabelHandler%
+    \else
+      \ccComponent{Label}{##1}%
+    \fi
+    \sbox\z@{\@cc@is@finalfalse\ccUseProperty{label-format}}%
+    \@tempdima=\dimexpr\ccUseProperty{max-label-width}\relax
+    \ifdim\wd\z@<\@tempdima\relax
+      \@tempdima=\the\wd\z@\relax%
+    \fi
+    \bgroup
+      \def\cc@cur@cont{list}%
+      \cc@store@latest{\the\cclTopID-number-\cclCurDepth-maxwd}{\the\@tempdima}%
+      \cc@store@latest{\the\cclTopID-number-maxwd}{\the\@tempdima}%
+    \egroup
+    \ccSetPropertyX{label-width}{\the\@tempdima}%
+    \ccUseProperty{item-format}%
+    \ccUseProperty{at-begin-item-body}\ignorespaces%
+  }%
+  \if@ccl@replace\letcs\item{\ccPrefix Item}\fi%
+  \ccUseProperty{before-list}%
+  \ccUseProperty{int-margin-top}%
+  \leftskip\dimexpr\ccUseProperty{margin-left}+\ccUseProperty{label-sep}\relax%
+  \rightskip\dimexpr\ccUseProperty{margin-right}\relax%
+}
+\def\endcc@list{%
+  \ccUseProperty{after-list}%
+  \ccl@decr@count%
+  \ccl@advance@depth\m@ne%
+  \ccUseProperty{int-margin-bottom}%
+  \ifnum\cclCurDepth=\z@\relax
+    \ccIfPropVal{after-indent}{false}{%
+      \global\@afterindentfalse
+      \aftergroup\cc@afterbox}{}%
+  \fi
+}
+\def\cclCalculateVMargin#1{%
+  \ifdim\ccUseProperty{margin-#1}=\z@\relax
+    \ccSetProperty{int-margin-#1}{\relax}%
+  \else
+    \ccSetProperty{int-margin-#1}{\addvspace{\ccUseProperty{margin-#1}}}%
+  \fi
+}
+\def\cclCalculateMarginLeft{%
+  \ifcsdef{cc-list-\the\cclTopID-number-maxwd}
+    {\ccSetPropertyVal{number-width-max}{\csname cc-list-\the\cclTopID-number-maxwd\endcsname}}
+    {\ccSetPropertyVal{number-width-max}{1sp}}%
+  \ifcsdef{cc-list-\the\cclTopID-number-\cclCurDepth-maxwd}
+    {\ccSetPropertyVal{number-width-level-max}{\csname cc-list-\the\cclTopID-number-\cclCurDepth-maxwd\endcsname}}
+    {\ccSetPropertyVal{number-width-level-max}{1sp}}%
+  \cc@get@indent[\ccl@calc@margin@left]{}{\the\cclTopID}%
+}
+\def\ccl@calc@margin@left#1#2{%
+  \@tempdima=\ccUseProperty{prev-margin-left}\relax%
+  \ccSetPropertyX{margin-left}{\the\dimexpr\@tempdima-\ccUseProperty{indent}\relax}%
+}
+\def\cclUseLabelHandler{%
+  \expandafter\ifx\csname ccl@make@label@\ccl@list@type\endcsname\relax
+    \ccPackageError{lists}{type}
+      {List type `\ccl@list@type' does not provide a Label Handler.}
+      {Make sure that the body of \ccl@list@type's declaration contains a \string\DeclareLabelHandler.}
+  \else
+    \csname ccl@make@label@\ccl@list@type\endcsname
+  \fi
+}
+\def\cclUseAttributeHandler#1{%
+  \ccParseAttributes{\cc@cur@cont-\cclCurDepth}{#1}%
+  \expandafter\ifx\csname ccl@eval@attrs@\ccl@list@type\endcsname\relax
+    \ccPackageError{Lists}{Type}
+      {List type `\ccl@list@type' does not provide an Attribute Handler.}
+      {Make sure that the body of \ccl@list@type's declaration contains a \string\DeclareAttributeHandler.}
+  \else
+    \csname ccl@eval@attrs@\ccUseProperty{list-type}\endcsname
+  \fi
+}
+\ccDeclareListType{unnumbered}{%
+  \DeclareLabelHandler{%
+    \ccComponent{Label}{\ccUseProperty{default-label}}}
+  \DeclareAttributeHandler{}}
+  {\ccSetProperty{default-label}{-}}
+\ccDeclareList{Itemize}{unnumbered}{\ccSetProperty{default-label}{\textbullet}}
+\ccDeclareNested{Itemize}{1}{%
+  \ccSetProperty{label-face}{\normalfont\bfseries}%
+  \ccSetProperty{default-label}{ \textendash}}
+\ccDeclareNested{Itemize}{2}{\ccSetProperty{default-label}{\textasteriskcentered}}
+\ccDeclareNested{Itemize}{3}{\ccSetProperty{default-label}{\textperiodcentered}}
+\newcount\ccl@item@adv
+\ccDeclareListType{numbered}{%
+  \DeclareAttributeHandler{%
+    \ccIfAttr{\cc@cur@cont-\cclCurDepth}{step}
+      {\ccl@item@adv=\expandafter\numexpr\csname cc@\cc@cur@cont-\cclCurDepth @attr@step\endcsname\relax}%
+      {\ccl@item@adv=\@ne}%
+    \ccIfAttr{\cc@cur@cont-\cclCurDepth}{start}
+      {\ccl@item@cnt=\expandafter\numexpr\csname cc@\cc@cur@cont-\cclCurDepth @attr@start\endcsname\relax
+       \advance\ccl@item@cnt-\ccl@item@adv}%
+      {\ccl@item@cnt=\z@\relax}%
+    }
+  \DeclareLabelHandler{%
+    \advance\ccl@item@cnt \ccl@item@adv\relax
+    \expandafter\ifx\csname ccl@label@type@\ccUseProperty{enum-type}\endcsname\relax
+      \ccPackageWarning{lists}{type}{Enum type \ccUseProperty{enum-type} is unknown, revert to numeric counters!}
+      \let\ccl@label\ccl@label@type@arabic%
+    \else
+      \letcs\ccl@label{ccl@label@type@\ccUseProperty{enum-type}}%
+    \fi
+    \ccComponent{Label}{\ccl@label{\ccl@item@cnt}}
+  }%
+}{%
+  \ccSetProperty{enum-type}{arabic}%
+  \ccSetProperty{label}{\ccUseComp{Label}.}}
+\def\ccl@label@type@arabic{\@arabic}
+\def\ccl@label@type@roman{\@roman}
+\def\ccl@label@type@Roman{\@Roman}
+\def\ccl@label@type@alph{\@alph}
+\def\ccl@label@type@Alph{\@Alph}
+\ccDeclareList{Enumerate}{numbered}{}
+\ccDeclareNested{Enumerate}{1}{% (
+  \ccSetProperty{label}{\ccUseComp{Label})}%
+  \ccSetProperty{enum-type}{alph}%
+}
+\ccDeclareNested{Enumerate}{2}{\ccSetProperty{enum-type}{roman}}
+\ccDeclareNested{Enumerate}{3}{\ccSetProperty{enum-type}{Alph}}
+\ccDeclareListType{text}{%
+  \DeclareAttributeHandler{%
+    \ccIfAttr{\cc@cur@cont-\cclCurDepth}{width}
+      {\ccSetPropertyVal{min-margin-left}{\expandafter\dimexpr\csname cc@\cc@cur@cont-\cclCurDepth @attr@width\endcsname\relax}}%
+      {\ccSetProperty{min-margin-left}{2em}}%
+  \ccIfPropVal{label-growth}{down}
+    {\long\def\ccl@vbox##1{\smash{\vtop{##1}}}}
+    {\long\def\ccl@vbox##1{\vbox{##1}}}%
+  }
+  \DeclareLabelHandler{%
+    \ccComponent{Label}{}%
+  }}
+ {\ccSetProperty{label-growth}{up}%
+  \ccSetProperty{indent}{auto}%
+  \ccSetProperty{margin-left}{auto}%
+  \ccSetProperty{label-box}{%
+    \ifdim\ccUseProperty{label-width}<\ccUseProperty{max-label-width}\relax
+      \hbox to \cclItemIndent{%
+        \ccIfPropVal{label-align}{left}{}{\hss}%
+        \ccUseProperty{label-format}%
+        \ccIfPropVal{label-align}{right}{}{\hss}}%
+    \else
+      \ccl@vbox{\relax%
+        \hsize\dimexpr\cclItemIndent%
+        \leftskip\z@
+        \rightskip\z@
+        \parindent\z@
+        \leavevmode
+        \ccUseProperty{label-format}%
+        \@@par
+      }%
+    \fi
+  }}
+\ccDeclareList{Description}{text}{%
+  \ccSetProperty{label-face}{\bfseries}
+}
+\if@ccl@replace
+  \letcs\itemize{\ccPrefix Itemize}
+  \letcs\enditemize{end\ccPrefix Itemize}
+  \letcs\enumerate{\ccPrefix Enumerate}
+  \letcs\endenumerate{end\ccPrefix Enumerate}
+  \letcs\description{\ccPrefix Description}
+  \letcs\enddescription{end\ccPrefix Description}
+\fi
+\endinput
+%%
+%% End of file `coco-lists.sty'.

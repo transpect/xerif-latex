@@ -1,0 +1,314 @@
+%%
+%% This is file `coco-meta.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `meta')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-meta.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% module for CoCoTeX that provides handling of a document's meta data.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive > 2019
+%%
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-meta}
+    [2024/07/16 0.5.0 CoCoTeX meta module]
+\RequirePackage{coco-common}
+\ccDeclareContainer{CommonMeta}{%
+  \ccDeclareType{Components}{%
+    \ccDeclareRole[author]{Author}%
+    \ccm@declare@comp
+    \ccm@extended@common@macros
+    \ccm@declare@affils
+  }%
+  \ccDeclareType{Properties}{}%
+}
+\def\ccm@generic@comp{%
+  \ccDeclareComponent{GenericMetaBlock}{\expandafter\global}{}%
+  \ccDeclareComponentGroup{GenericMeta}{%
+    \ccDeclareCountedComponent{Heading}%
+    \ccDeclareCountedComponent{Content}%
+  }}
+\def\ccm@generic@eval{{%
+  \def\cc@cur@cont{titlepage}%
+  \ccComposeCollection{GenericMeta}{generic-meta-format}{GenericMetaBlock}
+}}
+\def\ccDeclareRoleBlock{\@ifnextchar[\cc@declare@role@block{\cc@declare@role@block[compose]}}%]
+\def\cc@declare@role@block[#1]#2#3#4{%
+  \ifcsdef{ccm@role@#1}
+    {\ccDeclareComponent{#2#3}{\expandafter\global}{}%
+     \csgdef{ccm@role@\cc@cur@cont @#2@#3}{#4}%
+     \csappto{@ccm@role@eval@\cc@cur@cont @#2}
+        {\csname ccm@role@#1\endcsname{#2}{#3}}}
+    {\ccPackageError{Meta}{Argument}
+      {Invalid optional argument in \string\ccDeclareRoleBlock!}
+      {Only `apply' or `compose' are allowed as values^^Jin the optional argument of \string\ccDeclareRoleBlock!}}}%
+\def\ccm@role@eval#1{\csname @ccm@role@eval@\cc@cur@cont @#1\endcsname}
+\def\ccm@eval@role#1#2#3{%
+  \ccIfComp{#2#3}{\cslet{cc@used@#2#3@override}\@empty}{%
+    \ifcsdef{cc#2Cnt}
+      {\expandafter\ifnum\csname cc#2Cnt\endcsname>\z@
+          #1{#2}{\csname ccm@role@\cc@cur@cont @#2@#3\endcsname}{#2#3}%
+        \fi
+      }{}}}
+\def\ccm@role@apply#1#2{\ccm@eval@role\ccApplyCollection{#1}{#2}}
+\def\ccm@role@compose#1#2{\ccm@eval@role\ccComposeCollection{#1}{#2}}
+\def\ccDeclareRole{\cc@opt@second\cc@declare@role}%
+\def\cc@declare@role[#1]#2{%
+  \ccDeclareComponentGroup[%
+    {\ccDeclareAttributeHandler*{corresp}{\ccSetProperty{is-corresp}{true}}}%
+  ]{#2}{%
+    \ccDeclareCountedComponent{FullName}%
+    \ccDeclareCountedComponent{CiteName}%
+    \ccDeclareCountedComponent{ShortCiteName}%
+    \ccDeclareCountedComponent{PDFInfoName}%
+    \ccDeclareCountedComponent{Initial}%
+    \ccDeclareCountedComponent{LastName}%
+    \ccDeclareCountedComponent{FirstName}%
+    \ccDeclareCountedComponent{MidName}%
+    \ccDeclareCountedComponent{Honorific}%
+    \ccDeclareCountedComponent{Lineage}%
+    \ccDeclareCountedComponent{ORCID}%
+    \ccDeclareCountedComponent{AffilRef}% for references to the Affil Group
+    \ccDeclareCountedComponent{Affiliation}% for affiliations  as direct Author meta data
+    \ccDeclareCountedComponent{Email}%
+    \ccDeclareCountedComponent{CorrespondenceAs}%
+  }%
+  \ccDeclareGroupHandler{#2}{%
+    \ccUnlessComp{FullName}{\ccComponent{FullName}{\ccUseProperty{#1-full-name-format}}}%
+    \ccUnlessComp{Initial}{\ccComponent{Initial}{\ccUseProperty{initials-format}}}%
+    \ccUnlessComp{CiteName}{\ccComponent{CiteName}{\ccUseProperty{#1-cite-name-format}}}%
+    \ccUnlessComp{ShortCiteName}{\ccComponent{ShortCiteName}{\ccUseProperty{#1-short-cite-name-format}}}%
+    \ccUnlessComp{PDFInfoName}{\ccComponent{PDFInfoName}{\ccUseProperty{#1-pdfinfo-name-format}}}%
+    \ccUnlessComp{CorrespondenceAs}{\ccComponent{CorrespondenceAs}{\ccUseProperty{#1-correspondence-as-format}}}%
+    \ccWhenComp{AffilRef}{\ccWhenComp{Affiliation}{%
+        \ccPackageError{Meta}{Ambiguity}
+          {You cannot use both Containers AffilRef and Affiliation in the same `\ccPrefix#2' Sub-Container}
+          {At least one `\ccPrefix#2' Sub-Container contains both AffilRef and Affiliation. This is not allowed. Please decide for one affiliation strategy: Either two lists with cross-references, or affiliations directly as an author's meta-data.}}}%
+  }%
+  \ccDeclareRoleBlock{#2}{NameList}{#1-list-print-format}%
+  \ccDeclareRoleBlock{#2}{CitationList}{#1-list-cite-format}%
+  \ccDeclareRoleBlock{#2}{ShortCitationList}{#1-list-short-cite-format}%
+  \ccDeclareRoleBlock[apply]{#2}{PDFInfo}{#1-list-pdfinfo-format}%
+  \ccDeclareRoleBlock{#2}{Correspondence}{#1-list-correspondence-format}%
+}
+\def\ccAddToRole#1#2{\csgappto{@#1@hook}{#2}}
+\def\ccDeclareLabeledComp{\cc@opt@empty\cc@declare@labeled@comp}
+\def\cc@declare@labeled@comp[#1]#2#3{%
+  \ccDeclareComponent{#2}{\expandafter\global}{}%
+  \ccDeclareComponent{#2Label}{\expandafter\global}{}%
+  \csxdef{labeled-meta-property-infix-\cc@cur@cont-#2}{#3}%
+  \if!#1!\else
+    \long\csgdef{cc@\cc@cur@cont @#2Label}{#1}%
+  \fi\ignorespaces}
+\def\ccUseLabeledComp{\@ifstar{\global\let\ccm@no@tag\relax\cc@use@labeled@comp}{\cc@use@labeled@comp}}
+\def\cc@use@labeled@comp#1{%
+  \ccWhenComp{#1}{%
+    \letcs\ccCurInfix{labeled-meta-property-infix-\cc@cur@cont-#1}%
+    \def\ccCurComp{#1}%
+    \ifx\ccm@no@tag\relax\else\ccaStructStart{MetaDatum}\fi
+    \ccIfProp{labeled-meta-\ccCurInfix-format}
+      {\ccUseProperty{labeled-meta-\ccCurInfix-format}}
+      {\ccUseProperty{labeled-meta-format}}%
+    \ifx\ccm@no@tag\relax\else\ccaStructEnd{MetaDatum}\fi
+  }\global\let\ccm@no@tag\@undefined}
+\ccaAddRolemap{Authors}{P}
+\ccaAddRolemap{Affiliations}{P}
+\ccaAddRolemap{MetaDatum}{Div}
+\ccaAddRolemap{MetaDatumLabel}{P}
+\ccaAddRolemap{MetaDatumValue}{P}
+\ccaAddRolemap{Abstract}{Div}
+\ccaAddRolemap{AbstractLabel}{P}
+\ccaAddRolemap{AbstractText}{Div}
+\ccaAddRolemap{Keywords}{Div}
+\ccaAddRolemap{KeywordsLabel}{P}
+\ccaAddRolemap{KeywordsText}{Div}
+\def\ccm@declare@comp{%
+    \ccDeclareComponent{Copyright}{\expandafter\global}{}% Copyright text
+    \ccDeclareComponent{LicenceLogo}%
+    \ccDeclareComponent{LicenceName}%
+}%
+  %% for single articles
+\ccDeclareContainer{article-meta}{%
+  \ccDeclareType{Components}{%
+    \ccDeclareGlobalComponent{StartPage}
+    \ccDeclareGlobalComponent{EndPage}
+    \ccDeclareLabeledComp[Cite as]{CiteAs}{cite-as}
+    \ccDeclareLabeledComp[Submitted]{Submitted}{sumbitted}
+    \ccDeclareLabeledComp[Received]{Received}{received}
+    \ccDeclareLabeledComp[Revised]{Revised}{revised}
+    \ccDeclareLabeledComp[Reviewed]{Reviewed}{reviewed}
+    \ccDeclareLabeledComp[Accepted]{Accepted}{accepted}
+    \ccDeclareLabeledComp[Published]{Published}{published}
+    \ccDeclareLabeledComp[Conflict of Interest]{COIStatement}{coi-statement}
+  }}
+\def\ccm@extended@common@macros{%
+  \ccDeclareLabeledComp[Abstract]{Abstract}{abstract}%
+  \ccDeclareLabeledComp[Keywords]{Keywords}{keyword}%
+  \ccDeclareLabeledComp{DOI}{doi}%
+  \ccDeclareLabeledComp{TitleEn}{title-en}%
+  \ccm@generic@comp
+}
+\def\ccm@declare@affils{%
+  \ccDeclareComponent{AffilBlock}{\expandafter\global}{}%
+  \ccDeclareComponentGroup{Affil}{%
+    \ccDeclareCountedComponent{Affiliation}%
+    \ccDeclareCountedComponent{Address}%
+    \ccDeclareCountedComponent{Institute}%
+    \ccDeclareCountedComponent{Country}%
+    \ccDeclareCountedComponent{Department}%
+    \ccDeclareCountedComponent{AffilID}%
+  }%
+  \ccDeclareGroupHandler{Affil}{%
+    \ccUnlessComp{AffilID}{\ccComponentEA{AffilID}{\ccAffilCnt}}%
+    \ccUnlessComp{Affiliation}{\ccComponent{Affiliation}{\ccUseProperty{affiliation-format}}}%
+  }%
+}
+\ccAddToType{Properties}{CommonMeta}{%
+  \ccSetProperty{initials-format}{%
+    \expandafter\ifx\csname cc@\cc@cur@cont @\cc@cnt@grp-FirstName-\the\ccCurCount\endcsname\cc@long@empty\else
+      \expandafter\ifx\csname cc@\cc@cur@cont @\cc@cnt@grp-FirstName-\the\ccCurCount\endcsname\relax\else
+        \expandafter\expandafter\expandafter\@car\csname cc@\cc@cur@cont @\cc@cnt@grp-FirstName-\the\ccCurCount\endcsname\relax\@nil\ccUseProperty{initials-period}%
+      \expandafter\ifx\csname cc@\cc@cur@cont @\cc@cnt@grp-MidName-\the\ccCurCount\endcsname\cc@long@empty\else
+        \expandafter\ifx\csname cc@\cc@cur@cont @\cc@cnt@grp-MidName-\the\ccCurCount\endcsname\relax\else
+          \ccUseProperty{initials-sep}%
+          \expandafter\expandafter\expandafter\@car\csname cc@\cc@cur@cont @\cc@cnt@grp-MidName-\the\ccCurCount\endcsname\relax\@nil\ccUseProperty{initials-period}%
+        \fi\fi
+    \fi\fi
+  }
+  \ccSetProperty{initials-sep}{~}
+  \ccSetProperty{initials-period}{.}
+  \ccSetProperty{role-full-name-format}{%
+    \if\ccUseComp{Honorific}\relax
+    \else
+      \ccUseComp{Honorific}\space
+    \fi
+    \ccUseComp{FirstName}\space
+    \if\ccUseComp{MidName}\relax
+    \else
+      \ccUseComp{MidName}\space
+    \fi
+    \ccUseComp{LastName}%
+    \if\ccUseComp{Lineage}\relax
+    \else
+      \space\ccUseComp{Lineage}%
+    \fi%
+  }%
+  \ccSetProperty{role-cite-name-format}{\ccIfComp{LastName}{\ccUseComp{LastName},~\ccUseComp{Initial}}{\ccUseComp{FullName}}}% How CiteName for each name is built
+  \ccSetProperty{role-short-cite-name-format}{\ccUseComp{LastName}}%
+  \ccPropertyLet{role-pdfinfo-name-format}{role-cite-name-format}%
+  \ccSetProperty{role-correspondence-as-format}{\ccUseComp{Email}}%
+  \ccSetProperty{role-block-print-format}{\ccUseComp{FullName}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi}%
+  \ccSetProperty{role-block-cite-format}{\ccUseComp{CiteName}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi}%
+  \ccSetProperty{role-block-short-cite-format}{\ccUseComp{ShortCiteName}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi}%
+  \ccSetProperty{role-block-pdfinfo-format}{\ccUseComp{PDFInfoName}\ifnum\ccCurCount<\ccTotalCount\and\fi}% How each item in the Component <Role>PDFInfo is formatted
+  \ccSetProperty{role-block-correspondence-format}{%
+    \ccIfPropVal{is-corresp}{true}
+      {\ifx\is@first@corresp\relax
+         \ccUseProperty{corresp-sep}%
+       \else
+         \global\let\is@first@corresp\relax
+       \fi
+       \ccUseComp{CorrespondenceAs}%
+     }{}}%
+  \ccSetProperty{counted-name-sep}{,\space}%
+  \ccSetProperty{name-and}{\space and\space}%
+  \ccSetProperty{name-etal}{\space et~al.}%
+  \ccSetProperty{name-sep}{,\space}%
+  \ccSetProperty{keywords-sep}{,\space}%
+  \ccSetProperty{corresp-mark}{*}%
+  \ccSetProperty{corresp-sep}{,\space}%
+  \ccPropertyLet{author-cite-name-format}            {role-cite-name-format}%
+  \ccPropertyLet{author-short-cite-name-format}      {role-short-cite-name-format}%
+  \ccPropertyLet{author-full-name-format}            {role-full-name-format}%
+  \ccPropertyLet{author-pdfinfo-name-format}         {role-pdfinfo-name-format}%
+  \ccPropertyLet{author-correspondence-as-format}    {role-correspondence-as-format}%
+  \ccPropertyLet{author-list-print-format}           {role-block-print-format}%
+  \ccPropertyLet{author-list-cite-format}            {role-block-cite-format}%
+  \ccPropertyLet{author-list-short-cite-format}      {role-block-short-cite-format}%
+  \ccPropertyLet{author-list-pdfinfo-format}         {role-block-pdfinfo-format}%
+  \ccPropertyLet{author-list-correspondence-format}  {role-block-correspondence-format}%
+  \ccSetProperty{affiliation-format}{%
+    \ccWhenComp{Institute}{\ccUseComp{Institute}}%
+    \ccWhenComp{Department}{, \ccUseComp{Department}}%
+    \ccWhenComp{Address}{, \ccUseComp{Address}}%
+  }%
+  \ccSetProperty{affil-sep}{\par}
+  \ccSetProperty{affil-block-item-face}{}%
+  \ccSetProperty{affil-block-item-format}{%
+    \textsuperscript{\ccUseComp{AffilID}}%
+    \bgroup
+      \ccUseProperty{affil-block-item-face}%
+      \ccUseComp{Affiliation}
+    \egroup%
+    \ifnum\ccCurCount<\ccTotalCount\relax\ccUseProperty{affil-sep}\fi%
+  }
+  \ccSetProperty{affil-block-face}{\small\normalfont}%
+  \ccSetProperty{affil-block-format}{%
+    \ccWhenComp{AffilBlock}
+      {\bgroup
+         \ccUseProperty{affil-block-face}%
+         \ccUseComp{AffilBlock}%
+       \egroup
+       \par
+     }}
+  \ccSetProperty{labeled-meta-format}{%
+    \ccIfProp{labeled-meta-before-\ccCurInfix}
+      {\ccUseProperty{labeled-meta-before-\ccCurInfix}}
+      {\ccUseProperty{labeled-meta-before}}%
+    \bgroup
+      \ifx\ccm@no@tag\relax\else\ccaStructStart{MetaDatumLabel}\fi
+      \ccIfProp{labeled-meta-\ccCurInfix-face}
+        {\ccUseProperty{labeled-meta-\ccCurInfix-face}}
+        {\ccUseProperty{labeled-meta-face}}%
+      \ccIfProp{labeled-meta-\ccCurInfix-label-format}
+        {\ccUseProperty{labeled-meta-\ccCurInfix-label-format}}
+        {\ccUseProperty{labeled-meta-label-format}}%
+      \ifx\ccm@no@tag\relax\else\ccaStructEnd{MetaDatumLabel}\fi
+      \ifx\ccm@no@tag\relax\else\ccaStructStart{MetaDatumValue}\fi
+      \ccUseComp{\ccCurComp}%
+      \ifx\ccm@no@tag\relax\else\ccaStructEnd{MetaDatumValue}\fi
+    \egroup
+    \ccIfProp{labeled-meta-after-\ccCurInfix}
+      {\ccUseProperty{labeled-meta-after-\ccCurInfix}}
+      {\ccUseProperty{labeled-meta-after}}%
+  }
+  \ccSetProperty{labeled-meta-label-format}{%
+    \ccWhenComp{\ccCurComp Label}{%
+      \bgroup
+        \ccUseProperty{labeled-meta-before-\ccCurInfix-label}%
+        \ccIfProp{labeled-meta-\ccCurInfix-label-face}
+          {\ccUseProperty{labeled-meta-\ccCurInfix-label-face}}
+          {\ccUseProperty{labeled-meta-label-face}}%
+        \ccUseComp{\ccCurComp Label}%
+        \ccIfProp{labeled-meta-\ccCurInfix-label-sep}
+          {\ccUseProperty{labeled-meta-\ccCurInfix-label-sep}}
+          {\ccUseProperty{labeled-meta-label-sep}}%
+      \egroup
+    }}
+  \ccSetProperty{labeled-meta-label-face}{\bfseries}
+  \ccSetProperty{labeled-meta-label-sep}{:\enskip}
+  \ccSetProperty{labeled-meta-face}{}
+  \ccSetProperty{labeled-meta-before}{}
+  \ccSetProperty{labeled-meta-after}{\par}
+}
+\endinput
+%%
+%% End of file `coco-meta.sty'.

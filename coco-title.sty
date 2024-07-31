@@ -1,0 +1,684 @@
+%%
+%% This is file `coco-title.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `title')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-title.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% module for CoCoTeX for maketitle.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive > 2019
+%%
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-title}
+    [2024/07/16 0.5.0 CoCoTeX title module]
+\RequirePackage{coco-meta}
+\ccDeclareContainer{titlepage}{%
+  \ccInherit {Components,Properties}{CommonMeta}%
+  \ifarticle\ccInherit{Components}{article-meta}\fi
+  \ccDeclareType{Components}{%
+    \cct@simple@comps
+    \cct@fundings@comp
+    \cct@role@handlers{author}{Author}%
+    \cct@declare@role{editor}{Editor}%
+    \cct@declare@role{series-editor}{SeriesEditor}%
+  }%
+  \ccDeclareType{Properties}{}%
+  \ccDeclareEnv[Meta]{\cctmeta}{\endcctmeta}%
+}
+\def\cct@declare@role#1#2{%
+  \ccDeclareRole[#1]{#2}%
+  \cct@role@handlers{#1}{#2}%
+}
+\def\cct@role@handlers#1#2{%
+  \ccAddToRole{#2}{%
+    \ccDeclareCountedComponent{Bio}%
+    \ccDeclareCountedComponent{Biography}}%
+  \ccDeclareGroupHandler{#2}{%
+    \ccIfComp{Biography}{}{\ccIfComp{Bio}{\ccComponent{Biography}{\ccUseProperty{#1-biography-format}}}{}}%
+  }%
+  \ccDeclareRoleBlock[apply]{#2}{BioBlock}{#1-bio-block-format}%
+}
+\def\ccDeclareTitlepage{\ccAddToType{Properties}{titlepage}}
+\def\cctmeta{\cc@opt@empty\cct@meta}
+\def\cct@meta[#1]{%
+  \ccParseAttributes{Meta}{#1}%
+  \ccUseHook[Meta]{attr-handler}%
+  \ccEvalType{Components}%
+  \let\and\relax
+}
+\def\ccAddTitleRole#1#2{%
+  \ccAddToType{Components}{titlepage}{\cct@declare@role{#1}{#2}}%
+  \ccAddTitleEval{\cct@eds@eval{#2}}%
+}
+\def\ccAddTitleEval{\csgappto{cct@add@eval}}
+\def\cct@add@eval{}
+\def\endcctmeta{%
+  \ccSetContainer{titlepage}%
+  \ccEvalType{Properties}%
+  \cct@maketitle
+  \ccm@role@eval{Author}%
+  \ccApplyCollection{Affil}{affil-block-item-format}{AffilBlock}%
+  \cct@eds@eval{Editor}%
+  \cct@eds@eval{SeriesEditor}%
+  \ccm@generic@eval
+  \cct@fundings@eval
+  \cct@add@eval
+  \cc@if@preamble\cct@set@pdfmeta\relax
+  \ccUseHook{document-meta-hook}%
+  \let\cc@cur@cont\@empty
+}
+\def\cct@set@pdfmeta{%
+  \def\cct@write@pdf@meta@string##1##2##3{%
+    \let\cct@cur@data\@empty
+    \ccIfAlly
+      {\pdfstringdef\cct@cur@data{\directlua{tex.print(cocotex.ally.meta.##2)}}%
+       \ifx\cct@cur@data\@empty
+         \pdfstringdef\cct@cur@data{##3}%
+       \fi
+       \ifx\cct@cur@data\@empty
+         \ccDebugMsg[pdfmeta]{##2 is empty (3: ##3); doing nothing}%
+       \else
+         \ccDebugMsg[pdfmeta]{Writing \string\setDocinfo[utf-16]{##2}{\expandafter\strip@prefix\meaning\cct@cur@data}}%
+         \edef\x{\noexpand\ccaSetDocinfo[utf-16]{##2}}\expandafter\x\expandafter{\cct@cur@data}%
+       \fi}
+     {\cct@write@hr@infodict{##1}{##3}}}%
+  \def\cct@write@pdf@meta@list##1##2##3##4##5{%
+    \let\cct@cur@data\@empty
+    \ccIfAlly
+      {\protected@edef\cct@cur@data{\directlua{tex.print(cocotex.ally.meta.##2)}}%
+       \ifx\cct@cur@data\@empty
+         \protected@edef\cct@cur@data{##3}%
+         \ifx\cct@cur@data\@empty\else
+           \edef\x{\noexpand\cct@split@pdf@meta{\noexpand##4}{##5}}\x%
+         \fi
+       \else
+         \cct@split@pdf@meta{##4}{\and}%
+       \fi}
+     {\cct@write@hr@infodict{##1}{##3}}}%
+  \def\cct@split@pdf@meta##1##2{%
+    \def\@cct@split@pdf@meta####1##2####2\@nil####3{%
+      \if\relax\detokenize{####1}\relax\else
+        ####3{####1}%
+        \if!####2!\else
+          \edef\@argi{##2}%
+          \edef\@argii{####2}%
+          \ifx\@argi\@argii\else
+            \@cct@split@pdf@meta####2\@nil{####3}%
+          \fi
+        \fi
+      \fi
+    }%
+    \expandafter\@cct@split@pdf@meta\cct@cur@data##2\@nil{##1}%
+  }%
+  \def\cct@write@hr@infodict##1##2{%
+    \protected@edef\x{\noexpand\hypersetup{##1={\expandonce{##2}}}}\x
+  }%
+  \cct@title@insert@xmp
+  \cct@title@process@bkc
+  \cct@title@process@bkt
+  \cct@title@process@bkk
+  \cct@title@process@bka
+}
+\def\cct@title@process@bkt{%
+  \cslet{\ccPrefix Break}\space
+  \protected@xdef\@title{\ccUseProperty{doc-book-title}}%
+  \cct@write@pdf@meta@string{pdftitle}{Title}{\@title}%
+  \ccpgdefFromProperty{RunBookTitle}{run-book-title}%
+}
+\def\cct@title@process@bka{%
+  \@tempswatrue
+  \begingroup
+    \ccGobble
+    \renewcommand\foreignlanguage[2]{{##2}}%
+    \ccIfComp{AuthorPDFInfo}
+      {\ccpgdefFromComp{RunBookName}{AuthorPDFInfo}}
+      {\ccIfComp{EditorPDFInfo}
+         {\ccpgdefFromComp{RunBookName}{EditorPDFInfo}}
+         {\ccIfComp{AuthorNameList}
+           {\ccpgdefFromComp{RunBookName}{AuthorNameList}}
+           {\ccIfComp{EditorNameList}
+             {\ccpgdefFromComp{RunBookName}{EditorNameList}}
+             {\ifnum\ccAuthorCnt>\z@
+                \@setpar{\@@par}%
+                \ccpxdefFromCountedComp{RunBookName}{Author}{author-list-pdfinfo-format}%
+              \else
+                \ifnum\ccEditorCnt>\z@
+                  \ccpxdefFromCountedComp{RunBookName}{Editor}{editor-list-pdfinfo-format}%
+                \else
+                  \ccPackageWarning{transcript-title}{Meta Data}{No author or editor given!}%
+                  \@tempswafalse
+                \fi
+              \fi
+            }}}}%
+    \if@tempswa
+      \pdfstringdef\@author{\csname\ccPrefix RunBookName\endcsname}%
+      \cct@write@pdf@meta@list{pdfauthor}{Author}{\csname\ccPrefix RunBookName\endcsname}{\ccaAddAuthor}{\and}%
+    \fi
+  \endgroup
+}
+\def\cct@title@process@bkc{%
+  \cct@write@pdf@meta@string{pdfcreator}{Creator}{\ccWhenComp{PDFCreator}{\ccUseComp{PDFCreator}}}%
+  \cct@write@pdf@meta@string{pdfproducer}{Producer}{\ccWhenComp{PDFProducer}{\ccUseComp{PDFProducer}}}%
+}
+\def\cct@title@process@bkk{%
+  \cct@write@pdf@meta@list{pdfkeywords}{Keywords}{\ccWhenComp{Keywords}{\ccUseComp{Keywords}}}{\ccaAddKeyword}{\ccUseProperty{keywords-sep}}%
+}
+\def\cct@title@insert@xmp{\ccIfAlly{\cct@title@insert@xmp@ltpdfa}{\cct@title@insert@xmp@direct}}
+\def\cct@title@insert@xmp@direct{%
+  \edef\include@xmp{\noexpand\@include@xmp{\ccUseComp{XmpFile}.xmp}}%
+  \def\@include@xmp##1{\IfFileExists{##1}{\@@include@xmp{##1}}{}}%
+  \def\@@include@xmp##1{%
+    \begingroup
+      \immediate\pdfobj stream attr {/Type /Metadata /Subtype /XML}
+      file{##1}
+      \pdfcatalog{/Metadata \the\pdflastobj\space 0 R}
+    \endgroup}%
+  \include@xmp
+}
+\def\cct@title@insert@xmp@ltpdfa{%
+  \edef\cca@xmp@file@name{\ccUseComponentFrom{titlepage}{XmpFile}.xmp}%
+  \IfFileExists{\cca@xmp@file@name}
+    {\ccaAddToConfig{metadata}{xmpfile=\cca@xmp@file@name}%
+     \directlua{ally.meta:extract()}}
+    {\ccPackageWarning{A11y}{File}{%
+\cca@xmp@file@name\space not found.^^J
+Note that the ltpdfa package will create one^^J
+from the Components given in the Meta Container.}}}
+\ccDeclareHook[titlepage]{before-maketitle-hook}
+\ccDeclareHook[titlepage]{document-meta-hook}
+\ccDeclareHook[titlepage]{attr-handler}
+\def\cct@article@titlepage{%
+  \ccUseProperty{article-title}%
+}
+\def\cct@journal@titlepage{%
+  \ccUseProperty{before-titlepage}%
+  \ccUseProperty{coverpage}%Cover ist kein Bild, wird von uns gebaut
+  \ccUseProperty{before-titlepage-roman}%
+  \ccUseProperty{titlepage-roman}%
+  \ccUseProperty{after-titlepage}%
+}
+\def\cct@book@titlepage{%
+  \ccUseProperty{before-titlepage}%
+  \ccWhenComp{Cover}{\ccUseProperty{coverpage}}%
+  \ccUseProperty{before-titlepage-roman}%
+  \ccUseProperty{titlepage-roman}%
+  \ccUseProperty{after-titlepage}%
+}
+\def\cct@maketitle{%
+  \expandafter\gdef\csname\ccPrefix Maketitle\endcsname{%
+    \let\cc@cnt@grp\@empty
+    \ccUseHook[titlepage]{before-maketitle-hook}%
+    \bgroup
+      \ccSetContainer{titlepage}%
+      \ccEvalType{Properties}%
+      \ifarticle
+        \cct@article@titlepage
+      \else
+        \ifjournal
+          \cct@journal@titlepage
+        \else
+          \cct@book@titlepage
+        \fi
+      \fi
+    \egroup
+    \ccUseHook[titlepage]{after-maketitle-hook}%
+  }%
+}
+\def\cct@fundings@comp{%
+  \ccDeclareComponent{FundingBlock}{\expandafter\global}{}%
+  \ccDeclareComponentGroup{Funding}{%
+    \ccDeclareCountedComponent{FundName}%
+    \ccDeclareCountedComponent{FundLogo}%
+    \ccDeclareCountedComponent{FundID}%
+  }{}%
+}
+\def\cct@fundings@eval{{%
+    \def\cc@cur@cont{titlepage}%
+    \ccComposeCollection{Funding}{fund-format}{FundingBlock}%
+}}
+\def\cct@eds@eval#1{%
+  \ccm@role@eval{#1}%
+  \cct@create@editor@string{#1}}
+\def\cct@create@editor@string#1{%
+  \expandafter\ifx\csname cc@\cc@cur@cont @#1NameList\endcsname\relax\else
+    \csgappto{cc@\cc@cur@cont @#1NameList}{{\letcs\ccTotalCount{cc#1Cnt}\ccUseProperty{editor-suffix}}}%
+  \fi
+}%
+\def\cct@simple@comps{%
+  \ccDeclareGlobalComponent{Cover}%
+  \ccDeclareGlobalComponent{Dedication}%
+  \ccDeclareGlobalComponent{Acknowledgements}%
+  \ccDeclareGlobalComponent{Statement}%
+  \ccDeclareGlobalComponent{Editorial}%
+  \ccDeclareGlobalComponent{Title}%
+  \ccDeclareGlobalComponent{ShortTitle}%
+  \ccDeclareGlobalComponent{DocTitle}%
+  \ccDeclareGlobalComponent{RunTitle}%
+  \ccDeclareGlobalComponent{AltTitle}%
+  \ccDeclareGlobalComponent{Subtitle}%
+  \ccDeclareGlobalComponent{TitleNote}%
+  \ccDeclareGlobalComponent{RunNames}%
+  \ccDeclareGlobalComponent{AltNames}%
+  \ccDeclareGlobalComponent{Series}%
+  \ccDeclareGlobalComponent{SubSeries}%
+  \ccDeclareGlobalComponent{SeriesNote}%
+  \ccDeclareGlobalComponent{Volume}%
+  \ccDeclareGlobalComponent{Number}%
+  \ccDeclareGlobalComponent{EditorNameList}%
+  \ccDeclareGlobalComponent{SeriesEditorNameList}%
+  \ccDeclareGlobalComponent{Publisher}%
+  \ccDeclareGlobalComponent{PubDivision}%
+  \ccDeclareGlobalComponent{PubDivInfo}%
+  \ccDeclareGlobalComponent{PubPlace}%
+  \ccDeclareGlobalComponent{PubLogo}%
+  \ccDeclareGlobalComponent{PubNote}%
+  \ccDeclareGlobalComponent{PubWeb}%
+  \ccDeclareGlobalComponent[\jobname]{XmpFile}%
+  \ccDeclareGlobalComponent{PDFCreator}%
+  \ccDeclareGlobalComponent[le-tex xerif with CoCoTeX v.0.5.0]{PDFProducer}%
+  \ccDeclareGlobalComponent{Year}%
+  \ccDeclareGlobalComponent{Edition}%
+  \ccDeclareGlobalComponent{EditionNote}%
+  \ccDeclareGlobalComponent{ISBNPreText}%
+  \ccDeclareGlobalComponent{ISBN}%
+  \ccDeclareGlobalComponent{ISSN}%
+  \ccDeclareGlobalComponent{EISSN}%
+  \ccDeclareGlobalComponent{EpubPreText}%
+  \ccDeclareGlobalComponent{EISBN}%
+  \ccDeclareGlobalComponent{EpubISBN}%
+  \ccDeclareGlobalComponent{ElibPDF}%
+  \ccDeclareGlobalComponent{BiblISSN}%
+  \ccDeclareGlobalComponent{BibleISSN}%
+  \ccDeclareGlobalComponent{FundingPreText}%
+  \ccDeclareGlobalComponent{FundingPostText}%
+  \ccDeclareGlobalComponent{Biblio}%
+  \ccDeclareGlobalComponent{BiblioTitle}%
+  \ccDeclareGlobalComponent{Print}%
+  \ccDeclareGlobalComponent{PrintNote}%
+  \ccDeclareGlobalComponent{Lectorate}%
+  \ccDeclareGlobalComponent{Translator}%
+  \ccDeclareGlobalComponent{CoverConcept}%
+  \ccDeclareGlobalComponent{CoverDesign}%
+  \ccDeclareGlobalComponent{CoverImage}%
+  \ccDeclareGlobalComponent{Typesetter}%
+  \ccDeclareGlobalComponent{QA}%
+  \ccDeclareGlobalComponent{UsedFont}%
+  \ccDeclareGlobalComponent{Conversion}%
+  \ccDeclareGlobalComponent{EnvDisclaimer}%
+  \ccDeclareGlobalComponent{Advertise}%
+  \ccDeclareGlobalComponent{LicenceText}%
+  \ccDeclareGlobalComponent{LicenceLogo}%
+  \ccDeclareGlobalComponent{LicenceLink}%
+  \ccDeclareGlobalComponent{LicenceName}%
+  \ccDeclareGlobalComponent{CopyrightDisclaimer}%
+  \ccDeclareGlobalComponent{JournalName}%
+  \ccDeclareGlobalComponent{JournalAbbrev}%
+  \ccDeclareGlobalComponent{Issue}%
+  \ccDeclareGlobalComponent{PubCycle}%
+  \ccDeclareGlobalComponent{Prices}%
+  \ccDeclareGlobalComponent{MemberList}%
+  \ccDeclareGlobalComponent{Startpage}%
+  \ccDeclareGlobalComponent{AddNoteI}%
+  \ccDeclareGlobalComponent{AddNoteII}%
+  \ccDeclareGlobalComponent{AddNoteIII}%
+  \ccDeclareGlobalComponent{AddNoteIV}%
+}
+\ccAddToProperties{titlepage}{%
+  \ccSetProperty{article-title}{}%
+  % Title page hooks
+  % Before \ccPrefix Maketitle and outside the group
+  \ccSetProperty{before-titlepage}{%
+    \pagestyle{empty}%
+    \parindent\z@
+    \parskip\z@
+  }%
+  \ccSetProperty{after-titlepage}{\pagestyle{headings}}%
+  % Pages of title
+  %% Cover page
+  \ccSetProperty{coverpage}{%
+    \bgroup
+      \def\thepage{\@alph\c@page}%
+      \smash{\rlap{%
+          \raise\dimexpr\headheight+\headsep+\topmargin+\topskip-\paperheight\relax
+          \vtop{%
+            \hskip-\oddsidemargin
+            \includegraphics[width=\paperwidth,height=\paperheight]{\ccUseComp{Cover}}%
+          }}}%
+      \ccUseProperty{after-coverpage}%
+    \egroup
+  }%
+  \ccSetProperty{after-coverpage}{\cleardoublepage}%
+  \ccSetProperty{titlepage-roman}{%
+    \ccUsePropertyEnv{titlepage-i}%
+    \clearpage
+    \ccUsePropertyEnv{titlepage-ii}%
+    \clearpage
+    \ccUsePropertyEnv{titlepage-iii}%
+    \clearpage
+    \ccUsePropertyEnv{titlepage-iv}%
+    \clearpage
+  }%
+  %% Generic meta blocks
+  \ccSetProperty{generic-meta-heading-face}{\large}% format of the heading of a generic meta block
+  \ccSetProperty{generic-meta-format}{% Format of a single generic meta-block
+    \ccIfComp{Heading}{{\ccUseProperty{generic-meta-heading-face}\ccUseComp{Heading}\par}\vskip\baselineskip}{}%
+    \ccUseComp{Content}%
+    \par%
+  }%
+  %% Funding
+  \ccSetProperty{funding-columns}{2}
+  \ccSetProperty{funding-format}{}%
+  \ccSetProperty{fund-width}{.5\textwidth}
+  \ccSetProperty{fund-vertical-sep}{\baselineskip}%
+  \ccSetProperty{fund-sep}{%
+    \expandafter\@tempcnta\CalcModulo{\ccCurCount}{\ccUseProperty{funding-columns}}%
+    \ifnum\@tempcnta=\z@
+      \par
+      \ifnum\ccCurCount<\ccTotalCount\relax
+        \vskip\ccUseProperty{fund-vertical-sep}%
+      \fi
+    \else
+      \hfill
+    \fi}
+  \ccSetProperty{fund-format}{% Format of a single fund/grant/sponsor
+    \strut\vtop{%
+      \hsize\ccUseProperty{fund-width}%
+      \ccIfComp{FundName}{\ccUseComp{FundName}\\[1ex]}{}%
+      \includegraphics[width=\ccUseProperty{fund-width}]{\ccUseComp{FundLogo}}}%
+    \ccUseProperty{fund-sep}%
+  }%
+  \ccSetProperty{funding-sep}{4mm}%
+  \ccSetProperty{funding-block}{%
+    \bgroup
+      \ccSetPropertyX{fund-width}{\dimexpr(\textwidth/\ccUseProperty{funding-columns})-(\ccUseProperty{funding-sep}/\ccUseProperty{funding-columns})\relax}
+      \ccUseProperty{funding-format}%
+      \ccGetComp{FundingPreText}%
+      \ccGetComp{FundingBlock}%
+      \ccGetComp{FundingPostText}%
+      \par
+    \egroup
+  }
+  %% before the roman part of the title pages but after cover page
+  \ccSetProperty{before-titlepage-roman}{%
+    \setcounter{page}{1}%
+    \def\thepage{\roman{page}}%
+  }%
+  \ccSetProperty{titlepage-i}{%
+    \ifmonograph
+      \ccUseComp{AuthorNameList}%
+    \else
+      \ccUseProperty{EditorNameList}%
+    \fi%
+    \vskip\baselineskip
+    \bgroup
+      \ccUseProperty{title-face}\ccUseComp{Title}%
+    \egroup
+  }%
+  \ccSetProperty{titlepage-ii}{%
+    \ccGetComp{Editorial}%
+    \ccGetComp{SeriesNote}%
+    \ccGetComp{GenericMetaBlock}%
+    \vfill
+    \ccUseProperty{bio-output}%
+  }%
+  \ccSetProperty{titlepage-iii}{%
+    \ifmonograph
+      \ccUseComp{AuthorNameList}%
+    \else
+      \ccUseProperty{EditorNameList}%
+    \fi%
+    \par
+    \ccUseProperty{title-format}
+    \ccGetComp{Edition}%
+    \ccGetComp{EditionNote}%
+    \vfill
+    \clearpage
+  }%
+  \ccSetProperty{titlepage-iv}{%
+    \ccGetComp{Dedication}%   Dedication
+    \ccGetComp{Acknowledgements}%   Dedication
+    \ccUseProperty{imprint-format}%
+    \ccUseProperty{funding-block}%
+    \vfill
+    \bgroup
+      \ccUseProperty{imprint-face}%
+      \ccIfComp{Biblio}{{\bfseries\ccGetComp{BiblioTitle}}\ccGetComp{Biblio}}{}%
+      \ccUseProperty{imprint-sep}%
+      \ccUseProperty{imprint}%
+    \egroup
+    \clearpage
+  }%
+  %% predefined face and format Properties
+  \ccSetProperty{title-face}{\Huge\sffamily\bfseries}%
+  \ccSetProperty{title-format}{%
+    \bgroup
+      \ccVstructStart{Title}% PDF 2.0
+      \ccUseProperty{title-face}%
+      \ccUseComp{Title}\par
+      \ccVstructEnd{Title}% PDF 2.0
+    \egroup
+    \ccWhenComp{Subtitle}{\ccUseProperty{subtitle-format}}%
+    \ccWhenComp{TitleNote}{\ccUseProperty{title-note-format}}%
+    \ccGetComp{Statement}%
+    \vskip\baselineskip
+  }%
+  \ccSetProperty{title-note-face}{\large\sffamily}%
+  \ccSetProperty{title-note-format}{%
+    \bgroup
+      \ccUseProperty{title-note-face}%
+      \ccUseComp{TitleNote}%
+    \egroup
+    \par
+  }%
+  \ccSetProperty{subtitle-face}{\Large\sffamily\bfseries}%
+  \ccSetProperty{subtitle-format}{%
+    \bgroup
+      \ccUseProperty{subtitle-face}%
+      \ccUseComp{Subtitle}%
+    \egroup
+    \par
+  }%
+  %% Imprint
+  \ccSetProperty{imprint-face}{\footnotesize}%
+  \ccSetProperty{imprint-sep}{\ifhmode\par\fi\addvspace{\baselineskip}}%
+  \ccSetProperty{imprint}{%
+    \ccUseProperty{publisher}%
+    \ccGetComp{Qualification}%%
+    \ccGetComp{Conversion}%%
+    \ccGetComp{CoverDesign}%%
+    \ccGetComp{CoverImage}%%
+    \ccGetComp{Lectorate}%%
+    \ccGetComp{QA}%%
+    \ccGetComp{Translator}%%
+    \ccGetComp{Appraiser}%%
+    \ccGetComp{Discussion}%%
+    \ccGetComp{Typesetter}%%
+    \ccGetComp{Print}%%
+    \ccGetComp{UsedFont}%%
+    \ccGetComp{DOI}%%
+    \ccGetComp{Keywords}%%
+    \ccUseProperty{imprint-sep}%
+    \ccGetComp{ISBNPreText}%
+    \ccGetComp{ISBN}%
+    \ccGetComp{EpubPreText}%
+    \ccGetComp{EISBN}%
+    \ccGetComp{EpubISBN}%
+    \ccUseProperty{imprint-sep}%
+    \ccGetComp{EnvDisclaimer}%
+  }%
+  \ccSetProperty{journal-meta}{%
+    \ccUseLabeledComp{Submitted}%
+    \ccUseLabeledComp{Received}%
+    \ccUseLabeledComp{Revised}%
+    \ccUseLabeledComp{Accepted}%
+    \ccUseLabeledComp{Published}%
+    \ccUseLabeledComp{Copyright}%
+    \ccUseLabeledComp{COIStatement}%
+    \ccUseLabeledComp{Keywords}%
+  }%
+  \ccSetProperty{licence}{%
+    \ccIfComp{LicenceLogo}{\includegraphics{\ccUseComp{LicenceLogo}}\par}{}%
+    \ccGetComp{LicenceText}%
+  }%
+  \ccSetProperty{copyright}{%
+    \ccIfComp{Copyright}
+      {\ccUseComp{Copyright}\par}
+      {\textcopyright\space\ccUseComp{Year}\space\ccUseComp{Publisher},\space\ccUseComp{PubPlace}\par}%
+    }%
+  \ccSetProperty{publisher}{%
+    \ccGetComp{PubDivInfo}%
+    \ccUseProperty{copyright}%
+    \ccGetComp{PubNote}%
+    \ccGetComp{PubWeb}%
+  }%
+  % Name Formats
+  \ccSetProperty{counted-meta-sep}{\ifnum\ccCurCount<\ccTotalCount\relax\vskip\baselineskip\fi}% separator between multiple instances of the same meta datum
+  \ccSetProperty{counted-name-sep}{% Separator between multiple names; titlepage-specific override of the same Property in coco-meta!
+    \ifnum\ccTotalCount>1\relax
+      \ifnum\ccCurCount<\ccTotalCount\relax
+        \ifnum\ccCurCount<\numexpr\ccTotalCount-1\relax
+          \ccUseProperty{name-sep}%
+        \else
+          \ccUseProperty{name-and}%
+        \fi
+      \fi
+    \fi
+  }%
+  % Aliasses for different Roles, see coco-meta.sty for the actual Property values:
+  %% editors:
+  \ccPropertyLet{editor-cite-name-format}                   {role-cite-name-format}%
+  \ccPropertyLet{editor-short-cite-name-format}             {role-short-cite-name-format}%
+  \ccPropertyLet{editor-full-name-format}                   {role-full-name-format}%
+  \ccPropertyLet{editor-pdfinfo-name-format}                {role-pdfinfo-name-format}%
+  \ccPropertyLet{editor-correspondence-as-format}           {role-correspondence-string-format}%
+  %
+  \ccPropertyLet{editor-list-print-format}                  {role-block-print-format}%
+  \ccPropertyLet{editor-list-cite-format}                   {role-block-cite-format}%
+  \ccPropertyLet{editor-list-short-cite-format}             {role-block-short-cite-format}%
+  \ccPropertyLet{editor-list-pdfinfo-format}                {role-block-pdfinfo-format}%
+  \ccPropertyLet{editor-list-correspondence-format}         {role-block-correspondence-format}%
+  %% series-editors:
+  \ccPropertyLet{series-editor-cite-name-format}            {role-cite-name-format}%
+  \ccPropertyLet{series-editor-short-cite-name-format}      {role-short-cite-name-format}%
+  \ccPropertyLet{series-editor-full-name-format}            {role-full-name-format}%
+  \ccPropertyLet{series-editor-pdfinfo-name-format}         {role-pdfinfo-name-format}%
+  \ccPropertyLet{series-editor-correspondence-as-format}    {role-correspondence-as-format}%
+  %
+  \ccPropertyLet{series-editor-list-print-format}           {role-block-print-format}%
+  \ccPropertyLet{series-editor-list-cite-format}            {role-block-cite-format}%
+  \ccPropertyLet{series-editor-list-short-cite-format}      {role-block-short-cite-format}%
+  \ccPropertyLet{series-editor-list-pdfinfo-format}         {role-block-pdfinfo-format}%
+  \ccPropertyLet{series-editor-list-correspondence-format}  {role-block-correspondence-format}%
+  %% name Separators
+  \ccSetProperty{editor-suffix-sgl}{(Ed.)}%
+  \ccSetProperty{editor-suffix-pl}{(Eds.)}%
+  \ccSetProperty{editor-suffix}{%
+    \space
+    \ifnum\ccTotalCount=\@ne\relax
+      \ccUseProperty{editor-suffix-sgl}%
+    \else
+      \ccUseProperty{editor-suffix-pl}%
+    \fi
+  }%
+  % Biography
+  % those Properties control how (Role specific) Biography Blocks are formatted, i.e. the list of all Biographies of a specific Role:
+  \ccSetProperty{role-bio-block-face}{}% face for the entire, role-specific, Biography Block
+  \ccSetProperty{role-bio-block-format}{{\ccUseProperty{role-bio-block-face}\ccUseComp{Biography}}\par}% Format of the whole, Role specific, Biography Block
+  \ccPropertyLet{author-bio-block-format}        {role-bio-block-format}% Override for single author meta info
+  \ccPropertyLet{editor-bio-block-format}        {role-bio-block-format}% Override for single editor meta info
+  \ccPropertyLet{series-editor-bio-block-format} {role-bio-block-format}% Override for single series editor meta info
+  % those Properties control how a (Role specific) Biography is formatted:
+  \ccSetProperty{role-biography-format}{{\bfseries\ccUseComp{FullName}:}\space\ccUseComp{Bio}\par}% Format of a single entry in the Role specific Biography
+  \ccPropertyLet{author-biography-format}        {role-biography-format}% Override for single author meta info
+  \ccPropertyLet{editor-biography-format}        {role-biography-format}% Override for single editor meta info
+  \ccPropertyLet{series-editor-biography-format} {role-biography-format}% Override for single series editor meta info
+  \ccSetProperty{bio-output-format}{%
+    \ccGetComp{AuthorBioBlock}%
+    \ccGetComp{EditorBioBlock}%
+    \ccGetComp{SeriesEditorBioBlock}%
+  }%
+  % Running headers
+  \ccSetProperty{run-book-title}{%
+    \ccIfComp{RunTitle}
+      {\ccUseComp{RunTitle}}
+      {\ccIfComp{ShortTitle}
+        {\ccUseComp{ShortTitle}}
+        {\ccIfComp{Title}{\ccUseComp{Title}}{No title given!}}}%
+  }%
+  \ccSetProperty{run-book-name}{%
+    \ccIfComp{RunNames}
+      {\ccUseComp{RunNames}}
+      {\ifmonograph
+         \ccIfComp{AuthorNameList}
+           {\ccUseComp{AuthorNameList}}
+           {no author defined!}%
+       \else
+         \ccIfComp{EditorNameList}
+           {\ccUseComp{EditorNameList}}
+           {no editor defined!}%
+       \fi}%
+  }%
+  \ccSetProperty{doc-book-title}{%
+    \ccIfComp{DocTitle}
+      {\ccUseComp{DocTitle}}
+      {\ccIfComp{ShortTitle}
+        {\ccUseComp{ShortTitle}}
+        {\ccUseComp{Title}}}%
+  }%
+}
+\ifx\cc@color@enc\relax\else
+\ccWhenAlly{%
+  \ccAddToType{Components}{titlepage}{%
+    \ccDeclareGlobalComponent{IccProfileFile}
+    \ccDeclareGlobalComponent{IccComponents}
+    \ccDeclareGlobalComponent{IccIdentifier}}
+  \ifdefstring\cc@color@enc{cmyk}
+    {\def\cca@default@icc@comp{4}}
+    {\def\cca@default@icc@comp{3}}
+  \ifdefstring\cc@color@enc{cmyk}
+    {\def\cca@default@icc@iden{Coated FOGRA39}}
+    {\def\cca@default@icc@iden{sRGB IEC61966-2.1}}
+  \ccAddToType{Properties}{titlepage}{%
+    \ccSetProperty{output-intent}{%
+      profile=\ccIfComp{IccProfileFile}{\ccUseComp{IccProfileFile}}{suppl/\cc@color@enc.icc};%
+      components=\ccIfComp{IccComponents}{\ccUseComp{IccComponents}}{\cca@default@icc@comp};%
+      identifier=\ccIfComp{IccIdentifier}{\ccUseComp{IccIdentifier}}{\cca@default@icc@iden}%
+  }}
+  \ccAddToHook[titlepage]{document-meta-hook}{\edef\x{\noexpand\ccaAddToConfig{intent}{\ccUseProperty{output-intent}}}\x}
+  \ccAddToType{Components}{titlepage}{%
+  \ccDeclareGlobalComponent[2]{PDFAID}%
+  \ccDeclareGlobalComponent[A]{PDFALevel}%
+  \ccDeclareGlobalComponent[1]{PDFUAID}}%
+\ccAddToHook[titlepage]{document-meta-hook}{%
+  \ccIfCompEmpty{PDFAID}{}{\ccIfCompEmpty{PDFALevel}{}{%
+      \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
+          pdfaid=\ccUseComp{PDFAID};%
+          level=\ccUseComp{PDFALevel}%
+          \ccIfCompEmpty{PDFUAID}{}{;pdfuaid=\ccUseComp{PDFUAID}}}}%
+      \x}}}
+\ccaAddRolemap{Title}{H1}
+\ccaAddRolemap{Titlepage}{Div}
+}%ccWhenAlly
+\fi
+\endinput
+%%
+%% End of file `coco-title.sty'.

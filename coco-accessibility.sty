@@ -1,0 +1,303 @@
+%%
+%% This is file `coco-accessibility.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `a11y-sty')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-accessibility.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Accessibility features for \textit{xerif} projects.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive > 2018
+%%
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-accessibility}
+    [2024/07/16 0.5.0 CoCoTeX accessibility module]
+\RequirePackage{kvoptions-patch}
+\RequirePackage{xkeyval}
+\RequirePackage{atbegshi}
+\RequirePackage{xparse}
+\def\cca@lang@id{eng}%
+\DeclareOptionX{lang-id}{\gdef\cca@lang@id{#1}}
+\DeclareOptionX{init}{\global\let\cc@do@ally\relax}
+\DeclareOptionX{nodetree}{\let\cca@do@nodetree\relax}
+\DeclareOptionX{show-spaces}{\let\cca@do@showspaces\relax}
+\let\cca@do@dospaces\relax
+\DeclareOptionX{no-spaces}{\let\cca@do@dospaces\@undefined}
+\let\cca@do@doparas\relax
+\DeclareOptionX{no-paras}{\let\cca@do@doparas\@undefined}
+\ProcessOptionsX
+\def\cca@patch@error#1{%
+  \ccPackageError{a11y}{compatibility}
+  {Could not patch \noexpand#1}
+  {You probably use a LaTeX package that re-defines the \noexpand#1 control sequence. It is apparently not compatbile with coco-accessibility.sty. Sorry}}
+\def\cc@if@ally{\ifx\cc@do@ally\relax\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
+\let\ccIfAlly\cc@if@ally
+\def\ccWhenAlly{\ifx\cc@do@ally\relax\expandafter\@firstofone\else\expandafter\@gobble\fi}
+\def\ccUnlessAlly{\ifx\cc@do@ally\relax\expandafter\@gobble\else\expandafter\@firstofone\fi}
+\ccWhenAlly{%
+  \ifluatex\else
+    \ccPackageError{a11y}{engine}
+      {accessibility features require lualatex!}
+      {You tried to use the accessibility features of CoCoTeX with an other TeX engine than lualatex. This will not work; lualatex is a hard requirement. Sorry.}
+  \fi
+  \RequirePackage{luatexbase-attr}
+  \RequirePackage{atveryend}
+  \AtBeginDocument{%
+    \hypersetup{%
+      % pdfa=true% already set elsewhere
+      ,unicode=true%
+      ,pdfinfo={}%
+      % ,pdfpagelabels=true% already set elsewhere
+      ,pageanchor=true%
+    }%
+    \Hy@pdfatrue
+  }
+  \directlua{ltpdfa = require('ltpdfa')}
+  \directlua{ltpdfa.config.final = true}
+  \ifinlist{ltpdfa}\debug@domain@list
+    {\directlua{ltpdfa.config.debug = true}}
+    {\directlua{ltpdfa.config.debug = false}}
+  \directlua{ltpdfa.config.nodetree = \ifx\cca@do@nodetree\relax true\else false\fi}
+  \directlua{ltpdfa.config.showspaces = \ifx\cca@do@showspaces\relax true\else false\fi}
+  \directlua{ltpdfa.config.dospaces = \ifx\cca@do@dospaces\relax true\else false\fi}
+  \directlua{ltpdfa.config.doparas = \ifx\cca@do@doparas\relax true\else false\fi}
+  \directlua{ltpdfa.config.headnums = false}
+  \directlua{ltpdfa.config.driver = "\luaescapestring{pdftex}"}
+  \directlua{ltpdfa.config.lang = '\luaescapestring{\cca@lang@id}'}
+  \directlua{ltpdfa.init()}%
+  \edef\@ltpdfa@pattr{\directlua{ltpdfa.getAttribute('\luaescapestring{parentattr}')}}
+  \edef\@ltpdfa@tattr{\directlua{ltpdfa.getAttribute('\luaescapestring{typeattr}')}}
+  \attributedef\@ltpdfa@typeattr=\@ltpdfa@tattr
+  \attributedef\@ltpdfa@parentattr=\@ltpdfa@pattr
+  \def\ltpdfa@last@page{\ifx\r@LTLastPage\undefined\@empty\else\expandafter\@secondoftwo\r@LTLastPage\fi}%
+  \AfterLastShipout{\immediate\write\@mainaux{\string\newlabel{LTLastPage}{{LTLastPage}{\directlua{ltpdfa.getPageNum()}}}}}%
+}%/ccWhenAlly
+\def\cca@relaxed@defs{}
+\def\cca@saved@defs{}
+\def\cca@protected@defs{}
+\def\ccaDisable{\ccWhenAlly{\cca@relaxed@defs}}
+\def\ccaEnable{\ccWhenAlly{\cca@saved@defs}}
+\def\ccaProtect{\ccWhenAlly{\cca@protected@defs}}
+\ExplSyntaxOn
+\newcommand{\CsToStr}[1]{\cs_to_str:N #1}
+\ExplSyntaxOff
+\def\DeclareAccessibilityCommand#1{\@ifnextchar[{\cca@declare@cmd@firstopt#1}{\cca@declare@cmd#1}}%]
+\let\cca@temp@signature\@empty
+\def\cca@declare@cmd@firstopt#1[#2]{\edef\cca@temp@signature{[\unexpanded{#2}]}%
+  \@ifnextchar[{\cca@declare@cmd@secopt#1}{\cca@declare@cmd#1}}%]
+\def\cca@declare@cmd@secopt#1[#2]{\eappto\cca@temp@signature{[\unexpanded{#2}]}\cca@declare@cmd#1}
+\def\cca@declare@cmd#1#2{%
+  \edef\savedDef{\noexpand\newcommand*\expandafter\noexpand\csname cc@saved@\CsToStr{#1}\endcsname\expandonce{\cca@temp@signature}{\unexpanded{#2}}}\savedDef%
+  \edef\x{\noexpand\let\noexpand#1\expandafter\noexpand\csname cc@saved@\CsToStr{#1}\endcsname}%
+  \global\expandafter\appto\expandafter\cca@saved@defs\expandafter{\x}%
+  \edef\relaxDef{\noexpand\newcommand*\expandafter\noexpand\csname cc@no@\CsToStr{#1}\endcsname\expandonce{\cca@temp@signature}{\relax}}\relaxDef%
+  \edef\y{\noexpand\let\noexpand#1\expandafter\noexpand\csname cc@no@\CsToStr{#1}\endcsname}%
+  \global\expandafter\appto\expandafter\cca@relaxed@defs\expandafter{\y}%
+  \ccIfAlly{\x}{\y}%
+  \edef\z{\noexpand\protected\noexpand\def\noexpand#1{\noexpand#1}}%
+  \global\expandafter\appto\expandafter\cca@protected@defs\expandafter{\z}%
+  \let\cca@temp@signature\@empty
+}
+\DeclareAccessibilityCommand{\ccaAddToConfig}[2]{\directlua{ltpdfa.addToConfig('\luaescapestring{#1}','\luaescapestring{#2}')}}
+\DeclareAccessibilityCommand{\ccaAddKeyword}[1]{\directlua{ltpdfa.tagger.addToKeywords('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddAuthor}[1]{\directlua{ltpdfa.tagger.addToAuthors('\luaescapestring{#1}')}}
+\@onlypreamble\ccaAddToConfig
+\DeclareAccessibilityCommand{\ccaStructStart}[2][]{\if@cc@is@final\directlua{ltpdfa.tagger.structStart('\luaescapestring{#2}','\luaescapestring{#1}')}\fi}
+\DeclareAccessibilityCommand{\ccaStructEnd}[1]{\if@cc@is@final\directlua{ltpdfa.tagger.structEnd('\luaescapestring{#1}')}\fi}
+\DeclareAccessibilityCommand{\ccaVstructStart}[2][]{\if@cc@is@final\directlua{ltpdfa.tagger.vstructStart('\luaescapestring{#2}','\luaescapestring{#1}')}\fi}
+\DeclareAccessibilityCommand{\ccaVstructEnd}[1]{\if@cc@is@final\directlua{ltpdfa.tagger.vstructEnd('\luaescapestring{#1}')}\fi}
+\DeclareAccessibilityCommand{\ccaPstructStart}[2][]{\directlua{ltpdfa.tagger.pstructStart('\luaescapestring{#2}','\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaPstructEnd}[1]{\directlua{ltpdfa.tagger.pstructEnd('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaGetCurStruct}[1]{\directlua{ltpdfa.tagger.getCurrentStruct('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaSaveCurStruct}[1]{\protected@csxdef{#1}{\ccaGetCurStruct{idx}}}
+\DeclareAccessibilityCommand{\ccaAddToStruct}[1]{\directlua{ltpdfa.tagger.addToStruct('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaMoveStruct}[1]{\relax\directlua{ltpdfa.tagger.moveStruct('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaReplaceStruct}[1]{\relax\directlua{ltpdfa.tagger.replaceStruct('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddID}[1]{\directlua{ltpdfa.tagger.addID('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaSetDocinfo}[3][]{\directlua{ltpdfa.setDocInfo('\luaescapestring{#2}','\luaescapestring{#3}','\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddRolemap}[2]{\directlua{ltpdfa.tagger.addRolemap('\luaescapestring{#1}','\luaescapestring{#2}')}}
+\DeclareAccessibilityCommand{\ccaAddPlacement}[1]{\directlua{ltpdfa.tagger.addPlacement('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddNumbering}[1]{\directlua{ltpdfa.tagger.addNumbering('\luaescapestring{#1}')}}
+\ccWhenAlly{\directlua{ally = require('coco-accessibility')}}
+\DeclareAccessibilityCommand{\ccaAddAltText}[1]{\directlua{ltpdfa.tagger.addAltText('\luaescapestring{#1}')}}
+\define@key{Gin}{alt}{\gdef\cca@Gin@alt{#1}}
+\DeclareAccessibilityCommand{\ccaAddLastLink}{\directlua{ltpdfa.tagger.addLastLink()}}
+\DeclareAccessibilityCommand{\ccaGetStructParent}{\directlua{ltpdfa.tagger.getStructParent()}}
+\begingroup
+\@makeother\#
+\ccWhenAlly{%
+\AtBeginDocument{%
+    \patchcmd\Hy@StartlinkName
+      {\pdfstartlink}
+      {\pdfstringdef\@argii{#2}\ccaStructStart{Link}\ccaAddAltText{#2}\edef\@ltpdfmy@parent{\ccaGetStructParent}%
+       \pdfstartlink}
+      {}{\cca@patch@error\Hy@StartlinkName}
+    \patchcmd\Hy@StartlinkName
+      {#1}
+      {#1 /StructParent \@ltpdfmy@parent /Contents(\@argii)}
+      {}{\cca@patch@error\Hy@StartlinkName}
+    \patchcmd\hyper@linkurl
+      {\pdfstartlink}
+      {\pdfstringdef\@argii{#2}\ccaStructStart{Link}\ccaAddAltText{#2}\edef\@ltpdfmy@parent{\ccaGetStructParent}%
+       \pdfstartlink}
+      {}{\cca@patch@error\hyper@linkurl}
+    \patchcmd\hyper@linkurl
+      {/C[\@urlbordercolor]%
+        \fi
+      }
+      {/C[\@urlbordercolor]%
+        \fi
+       /StructParent \@ltpdfmy@parent%
+       /Contents(\@argii)
+      }{}{\cca@patch@error\hyper@linkurl}
+    % \patchcmd\hyper@linkurl
+    %   {\Hy@href@nextactionraw}
+    %   {
+    %    \Hy@href@nextactionraw}
+    %   {}{\cca@patch@error\hyper@linkurl}
+    \patchcmd\close@pdflink
+      {\pdfendlink}
+      {\pdfendlink
+       \ccaAddLastLink\ccaStructEnd{Link}}
+      {}{\cca@patch@error\close@pdflink}
+    \let\cca@hy@setref\@setref
+    \let\@setref\real@setref
+    \patchcmd\@setref
+      {\else}
+      {\else\ccaStructStart{Reference}}
+      {}{\cca@patch@error\orig@setref@new}%
+    \patchcmd\@setref
+      {\fi}
+      {\ccaStructEnd{Reference}\fi}
+      {}{\cca@patch@error\orig@setref@new}%
+    \let\real@setref\@setref
+    \let\@setref\cca@hy@setref
+    \patchcmd\@setref
+      {\expandafter\Hy@setref@link}
+      {\ccaStructStart{Reference}\expandafter\Hy@setref@link}
+      {}{\cca@patch@error\@setref}
+    \patchcmd\@setref
+      {{#2}}
+      {{#2}\ccaStructEnd{Reference}}
+      {}{\cca@patch@error\@setref}
+    }% /AtBeginDocument
+}% /ccWhenAlly
+\endgroup
+\DeclareAccessibilityCommand{\ccaPagestyleArtifacts}{%
+  \ifx\@oddhead\@empty\else
+    \pretocmd\@oddhead{\ccaStructStart[document]{header}}{}{}%
+    \apptocmd\@oddhead{\ccaStructEnd{header}}{}{}%
+  \fi
+  \ifx\@evenhead\@empty\else
+    \pretocmd\@evenhead{\ccaStructStart[document]{header}}{}{}%
+    \apptocmd\@evenhead{\ccaStructEnd{header}}{}{}%
+  \fi
+  \ifx\@oddfoot\@empty\else
+    \pretocmd\@oddfoot{\ccaStructStart[document]{footer}}{}{}%
+    \apptocmd\@oddfoot{\ccaStructEnd{footer}}{}{}%
+  \fi
+  \ifx\@evenfoot\@empty\else
+    \pretocmd\@evenfoot{\ccaStructStart[document]{footer}}{}{}%
+    \apptocmd\@evenfoot{\ccaStructEnd{footer}}{}{}%
+  \fi}
+\apptocmd\ps@empty{\ccaPagestyleArtifacts}{}{}
+\apptocmd\ps@plain{\ccaPagestyleArtifacts}{}{}
+\apptocmd\ps@headings{\ccaPagestyleArtifacts}{}{}
+\apptocmd\ps@myheadings{\ccaPagestyleArtifacts}{}{}
+\ccWhenAlly{%
+  \ccaAddToConfig{artifact}{header={Type:Pagination}{Subtype:Header}}
+  \ccaAddToConfig{artifact}{footer={Type:Pagination}{Subtype:Footer}}
+  \ccaAddToConfig{artifact}{leaders={Type:Layout}}
+  \ccaAddToConfig{artifact}{footnoterule={Type:Layout}}
+  \ccaAddToConfig{artifact}{Rule={Type:Layout}}
+  \ccaAddToConfig{artifact}{Artifact={Type:Layout}}
+}
+\def\ccaArtifact{\ccaStructStart[document]{Artifact}\ccaDisable}
+\def\endccaArtifact{\ccaEnable\ccaStructEnd{Artifact}}
+\DeclareAccessibilityCommand{\ccaAddFigure}[7]{\directlua{ltpdfa.tagger.addFigure(
+    '\luaescapestring{#1}',
+    '\luaescapestring{#2}',
+    '\luaescapestring{#3}',
+    '\luaescapestring{#4}',
+    '\luaescapestring{#5}',
+    '\luaescapestring{#6}',
+    '\luaescapestring{#7}')}}
+\DeclareAccessibilityCommand{\ccaFigureStart}[1]{\directlua{ltpdfa.tagger.figureStart('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaFigureEnd}[1]{\directlua{ltpdfa.tagger.figureEnd('\luaescapestring{#1}')}}
+\AtBeginDocument{%
+  \let\ltx@Ginclulde@graphics\Ginclude@graphics
+  \def\Ginclude@graphics#1{\if@cc@is@final\ccaFigureStart{}\fi\ltx@Ginclulde@graphics{#1}\if@cc@is@final\ccaFigureEnd{}\fi}%
+}
+\apptocmd\Ginclude@@pdftex{\if@cc@is@final%
+  \def\@tempa{!}%
+  \ccaAddFigure{\Gin@llx}{\Gin@lly}{\Gin@urx}{\Gin@ury}
+    {\ifx\Gin@scalex\@tempa\else \Gin@scalex\fi}
+    {\ifx\Gin@scaley\@tempa\else \Gin@scaley\fi}
+    {\ifGin@clip true\else false\fi}\fi}%rwi/rhi
+    {}{}
+\AtBeginDocument{%
+  \@ifpackageloaded{htmltabs}{%
+    \let\ltx@ht@valign@box\ht@valign@box
+    \def\ht@valign@box{\if@ht@final@render\@cc@is@finaltrue\fi\ltx@ht@valign@box}
+    \let\ltx@ht@RenderCell\ht@RenderCell
+    \def\ltx@ht@RenderCell{\@cc@is@finalfalse\ltx@ht@RenderCell}}{}}
+\DeclareAccessibilityCommand{\ccaAddScope}[1]{\relax\directlua{ltpdfa.tagger.addScope('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddColSpan}[1]{\relax\directlua{ltpdfa.tagger.addColSpan('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddRowSpan}[1]{\relax\directlua{ltpdfa.tagger.addRowSpan('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddKeep}{\relax\directlua{ltpdfa.tagger.addKeep()}}
+\ifx\pdfextension\@undefined\else
+\protected\def\pdfglyphtounicode{\pdfextension glyphtounicode}
+\input glyphtounicode
+\edef\pdfgentounicode{\pdfvariable gentounicode}
+\pdfgentounicode = 1
+\fi
+\DeclareAccessibilityCommand{\ccaConvertPdfString}[1]{\directlua{tex.print(ltpdfa.metadata.utf16ToUtf8('\luaescapestring{#1}'))}}
+\ccWhenAlly{%
+  \ccDeclareHook[document]{cca/at/begin/document}
+  \AtBeginDocument{%
+    \directlua{ltpdfa.beginDocument('\luaescapestring{\ltpdfa@last@page}')}
+    \ccUseHook[document]{cca/at/begin/document}%
+    \directlua{ltpdfa.configAutoclose()}
+    \ccaVstructStart{document}%
+    \renewcommand\PDF@FinishDoc{%
+      \Hy@DisableOption{pdfauthor}%
+      \Hy@DisableOption{pdftitle}%
+      \Hy@DisableOption{pdfsubject}%
+      \Hy@DisableOption{pdfcreator}%
+      \Hy@DisableOption{pdfcreationdate}%
+      \Hy@DisableOption{pdfmoddate}%
+      \Hy@DisableOption{pdfproducer}%
+      \Hy@DisableOption{pdfkeywords}%
+      \Hy@DisableOption{pdftrapped}%
+      \Hy@DisableOption{pdfinfo}%
+    }%
+  }
+  \AtEndDocument{%
+    \ccaVstructEnd{document}
+    \directlua{ltpdfa.endDocument()}%
+  }
+}
+\ccaAddRolemap{document}{Document}
+\ccaAddRolemap{Para}{P}
+\ccWhenAlly{\AtBeginShipout{\directlua{ltpdfa.pageprocessor(tex.box["AtBeginShipoutBox"])}}}%
+\endinput
+%%
+%% End of file `coco-accessibility.sty'.

@@ -1,0 +1,926 @@
+%%
+%% This is file `coco-floats.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `floats')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-floats.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% module for CoCoTeX that extends floating objects.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive > 2019
+%%
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-floats}
+    [2024/07/16 0.5.0 CoCoTeX floats module]
+\DeclareOptionX{nofigs}{\global\let\ccf@no@figs\relax}
+\ProcessOptionsX
+\RequirePackage{coco-common}
+\RequirePackage{rotating}
+\RequirePackage{grffile}
+\RequirePackage{footnote}
+\RequirePackage[Export]{adjustbox}
+\usepackage{stfloats}
+\setcounter{dblbotnumber}{5}
+\AtBeginDocument{%
+  \ifx\ccf@no@figs\relax
+    \renewcommand\includegraphics[2][]{}%
+  \fi
+  \global\let\ccf@ltx@includegraphics\includegraphics
+  \@ifpackageloaded{htmltabs}
+    {\global\let\cc@uses@htmltabs\relax
+     \def\ht@adjust@linewidth{%
+       \advance\ht@h@offset\leftskip
+       \advance\ht@h@offset\@totalleftmargin
+       \advance\linewidth-\rightskip
+     }%
+    }{}%
+  \gappto\@endfloatbox{%
+    \global\ccf@total@height=\ht\@currbox\relax%
+    \global\ccf@total@depth=\dp\@currbox\relax%
+  }%
+}%
+\def\topfraction{0.9}
+\def\textfraction{0.1}
+\def\bottomfraction{0.8}
+\def\totalnumber{8}
+\def\topnumber{8}
+\def\bottomnumber{8}
+\def\floatpagefraction{0.8}
+\@fptop\z@
+\@fpbot\@flushglue
+\newbox  \ccf@floatbox
+\newbox  \ccf@sub@box
+\newcount\ccf@int@cnt      \ccf@int@cnt\z@
+\newcount\ccSubFloatCnt \ccSubFloatCnt=\z@\relax
+\newcount\ccf@int@sub@flt@cnt  \ccf@int@sub@flt@cnt\z@
+\newdimen\ccf@sub@maxheight   \ccf@sub@maxheight=\z@\relax
+\newdimen\ccf@sub@sep         \ccf@sub@sep=\fboxsep\relax
+\newdimen\ccf@total@width  \ccf@total@width=\textwidth\relax
+\newdimen\ccf@total@height \ccf@total@height=\textwidth\relax
+\newdimen\ccf@total@depth  \ccf@total@depth=\textwidth\relax
+\newdimen\ccf@calc@width      \ccf@calc@width=\ccf@total@width\relax
+\newskip\ccf@sep@top      \ccf@sep@top=\z@\relax
+\newskip\ccf@sep@bottom   \ccf@sep@bottom=\z@\relax
+\newdimen\ccf@margin@r       \ccf@margin@r=\z@\relax
+\newdimen\ccf@margin@l       \ccf@margin@l=\z@\relax
+\newdimen\ccf@margin@i       \ccf@margin@i=\z@\relax
+\newdimen\ccf@margin@o       \ccf@margin@o=\z@\relax
+\newif\if@ccf@break@capt   \@ccf@break@captfalse
+\newif\if@ccf@sameheight   \@ccf@sameheighttrue
+\def\ccf@reset@defaults{%
+  \global\ccSubFloatCnt=\z@
+  \global\ccf@total@width=\z@
+  \global\let\ccf@has@capt@top\@undefined
+  \global\let\ccf@has@capt@bottom\@undefined
+  \global\let\ccf@has@subcapt@top\@undefined
+  \global\let\ccf@has@subcapt@bottom\@undefined
+  \global\let\ccf@sub@contentsline@store\@empty
+  \global\ccf@sub@maxheight=\z@\relax
+  \@tempcnta=\z@\relax
+  \cc@reset@components{\cc@cur@cont}%
+  \let\ccf@prefix\@empty
+  \let\ht@cur@element\ccfCapType
+  \global\let\ccf@current@class\relax
+}
+\def\ccf@set@env{%
+  \ifx\ccf@floatpos\@empty
+    \let\ccf@begin@env\bgroup
+    \let\ccf@end@env\egroup
+  \else
+    \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}
+      {\edef\ccf@env@name{sideways\ccfCapType}%
+       \edef\ccf@begin@env{\noexpand\begin{\ccf@env@name\ifx\ccf@do@dbl\relax*\fi}}%
+       \edef\ccf@end@env{\noexpand\end{\ccf@env@name\ifx\ccf@do@dbl\relax*\fi}}}
+      {\edef\ccf@env@name{\ifx\ccf@do@dbl\relax dbl\fi float}%
+       \edef\ccf@begin@env{\expandafter\noexpand\csname @x\ccf@env@name\endcsname {\ccfCapType}[\ccf@floatpos]}%
+       \edef\ccf@end@env{\expandafter\noexpand\csname end@\ccf@env@name\endcsname}}%
+  \fi}
+\def\ccf@get@seps{%
+  \ifx\ccf@floatpos\@empty
+    \expandafter\ccf@sep@top\dimexpr\ccUseProperty{intext-skip-top}\relax%
+  \else
+    \expandafter\ccf@sep@top\dimexpr\ccUseProperty{float-skip-top}\relax%
+  \fi
+    \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}{}
+      {\ifx\ccf@floatpos\@empty
+         \expandafter\ccf@sep@bottom\dimexpr\ccUseProperty{intext-skip-bottom}\relax%
+       \else
+         \expandafter\ccf@sep@bottom\dimexpr\ccUseProperty{float-skip-bottom}\relax%
+       \fi}}
+\def\ccf@set@top@sep{\addvspace{\ccf@sep@top}}
+\def\ccf@set@bot@sep{\addvspace{\ccf@sep@bottom}}
+\def\ccfMakeComp#1{%
+  \cc@def@counted@comp{#1-\the\ccSubFloatCnt}{#1}{}{}%
+}
+\def\ccfMakeCompL#1{%
+  \ccfMakeComp{#1}%
+  \ccfMakeComp{Listof#1}}
+\ccDeclareContainer{float}{%
+  \ccDeclareType{Components}{%
+    \def\cc@counted@comp@scheme#1{#1-\the\ccSubFloatCnt}%
+    \ccfMakeComp{Content}%
+    \ccfMakeCompL{Caption}%
+    \ccfMakeCompL{Legend}%
+    \ccfMakeCompL{Source}%
+    \ccfMakeCompL{Number}%
+    \ccfMakeComp{RefLabel}%
+    \ccfMakeComp{ListofEntry}%
+  }%
+  \ccDeclareType{Properties}{%
+    \ccSetProperty{intext-skip-top}{\intextsep}%
+    \ccSetProperty{intext-skip-bottom}{\intextsep}%
+    \ccSetProperty{float-skip-top}{\z@}%
+    \ccSetProperty{float-skip-bottom}{\z@}%
+    \ccSetProperty{sub-float-sep}{\ccf@sub@sep}%
+    \ccSetProperty{margin-inner}{\z@}%
+    \ccSetProperty{margin-outer}{\z@}%
+    \ccSetProperty{margin-left}{\z@}%
+    \ccSetProperty{margin-right}{\z@}%
+    \ccSetProperty{before-float}{\parindent\z@}%
+    \ccSetProperty{subfloat-content}{\ccUseComp{Content}}%
+    \ccSetProperty{float-render}{\ccUseComp{Content}}%
+    \ccSetProperty{subfloat-render}{\ccUseComp{Content}}%
+    \ccSetProperty{caption-face}{}%
+    \ccSetProperty{caption-face-top}{}%
+    \ccSetProperty{caption-face-bottom}{}%
+    \ccSetProperty{source-face}{}%
+    \ccSetProperty{legend-face}{}%
+    \ccSetProperty{caption-sep-top}{\z@}%
+    \ccSetProperty{caption-sep-bottom}{\z@}%
+    \ccSetProperty{caption-top}{%
+      \ccIfComp{Number}{{\ccUseProperty{number-face}\ccUseComp{Number}\ccUseProperty{number-sep}}}{}%
+      \ccUseComp{Caption}%
+    }%
+    \ccSetProperty{caption-bottom}{%
+      \ccIfComp{Legend}{{\ccUseProperty{legend-face}\ccUseComp{Legend}}}{}%
+      \ccIfComp{Source}{%
+        \ccIfComp{Legend}{\par\nopagebreak}{}%
+          {\ccUseProperty{source-face}%
+           \ccUseComp{Source}}}{}}%
+    \ccPropertyLet{subcaption-face}{caption-face}%
+    \ccSetProperty{subcaption-face-top}{\ccUseProperty{caption-face-top}}%
+    \ccSetProperty{subcaption-face-bottom}{\ccUseProperty{caption-face-bottom}}%
+    \ccSetProperty{subcaption-add-sep-top}{\z@}%
+    \ccSetProperty{subcaption-add-sep-bottom}{\z@}%
+    \ccSetProperty{subcaption-sep-top}{\ccUseProperty{caption-sep-top}}%
+    \ccSetProperty{subcaption-sep-bottom}{\ccUseProperty{caption-sep-bottom}}%
+    \ccSetProperty{subcaption-top}{\ccUseProperty{caption-top}}%
+    \ccSetProperty{subcaption-bottom}{\ccUseProperty{caption-bottom}}%
+    \ccSetProperty{subcaption-valign-top}{top}%
+    \ccSetProperty{subcaption-valign-bottom}{top}%
+    \ccSetProperty{auto-number-prefix}{\csname\ccfCapType name\endcsname}%
+    \ccSetProperty{auto-number-prefix-sep}{~}%
+    \ccSetProperty{numbering}{auto}%
+    \ccSetProperty{sub-numbering}{}%
+    \ccSetProperty{number-sep}{\enskip}%
+    \ccSetProperty{number-face}{\bfseries}%
+    \ccSetProperty{sub-number-sep}{\,}%
+    \ccSetProperty{sub-number-style}{alph}%
+    \ccSetProperty{sub-number-face}{}%
+    \ccSetProperty{sub-number-before}{(}%
+    \ccSetProperty{sub-number-after}{)}%
+    \ccSetProperty{sub-number-format}{%
+      \ccUseProperty{float-number}%
+      \ccUseProperty{sub-number-sep}%
+      \ccUseProperty{sub-number}}%
+    \ccSetProperty{label-pos}{top}%
+    \ccSetProperty{sublabel-pos}{top}%
+    \ccSetProperty{list-of-page-sep}{\dotfill}%
+    \ccPropertyLet{list-of-number-face}{list-of-caption-face}%
+    \ccSetProperty{list-of-number-sep}{\enskip}%
+    \ccSetProperty{list-of-number-align}{left}%
+    \ccSetProperty{list-of-number-format}{%
+      \bgroup
+        \ccUseProperty{list-of-number-face}%
+        \ccUseComp{ListofNumber}%
+        \ccUseProperty{list-of-number-sep}%
+      \egroup}%
+    \ccSetProperty{list-of-parfillskip}{-\rightskip}%
+    \ccSetProperty{list-of-margin-right}{\@pnumwidth \@plus 1fil}%
+    \ccSetProperty{list-of-margin-left}{auto}%
+    \ccSetProperty{list-of-indent}{auto}%
+    \ccSetProperty{list-of-block}{%
+      \ccUseProperty{list-of-caption-face}%
+      \ccIfComp{ListofNumber}
+        {\ccUseComp{list-of-hang-number}}
+        {\leftskip0pt}%
+      \ccUseComp{ListofCaption}%
+      \ccUseProperty{list-of-page-sep}\ccUseComp{ListofPage}%
+    }%
+    \ccSetProperty{list-of-before-entry}{%
+      \ccGobble
+      \leftskip\ccUseProperty{list-of-margin-left}\relax%
+      \rightskip \ccUseProperty{list-of-margin-right}\relax%
+      \parfillskip \ccUseProperty{list-of-parfillskip}\relax
+      \parindent\z@
+      \@afterindenttrue
+      \interlinepenalty\@M
+      \leavevmode
+      \null\nobreak
+    }% list-of-float appearance
+    \ccSetProperty{list-of-after-entry}{\par}%
+  }% /Properties
+  \ccDeclareType{Attributes}{%
+    \ccDeclareAttributeHandler{class}{\ccf@attr@class{\ccAttrVal}}%
+    \ccDeclareAttributeHandler*{break-caption}[\@ccf@break@captfalse]{\@ccf@break@capttrue}%
+    \ccDeclareAttributeHandler{float-pos}[\let\ccf@floatpos\@empty]{\ccf@attr@pos{\ccAttrVal}}%
+    \ccDeclareAttributeHandler{orientation}{\ccf@attr@orient{\ccAttrVal}}
+    \ccDeclareAttributeHandler{debug}[\let\ccf@debug\relax]{\let\ccf@debug\ccf@attr@debug}
+    \ccDeclareAttributeHandler{no-same-height}{\@ccf@sameheightfalse}%
+  }
+}% /Container
+\def\ccf@float{\cc@opt@empty\@ccf@float}
+\def\@ccf@float[#1]{%
+  \par
+  \begingroup
+    \@cc@is@finalfalse
+    \global\advance\ccf@int@cnt\@ne
+    \ccEvalType{FloatEnvInfo}%
+    \ccf@reset@defaults
+    \ccToggleCountedConditionals
+    \ccEvalType{Properties}%
+    \ccIfPropVal{subfloat-same-height}{true}{\global\@ccf@sameheighttrue}{\global\@ccf@sameheightfalse}
+    \ccEvalAttributes{#1}%
+    \ccf@eval@class
+    \ccf@set@hsize
+    \ccf@get@seps
+    \ccEvalType{Components}%
+    \ccUseProperty{before-float}%
+    \ccf@set@env
+    \ifx\ccf@floatpos\@empty\else\savenotes\fi
+    \@cc@is@finaltrue
+    \ignorespaces}
+\def\endccf@float{%
+    \ccf@begin@env
+      \@cc@is@finalfalse
+      \ccf@set@top@sep
+      \ccf@int@sub@flt@cnt=\ccSubFloatCnt\relax
+      \ccSubFloatCnt=\z@\relax
+      \cc@iterate{\ccSubFloatCnt}{\z@}{\the\ccf@int@sub@flt@cnt}
+        {\ccf@create@counter
+         \ccf@compose@listof}%
+      \ccSubFloatCnt=\ccf@int@sub@flt@cnt\relax
+      \ccf@test@caption{0}{}{top}%
+      \ccf@test@caption{0}{}{bottom}%
+      \bgroup
+        \@cc@is@finaltrue
+        \ccIfCompFromVal{titlepage}{PDFUAID}{2}
+          {\ccaStructStart{Aside}}
+          {\ccaStructStart{Div}}%
+        \edef\ccf@parstruct@id{\ccaGetCurStruct{idx}}%
+        \hsize\ccf@total@width
+        \ccf@process
+        \ccIfCompFromVal{titlepage}{PDFUAID}{2}
+          {\ccaStructEnd{Aside}}
+          {\ccaStructEnd{Div}}%
+        \par
+      \egroup
+      \ccSavePage
+      \ccf@set@bot@sep
+    \ccf@end@env
+    \ccf@debug%
+    \ifx\ccf@floatpos\@empty\else\spewnotes\fi
+  \endgroup
+  \ccf@store@dimens
+  \global\let\ccf@current@class\relax
+}
+\def\ccf@store@dimens{%
+  \immediate\write\@auxout
+    {\string\expandafter\string\gdef\string\csname\space cc-float-\the\ccf@int@cnt-dimens\string\endcsname{%
+        {\the\ccf@total@width}%
+        {\the\ccf@total@height}%
+        {\the\ccf@total@depth}%
+      }}%
+  }
+\def\ccSubFloat{%
+  \ifx\ccf@is@subfloat\relax
+    \PackageError{coco-floats.sty}{Nested ccSubFloats detected!}{You cannot (yet) nest a `ccSubFloat' environment into another `ccSubFloat' environment!}%
+  \else
+    \global\let\ccf@is@subfloat\relax
+    \global\advance\ccSubFloatCnt\@ne
+  \fi
+  \global\cslet{ccf@made@label@for@\the\ccSubFloatCnt}\relax
+  \ignorespaces}
+\def\endccSubFloat{%
+  \ifhmode\unskip\fi
+  \setbox\ccf@sub@box\hbox{\ccGobble
+    \let\includegraphics\ccf@measuresubgraphics
+    \ccUseProperty{subfloat-content}%
+  }%
+  \expandafter\xdef\csname ccf@\cc@cur@cont @width-\the\ccSubFloatCnt\endcsname{\the\wd\ccf@sub@box}%
+  \expandafter\xdef\csname ccf@\cc@cur@cont @height-\the\ccSubFloatCnt\endcsname{\the\ht\ccf@sub@box}%
+  \expandafter\xdef\csname ccf@\cc@cur@cont @depth-\the\ccSubFloatCnt\endcsname{\the\dp\ccf@sub@box}%
+  \@tempdima=\dimexpr\the\ht\ccf@sub@box+\the\dp\ccf@sub@box\relax
+  \@tempdimb=\dimexpr\the\wd\ccf@sub@box\relax
+  \ifdim\@tempdima>\ccf@sub@maxheight\relax
+    \global\ccf@sub@maxheight=\@tempdima\relax
+  \fi
+  \global\setbox\ccf@sub@box\box\voidb@x
+  \global\let\ccf@is@subfloat\@undefined
+  \aftergroup\ignorespaces
+}
+\long\def\ccfRenderSubFloats#1#2{%
+  \leavevmode
+  \savenotes
+  \ifnum#1>\@ne\hfill\fi
+  \vtop\bgroup
+    \expandafter\hsize\csname  cc@\cc@cur@cont @res@width-#1\endcsname\relax
+    \let\includegraphics\ccf@includesubgraphics
+    \leavevmode
+    \ccf@render@sub{#1}{#2}%
+  \egroup
+  \spewnotes
+}
+\long\def\ccf@render@sub#1#2{%
+  \ccSubFloatCnt=#1\relax
+  \ccf@make@subcaption{top}%
+  \bgroup\strut\ccUseComp{#2}\strut\par\egroup%
+  \ccf@make@subcaption{bottom}}
+\def\ccf@attr@class#1{%
+  \gdef\ccf@current@class{#1}%%
+}
+\def\ccf@eval@class{%
+  \ccUseStyleClass{default}{\ccfCapType}%
+  \ifx\ccf@current@class\relax\else
+    \ccUseStyleClass{\ccf@current@class}{\ccfCapType}%
+  \fi}
+\def\ccf@attr@pos#1{%
+  \edef\ccf@floatpos{#1}%
+  \def\@tempa{h!}\ifx\ccf@floatpos\@tempa\let\ccf@floatpos\@empty\fi
+  \def\@tempa{h}\ifx\ccf@floatpos\@tempa\def\ccf@floatpos{htbp!}\fi
+  \ifx\ccf@do@dbl\relax
+    \ifx\ccf@floatpos\@empty\def\ccf@floatpos{htpb!}\fi% 11514
+    \linewidth\dimexpr2\columnwidth+\columnsep\relax
+    \hsize\linewidth\relax
+  \fi
+}
+\def\ccf@attr@orient#1{%
+  \ccIfAttrIsStr{#1}{orientation}{landscape}
+    {\linewidth\textheight
+     \hsize\linewidth
+     \def\ccf@floatpos{p}}{}}
+\def\ccf@attr@debug{%
+  \message{^^J[CoCo Float Debug]^^J
+      Textheight:\space\the\textheight^^J
+      Type:\space\space\space\space\space\space\space\cc@cur@cont^^J
+\ifx\ccfCapType\cc@str@figure
+      Path: \space\space\space\space\space\space\ccf@fig@path^^J
+\fi
+      Class:\space\space\space\space\space\space\ccf@current@class^^J
+      Floatpos:\space\space\space\ccf@floatpos^^J
+      Environ:\space\space\space\space\expandafter\noexpand\ccf@begin@env...\expandafter\noexpand\ccf@end@env^^J
+      Subfloat:\space\space\space               \the\ccSubFloatCnt^^J
+\ifnum\ccSubFloatCnt=\z@
+      Width:\space\space\space\space\space\space\the\ccf@total@width^^J
+      Height:\space\space\space\space\space\the\ccf@total@height^^J
+      Depth:\space\space\space\space\space\space\the\ccf@total@depth^^J
+\else
+      Width \the\ccSubFloatCnt:\space\space\space\space\space\space\expandafter\meaning\csname ccf@\cc@cur@cont @width-\the\ccSubFloatCnt\endcsname^^J
+      Height \the\ccSubFloatCnt:\space\space\space\space\space     \expandafter\meaning\csname ccf@\cc@cur@cont @height-\the\ccSubFloatCnt\endcsname^^J
+      Depth \the\ccSubFloatCnt:\space\space\space\space\space\space\expandafter\meaning\csname ccf@\cc@cur@cont @depth-\the\ccSubFloatCnt\endcsname^^J
+\fi}}
+\def\ccf@generate@listof@handlers#1#2#3{%
+  \expandafter\gdef\csname cc@#1@extract@data\endcsname##1##2##3##4{%
+    \ccSetContainer{#3}%
+    \ccEvalType[#3]{Properties}%
+    \ccDeclareComponent{ListofCaption}{}{}%
+    \ccDeclareComponent{ListofLegend}{}{}%
+    \ccDeclareComponent{ListofSource}{}{}%
+    \ccDeclareComponent{ListofNumber}{}{}%
+    \ccDeclareComponent{ListofPage}{}{}%
+    \ccComponent{ListofPage}{\ccUseProperty{list-of-page-face}##4}%
+    \cc@expand@l@contents{##3}{#3}{Listof}{Caption}%
+    \cc@format@number{list-of-}{Listof}{##1}%
+  }%
+  \expandafter\gdef\csname cc@#1@print@entry\endcsname##1{%
+    \bgroup
+      \ccUseHook{list-of-before-hook-##1}%
+      \ccUseProperty{list-of-before-entry}%
+      \ccUseProperty{list-of-block}%
+      \ccUseHook{list-of-after-hook-##1}%
+      \ccUseProperty{list-of-after-entry}%
+    \egroup}%
+}
+\def\ccf@addcontentsline{%
+  \ccWhenComp{ListofEntry}{%
+    \protected@write\@auxout
+      {\ccGobble}%
+      {\string\@writefile{\ccf@cap@list@type}
+        {\protect\ccContentsline
+          {\ifnum\ccSubFloatCnt>\z@\ccIfAttr{\ccfCapType}{subfloat}{sub}{}\fi\ccfCapType}
+          {\ccUseComp{ListofEntry}}
+          {\thepage}
+          {\@currentHref}\protected@file@percent}}\relax}}
+\def\ccf@check@empty#1{\cc@check@empty{\cc@cur@cont}{#1-\the\ccSubFloatCnt}{Listof}}
+\def\ccf@compose@listof{%
+  \ccf@check@empty{Number}%
+  \ccf@check@empty{Caption}%
+  \ccf@check@empty{Legend}%
+  \ccf@check@empty{Source}%
+  \let\ccf@listof@entry\relax
+  \ccWhenComp{ListofCaption}{\csgappto{ccf@listof@entry}{\string\ccComponent{ListofCaption}{\ccUseComp{ListofCaption}}}}%
+  \ccWhenComp{ListofNumber}{\csgappto{ccf@listof@entry}{\string\ccComponent{ListofNumber}{\ccUseComp{ListofNumber}}}}%
+  \ccWhenComp{ListofLegend}{\csgappto{ccf@listof@entry}{\string\ccComponent{ListofLegend}{\ccUseComp{ListofLegend}}}}%
+  \ccWhenComp{ListofSource}{\csgappto{ccf@listof@entry}{\string\ccCompoennt{ListofSource}{\ccUseComp{ListofSource}}}}%
+  \ifx\ccf@listof@entry\relax\else
+    \bgroup
+      \ccGobble
+      \protected@edef\@ccf@listof@entry{\ccf@listof@entry}%
+      \ccComponentEA{ListofEntry}{\@ccf@listof@entry}%
+    \egroup
+  \fi
+}%
+\def\ccf@write@listof{%
+  \ccUnlessAttr{\ccfCapType}{nolist}
+    {\ifnum\ccSubFloatCnt=\z@\relax
+       \ccIfAttr{\ccfCapType}{subfloat}
+         {\ccSubFloatCnt=\z@\relax
+          \cc@iterate{\ccSubFloatCnt}{\z@}{\the\ccf@int@sub@flt@cnt}
+            {\ccf@addcontentsline}}%
+         {\ccf@addcontentsline}%
+     \else
+       \ccIfAttr{\ccfCapType}{subfloat}{}{\ccf@addcontentsline}%
+     \fi}%
+}
+\def\ccf@create@counter{%
+  \ccIfAttrIsSet{\ccfCapType}{nonumber}{}
+    {\ccUnlessComp{Number}
+      {\ccIfPropVal{numbering}{auto}
+        {\ccIfAttr{\ccfCapType}{subfloat}
+          {\ifnum\ccSubFloatCnt=\z@\relax
+             \ccf@set@top@counter%
+           \else
+             \ccIfPropVal{sub-numbering}{auto}
+               {\ccf@set@subcounter}{}%
+           \fi}
+          {\ccf@set@top@counter}}{}}}}
+\def\ccf@set@top@counter{%
+  \ccWhenComp{Caption}{%
+    \global\expandafter\advance\csname c@\ccfCapType\endcsname\@ne\relax
+    \ccdefFromProperty\ccf@name@prefix{auto-number-prefix}%
+    \ccdefFromProperty\ccf@name@sep{auto-number-prefix-sep}%
+    \protected@edef\@tempa{\ccf@name@prefix\ccf@name@sep\expandafter\the\csname c@\ccfCapType\endcsname}%
+    \ccComponentEA{Number}{\@tempa}%
+  }%
+}
+\def\ccf@set@subcounter{%
+  \ccSetPropertyVal{float-number}{\csname  cc@\cc@cur@cont @Number-0\endcsname}%
+  \ccSetPropertyVal{sub-number}{%
+    \begingroup
+      \expandonce{\ccUseProperty{sub-number-face}}%
+      \relax\ccUseProperty{sub-number-before}%
+      \csname @\ccUseProperty{sub-number-style}\endcsname{\the\ccSubFloatCnt}%
+      \ccUseProperty{sub-number-after}%
+    \endgroup}%
+  \ccComponent{Number}{\ccUseProperty{sub-number-format}}%
+}
+\def\ccfCreateLabel{%
+  \ccIfComp{Number}
+    {\def\cc@fallback@anchor{%
+       \ccGobble
+       \ccdefFromComp\@currentlabel{Number}%
+       \ccdefFromComp\@currentlabelname{ListofCaption}}%
+     \def\cc@labelname@comp{Caption}}
+   {\def\cc@fallback@anchor{\phantomsection}}%
+  \expandafter\ccCreateLabel\expandafter{\ccfCapType}}
+\def\ccf@set@hsize{%
+  \expandafter\ccf@sub@sep\ccUseProperty{sub-float-sep}\relax%
+  \global\ccf@total@width=\hsize\relax
+  \expandafter\ccf@margin@l\ccUseProperty{margin-left}\relax
+  \expandafter\ccf@margin@r\ccUseProperty{margin-right}\relax
+  \expandafter\ccf@margin@i\ccUseProperty{margin-inner}\relax
+  \expandafter\ccf@margin@o\ccUseProperty{margin-outer}\relax
+  \ccf@set@margins
+  \global\advance\ccf@total@width-\ccf@margin@r\relax
+  }
+\def\ccf@set@margins{%
+  \ccTestPage
+  \if@cc@odd
+    \advance\ccf@margin@l\ccf@margin@i
+    \advance\ccf@margin@r\ccf@margin@o
+  \else
+    \advance\ccf@margin@l\ccf@margin@o
+    \advance\ccf@margin@r\ccf@margin@i
+  \fi
+}
+\def\ccf@process{%
+  \ifx\ccf@has@capt@top\@empty\leavevmode\fi
+  \ccf@make@outer@caption{top}%
+  \ifnum\the\ccSubFloatCnt=\z@\relax
+    \bgroup\advance\hsize-\ccf@margin@l
+      \@cc@is@finaltrue
+      \ccUseProperty{float-render}%
+    \egroup
+  \else
+    \ccf@test@subcapt
+    \@cc@is@finalfalse
+    \ccf@calc@sameheight
+    \def\ccf@prefix{sub}%
+    \ifx\ccf@has@subcapt@top\@empty\ccf@calc@row@ht{top}\fi%
+    \ifx\ccf@has@subcapt@bottom\@empty\ccf@calc@row@ht{bottom}\fi%
+    \@cc@is@finaltrue
+    \ccUseProperty{subfloat-render}%
+    \let\ccf@prefix\@empty
+  \fi
+  \ccf@make@outer@caption{bottom}%
+}
+\def\ccf@calc@row@ht#1{%
+  \@tempcnta\z@
+  \@tempdima\z@
+  \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
+    \setbox\z@\vbox{%
+      \ccSubFloatCnt\@tempcnta\relax
+      \expandafter\hsize\expandafter\dimexpr\csname  cc@\cc@cur@cont @res@width-\the\@tempcnta\endcsname\relax
+      \ccGobble
+      \ccUseProperty{\ccf@prefix caption-face}%
+      \ccUseProperty{\ccf@prefix caption-face-#1}%
+      \leavevmode
+      \strut\ccUseProperty{caption-#1}\strut%
+      }%
+    \expandafter\ifdim\dimexpr\ht\z@+\dp\z@\relax>\@tempdima \@tempdima\dimexpr\ht\z@+\dp\z@\relax\fi
+  }%
+  \expandafter\edef\csname ccf@capt@row@height@#1\endcsname{\the\@tempdima}%
+}
+\def\ccf@calc@sameheight{%
+  \if@ccf@sameheight
+    \@tempdima=\z@\relax
+    \@tempcnta=\z@\relax
+    \ccf@calc@width=\ccf@total@width\relax
+    \advance\ccf@calc@width-\ccf@margin@l\relax
+    \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
+      \edef\@tempa{\CalcRatio{\ccf@sub@maxheight}{\csname ccf@\cc@cur@cont @height-\the\@tempcnta\endcsname}}%
+      \ifnum\the\@tempcnta>\@ne\relax
+        \advance\ccf@calc@width-\ccf@sub@sep\relax%
+      \fi
+      \expandafter\@tempdimc\csname ccf@\cc@cur@cont @width-\the\@tempcnta\endcsname\relax
+      \@tempdimb=\@tempa\@tempdimc\relax
+      \csedef{cc@\cc@cur@cont @adj@width-\the\@tempcnta}{\the\@tempdimb}%
+      \advance\@tempdima\@tempdimb
+    }%
+    \@tempcnta=\z@\relax
+    \@tempdimb=\z@\relax
+    \@tempdimc=\z@\relax
+    \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
+      \edef\@tempa{\CalcRatio{\csname  cc@\cc@cur@cont @adj@width-\the\@tempcnta\endcsname}{\@tempdima}}%
+      \csedef{cc@\cc@cur@cont @res@width-\the\@tempcnta}{\dimexpr\@tempa\ccf@calc@width\relax}%
+      \@tempdimc\dimexpr\csname ccf@\cc@cur@cont @height-\the\@tempcnta\endcsname\relax
+      \@tempdimc\dimexpr\@tempa\@tempdimc\relax
+      \ifdim\@tempa\@tempdimb<\@tempdimc\@tempdimb\@tempdimc\relax\fi
+    }%
+  \else
+    \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
+      \csletcs{cc@\cc@cur@cont @res@width-\the\@tempcnta}{ccf@\cc@cur@cont @width-\the\@tempcnta}
+    }%
+  \fi
+  \csedef{cc@\cc@cur@cont @res@height}{\the\@tempdimb}%
+}
+\def\ccf@test@caption#1#2#3{%
+  \@cc@is@finalfalse
+  \setbox\cc@tempboxa\hbox{\ccGobble\ccSubFloatCnt=0#1\relax\ccUseProperty{#2caption-#3}\relax}%
+  \setbox\cc@tempboxb\hbox{\ccGobble\ccSubFloatCnt\m@ne\relax\ccUseProperty{#2caption-#3}\relax}%
+  \edef\my@wda{\expandafter\strip@pt\wd\cc@tempboxa sp}%
+  \edef\my@wdb{\expandafter\strip@pt\wd\cc@tempboxb sp}%
+  \ifdim\my@wda>\my@wdb\relax
+    \expandafter\global\expandafter\let\csname ccf@has@#2capt@#3\endcsname\@empty
+  \fi
+  \@cc@is@finaltrue
+}
+\def\ccf@test@subcapt{%
+  \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
+    \ccf@test@caption{\the\@tempcnta}{sub}{top}%
+    \ccf@test@caption{\the\@tempcnta}{sub}{bottom}%
+  }%
+}
+\def\ccf@capt@top@offset#1{%
+  \ccIfStrEqual{#1}{top}{}{%
+    \par\if@ccf@break@capt\else\nopagebreak\fi%
+    \expandafter\@tempskipa\ccUseProperty{\ccf@prefix caption-sep-bottom}\relax%
+    \advance\@tempskipa\dimexpr-\topskip+\dp\strutbox\relax
+    \if@ccf@break@capt\advance\@tempskipa\dimexpr-\baselineskip-\ht\strutbox+\topskip\relax\fi
+    \ifx\ccf@has@subcapt@bottom\@empty
+      \ifnum\the\ccSubFloatCnt=\z@
+        %% subcapt-bot exists and capt-bot is rendered
+        \advance\@tempskipa\dimexpr\dp\strutbox\relax
+        \expandafter\advance\expandafter\@tempskipa\ccUseProperty{subcaption-add-sep-bottom}\relax%
+      \fi
+    \fi
+    \vskip\@tempskipa
+    \leavevmode
+  }}
+\def\ccf@capt@bottom@offset#1{%
+  \ccIfStrEqual{#1}{top}
+    {\@tempskipa=\z@\relax
+     \expandafter\advance\expandafter\@tempskipa\ccUseProperty{\ccf@prefix caption-sep-top}%
+     \ifnum\the\ccSubFloatCnt=\z@\relax
+       \ifx\ccf@has@subcapt@top\@empty
+         %% subcapt-top exists and capt-top is rendered
+         \advance\@tempskipa\dimexpr\ht\strutbox-\topskip-\p@\relax
+         \expandafter\advance\expandafter\@tempskipa\ccUseProperty{subcaption-add-sep-top}\relax%
+       \else
+         \advance\@tempskipa\dimexpr-\dp\strutbox\relax
+       \fi
+     \fi
+     \vskip\@tempskipa
+     \par\if@ccf@break@capt\else\nopagebreak\fi}
+   {\ifnum\the\ccSubFloatCnt>\z@\relax
+      \vskip\dp\strutbox
+    \fi}}
+\long\def\ccf@make@caption#1#2{%
+  \ccf@capt@top@offset{#1}%
+  \ifnum\the\ccSubFloatCnt=\z@\relax
+    \def\ccf@caption@box{%
+      \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}
+        {\setbox\@tempboxa\vbox\bgroup\hsize\textheight}
+        {\hskip\ccf@margin@l%
+         \setbox\@tempboxa\vbox\bgroup\advance\hsize-\ccf@margin@l}%
+      }%
+  \else
+    \expandafter\cc@tempskipa\csname ccf@capt@row@height@#1\endcsname\relax
+    \expandafter\advance\expandafter\cc@tempskipa\dimexpr-\baselineskip+\topskip\relax
+    \def\ccf@caption@box{\setbox\@tempboxa\vbox to \cc@tempskipa\bgroup}%
+  \fi
+  \ccf@caption@box%
+    \ccIfStrEqual{#2}{top}{}{\if@ccf@break@capt\else\vss\fi}%
+    \ccUseProperty{\ccf@prefix caption-face}%
+    \ccUseProperty{\ccf@prefix caption-face-#1}%
+    \ccaStructStart{Caption}%
+    \cc@topstrut\ccUseProperty{\ccf@prefix caption-#1}\strut%
+    \ccaStructEnd{Caption}%
+    \ifx\ccf@measure\relax\else
+      \ccIfPropVal{label-pos}{#1}{%
+        \ccfCreateLabel%
+        \ccf@write@listof%
+      }{}%
+    \fi
+    \ccIfStrEqual{#2}{bottom}{}{\if@ccf@break@capt\else\vss\fi}%
+  \egroup%
+  \if@ccf@break@capt\unvbox\@tempboxa\else\box\@tempboxa\fi%
+  \ccf@capt@bottom@offset{#1}%
+}
+\def\ccf@make@outer@caption#1{%
+  \expandafter\ifx\csname ccf@has@capt@#1\endcsname\@empty
+    \setbox\z@\vbox{%
+      \@cc@is@finalfalse
+      \let\ccf@measure\relax
+      \ccGobble
+      \ccSubFloatCnt\z@
+      \ccf@make@caption{#1}{top}%
+    }%
+    \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space ccFloat\the\ccf@int@cnt Cap#1\string\endcsname{\the\dimexpr \ht\z@+\dp\z@\relax}}%
+    \bgroup
+      \@cc@is@finaltrue
+      \savenotes
+      \if@ccf@break@capt\else\nopagebreak\fi
+      \ccSubFloatCnt\z@
+      \ccf@make@caption{#1}{top}%
+      \spewnotes
+    \egroup
+    \ccIfStrEqual{#1}{top}{\if@ccf@break@capt\else\nopagebreak\fi}{}%
+  \fi}
+\def\ccf@make@subcaption#1{%
+  \expandafter\ifx\csname cc@has@\ccf@prefix capt@#1\endcsname\@empty
+    \ccf@make@caption{#1}{\ccUseProperty{\ccf@prefix caption-valign-#1}}%
+  \fi}
+\def\ccDeclareFloat{\cc@opt@empty\ccf@declare@float}
+\long\def\ccf@declare@float[#1]#2#3#4#5{%
+  \ifcsdef{cc@container@#2}{%
+    \ccPackageError{Float}{}
+        {Attempt to re-define pre-existing float Container `#2'}
+        {You cannot re-define an existing float Container. Use
+\string\ccAddToType{<Type>}{#2}{<code>} to alter the #2 container!}}{}%
+  \def\ccf@parent{#1}%
+  \ccDeclareContainer{#2}{%
+    \ccPackageInfo{Floats}{}{Declaring float `#2'}%
+    \ifx\ccf@parent\@empty
+      \ccInherit{Properties,Components,Attributes}{float}
+    \else
+      \ccInherit{Properties,Components,Attributes}{\ccf@parent}
+    \fi
+    \ccDeclareType{FloatEnvInfo}{%
+      \ccSetContainer{#2}%
+      \def\ccfCapType{#3}%
+      \def\ccf@cap@list@type{#4}%
+    }% /FloatEnvInfo
+    \ccDeclareEnv[#2]{\ccf@float}{\endccf@float}%
+    \ccDeclareEnv[#2*]{\if@twocolumn\let\ccf@do@dbl\relax\else\fi\ccf@float}{\if@twocolumn\let\ccf@do@dbl\relax\fi\endccf@float}%
+    \ccDeclareType{Components}{}%
+    \ccDeclareType{Properties}{}%
+    \ccf@generate@listof@handlers{#4}{#3}{#2}%
+    \bgroup
+      \def\cc@cur@cont{#2}%
+      \cc@init@l@[list-of]{#3}{0}{#3}% Generate listof-Entries for first level floats
+      \cc@init@l@[list-of]{#4}{1}{sub#3}% Generate listof-Entries for sub-floats
+    \egroup
+    #5
+  }% /container
+}
+\ccDeclareContainer{Graphic}{%
+  \ccDeclareType{Components}{%
+    \def\cc@counted@comp@scheme#1{#1-\the\ccSubFloatCnt}%
+    \ccfMakeComp{Fig}%
+    \ccfMakeComp{AltText}%
+  }%
+  \ccDeclareType{Properties}{}%
+}
+\ccDeclareFloat{Figure}{figure}{lof}{%
+  \ccInherit{Properties,Components}{Graphic}%
+  \ccDeclareType{Properties}{%
+    \ccSetProperty{subfloat-same-height}{true}%
+    \ccSetProperty{subfloat-content}{%
+      \ifx\ccf@no@figs\relax
+        \rule{0pt}{1pt}\rule{1pt}{0pt}%
+      \else
+        \ccUseComp{Fig}%
+      \fi}%
+    \ccSetProperty{float-render}{\ccfFigureRender}%
+    \ccSetProperty{subfloat-render}{\ccfSubFigureRender}%
+  }%
+}
+\def\ccfFigureRender{%
+  \bgroup
+    \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}
+      {\hsize\dimexpr\textwidth-\ccf@margin@r-\ccf@margin@l\relax}%
+      {}%
+    \let\includegraphics\ccf@includesubgraphics
+    \hskip\ccf@margin@l
+    \strut\ccUseComp{Fig}\strut
+  \egroup}
+\def\ccfSubFigureRender{%
+  \hskip\ccf@margin@l
+  \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
+    \ccfRenderSubFloats{\the\@tempcnta}{Fig}%
+  }}
+\def\ccf@includesubgraphics{\cc@opt@empty\@ccf@includesubgraphics}%
+\def\@ccf@includesubgraphics[#1]#2{%
+  \def\@igopts{max width=\hsize,max height=\vsize,width=\hsize}%
+  \if!#1!\else
+    \apptocmd\@igopts{,#1}{}{}%
+  \fi
+  \gdef\ccf@fig@path{#2}%
+  \if@cc@is@final
+    \ccaStructStart{Figure}%
+    \ccaAddPlacement{Block}%
+  \fi%
+  \expandafter\ccf@ltx@includegraphics\expandafter[\@igopts]{#2}%
+  \if@cc@is@final
+    \ifx\relax\cca@Gin@alt\relax
+      \ccIfComp{AltText}
+        {\ccaAddAltText{\ccUseComp{AltText}}}
+        {\ccaAddAltText{--}}%
+    \else
+      \ccaAddAltText{\cca@Gin@alt}%
+    \fi
+    \ccaStructEnd{Figure}%
+  \fi
+}
+\def\ccf@measuresubgraphics{\cc@opt@empty\@ccf@measuresubgraphics}
+\def\@ccf@measuresubgraphics[#1]#2{%
+  \begingroup
+    \setkeys{Gin}{#1}%
+    \ifx\Gin@ewidth\Gin@exclamation
+      \ifx\Gin@eheight\Gin@exclamation\else
+        \global\@ccf@sameheightfalse
+      \fi
+    \else
+      \global\@ccf@sameheightfalse
+    \fi
+  \endgroup
+  \ccf@ltx@includegraphics[#1]{#2}%
+}
+\ccDeclareContainer{InlineFigure}{%
+  \ccInherit{Properties,Components}{Graphic}%
+  \ccDeclareType{Attributes}{}%
+  \ccDeclareType{Properties}{%
+    \ccSetProperty{smash}{false}
+    \ccSetProperty{vertical-align}{bottom}
+    \ccSetProperty{float-render}{\ccUseComp{Fig}}
+  }%
+}
+\def\ccInlineFigure{\cc@opt@empty\cc@inline@figure}
+\def\cc@inline@figure[#1]#2{%
+  \begingroup
+    \ccSetContainer{InlineFigure}%
+    \def\ccfCapType{figure}%
+    \ccToggleCountedConditionals
+    \ccEvalType{Properties}%
+    \ccEvalAttributes{#1}%
+    \ccf@eval@class
+    \ccEvalType{Components}%
+    \ignorespaces
+    #2%
+    \ccSubFloatCnt=\z@\relax
+    \bgroup
+      \ccUseProperty{float-render}%
+    \egroup
+    \ccf@debug%
+    \ccf@store@dimens
+  \endgroup
+}
+\csdef{\ccPrefix InlineFigure}{\ccInlineFigure}%
+\ccDeclareContainer{Tabular}{%
+  \ccDeclareType{Properties}{}%
+  \ccDeclareType{Components}{%
+    \ccf@reserve@tabular
+  }%
+}
+\def\ccf@reserve@tabular{%
+  \ccf@reserve@tab{}%
+  \ccf@reserve@tab{x}%
+  \ccf@reserve@tab{y}%
+  \ccf@reserve@htmltab%
+}
+\def\ccf@reserve@tab#1{%
+  \csletcs{orig@tabular#1}{tabular#1}%
+  \csletcs{orig@endtabular#1}{endtabular#1}%
+  \csdef{tabular#1}{%
+    \global\setbox\ccf@floatbox
+    \vbox\bgroup
+      \if!#1!\else
+        \let\tabular\orig@tabular
+        \let\endtabular\orig@endtabular
+      \fi
+      \csname orig@tabular#1\endcsname}%
+  \csdef{endtabular#1}{\csname orig@endtabular#1\endcsname\egroup}%
+}
+\ccDeclareFloat{Table}{table}{lot}{%
+  \ccInherit{Properties,Components}{Tabular}%
+  \ccDeclareType{Properties}{%
+    \ccSetProperty{subcaption-valign-top}{bottom}%
+    \ccSetProperty{subfloat-content}{%
+      \PackageError{coco-floats.sty}
+        {ccSubFloat does not support sub-tables (yet)!}
+        {You cannot yet use a tables within the `ccSubFloat'!}%
+      }%
+    \ccSetProperty{float-render}{\ccfTableRender}%
+    \ccSetProperty{subfloat-render}{\ccfSubTableRender}%
+  }%
+}
+\AtBeginDocument{%
+  \@ifpackageloaded{htmltabs}{%
+    \def\ccf@reserve@htmltab{%
+      \let\ccf@add@style\@empty
+      \ifx\ccf@floatpos\@empty
+        \expandafter\ifx\csname \ccPrefix Float\the\ccf@int@cnt Captop\endcsname\relax\else
+          \htInitSkip\csname \ccPrefix Float\the\ccf@int@cnt Captop\endcsname
+          \advance\htInitSkip\ccf@sep@top%
+        \fi
+        \expandafter\ifx\csname \ccPrefix Float\the\ccf@int@cnt Capbottom\endcsname\relax\else
+          \htAddToBottom\csname \ccPrefix Float\the\ccf@int@cnt Capbottom\endcsname
+          \advance\htAddToBottom\ccf@sep@bottom%
+        \fi
+      \else
+        \def\ccf@add@style{;break-table:false;}%
+      \fi
+      \edef\cc@tempa{margin-left:\ccf@margin@l\ccf@add@style}%
+      \expandafter\htAddStyle\expandafter{\cc@tempa}%
+      \global\setbox\htTableBox\box\voidb@x
+      \let\htOutputTable\relax
+    }}{\let\ccf@reserve@htmltab\relax}%
+}
+\def\ccfGetTableContent{%
+  \ifx\htTableBox\@undefined\else
+    \ifvoid\htTableBox\else
+      \let\ccf@floatbox\htTableBox%
+    \fi\fi}
+\def\ccfTableRender{%
+  \ccfGetTableContent
+  \ccComponent{Content}{\unvbox\ccf@floatbox}%
+  \ccUseComp{Content}%
+  \ccaStructStart{Table}%
+  \ifx\ht@structID@THead\@undefined\else\ccaMoveStruct{\ht@structID@THead}\fi%
+  \ifx\ht@structID@TBody\@undefined\else\ccaMoveStruct{\ht@structID@TBody}\fi%
+  \ifx\ht@structID@TFoot\@undefined\else\ccaMoveStruct{\ht@structID@TFoot}\fi%
+  \par\if@ccf@break@capt\else\nopagebreak\fi
+  \vskip\dp\strutbox
+  \ccaStructEnd{Table}%
+}
+\def\ccfSubTableRender{%
+  \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
+    \ccfGetTableContent
+    \@cc@is@finalfalse
+    \ccComponent{Content}{\unvbox\ccf@floatbox}%
+    \@cc@is@finaltrue
+    \ccfRenderSubFloats{\the\@tempcnta}{Content}%
+  }}
+\def\ccFloatBarrier{\AtBeginShipoutNext{\clearpage}}
+\endinput
+%%
+%% End of file `coco-floats.sty'.

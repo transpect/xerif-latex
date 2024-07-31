@@ -1,0 +1,221 @@
+%%
+%% This is file `coco-notes.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `endnotes')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-notes.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% module for CoCoTeX that handles footnote/endnote switching.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+%% lualatex  -  texlive > 2019
+%%
+\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\ProvidesPackage{coco-notes}
+    [2024/07/16 0.5.0 le-tex coco notes module]
+\newif\if@ccn@use@en \@ccn@use@enfalse
+\newif\if@ccn@en@links \@ccn@en@linksfalse
+\DeclareOption{endnotes}{\global\@ccn@use@entrue}
+\DeclareOption{ennotoc}{\global\let\ccn@en@no@toc\relax}
+\DeclareOption{resetnotesperchapter}{\global\let\ccn@reset@notes@per@chapter\relax}
+\DeclareOption{endnoteswithchapters}{\global\@ccn@use@entrue\global\let\ccn@en@with@chapters\relax}
+\DeclareOption{endnotelinks}{\global\@ccn@en@linkstrue}
+\ProcessOptions
+\RequirePackage{footnote}
+\newif\if@enotesopen
+\AtBeginDocument{\edef\ccn@parindent{\the\parindent}}
+\if@ccn@use@en
+  \RequirePackage{endnotes}
+  \@ifpackageloaded{coco-headings}{\let\ccn@use@TeX@heading\relax}{}
+  \if@ccn@en@links
+    \global\newcount\endnoteLinkCnt \global\endnoteLinkCnt\z@
+    \def\@endnotemark{%
+      \leavevmode
+      \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+      \phantomsection%
+      \label{endnote-\the\endnoteLinkCnt}%
+      \hyperref[endnotetext-\the\endnoteLinkCnt]{\makeenmark}%
+      \ifhmode\spacefactor\@x@sf\fi%
+      \relax%
+    }
+  \fi
+  \let\footnote=\endnote
+  \def\enotesize{\normalsize}%
+  \def\enoteformat{%
+    \if@ccn@en@links%
+      \phantomsection%
+      \label{endnotetext-\currentEndnote}%
+    \fi
+    \noindent
+    \leavevmode
+    \hskip-2em\hb@xt@2em{%
+      \if@ccn@en@links
+        \hyperref[endnote-\currentEndnote]{\@theenmark}\hss%
+      \else
+        \@theenmark\hss%
+      \fi%
+    }%
+    \expandafter\parindent\ccn@parindent\relax\expandafter%
+  }%
+  \gdef\enoteheading{%
+    \leftskip2em
+  }%
+  \def\printnotes{%
+    \ifx\ccn@en@with@chapters\relax
+      \ifnum\c@endnote>\z@
+        \expandafter\global\expandafter\let\csname enotes@in@\the\realchap\endcsname\@empty
+      \fi
+    \fi
+    \if@enotesopen
+      \global\c@endnote\z@%
+      \bgroup
+      \parskip\z@
+      \theendnotes
+      \egroup
+    \fi}
+\else
+  \newcount\c@endnote \c@endnote\z@
+  \let\printnotes\relax
+\fi
+\newcount\realchap \realchap\z@
+\ifx\ccn@en@with@chapters\relax
+  \AtBeginDocument{%
+    \ccAddToHook[heading]{before-hook-chapter}{%
+      \ifnum\c@endnote>\z@\relax
+        \expandafter\global\expandafter\let\csname enotes@in@\the\realchap\endcsname\@empty
+      \fi
+      \global\advance\realchap\@ne
+      \global\c@endnote\z@
+      \def\ccn@par@title{\ccIfComp{TocTitle}{\ccUseComp{TocTitle}}{\ccUseComp{Title}}}%
+      \def\ccn@par@runtitle{\ccIfComp{RunTitle}{\ccUseComp{RunTitle}}{\ccUseComp{Title}}}%
+      \addtoendnotes{%
+        \noexpand\expandafter\noexpand\ifx\noexpand\csname enotes@in@\the\realchap\noexpand\endcsname\noexpand\@empty
+          \bgroup
+            \noexpand\leftskip\noexpand\z@
+            \noexpand\begin{heading}\ifx\ccn@en@no@toc\relax[notoc]\fi{section}%
+              \noexpand\ccComponent{Title}{\ccn@par@title}%
+              \noexpand\ccComponent{RunTitle}{\ccn@par@runtitle}%
+            \noexpand\end{heading}%
+          \egroup
+        \noexpand\fi}%
+    }%
+  }
+\fi
+\ifx\ccn@reset@notes@per@chapter\relax
+  \AtBeginDocument{%
+    \ccAddToHook[heading]{before-hook-chapter}{%
+      \global\c@footnote\z@
+      \global\c@endnote\z@
+    }%
+  }%
+\fi
+\global\newif\if@haveenotes
+\long\def\@endnotetext#1{%
+  \global\@haveenotestrue
+  \if@enotesopen \else \@openenotes \fi
+  \immediate\write\@enotes{%
+    \if@ccn@en@links
+      \string\def\string\currentEndnote{\the\endnoteLinkCnt}%
+    \fi%
+    \@doanenote{\@theenmark}%
+  }%
+  \begingroup
+     \def\next{#1}%
+     \newlinechar='40
+     \immediate\write\@enotes{\meaning\next}%
+  \endgroup
+  \immediate\write\@enotes{\@endanenote}%
+  \if@ccn@en@links
+    \global\advance\endnoteLinkCnt\@ne%
+  \fi%
+}
+\long\def\fn@fntext#1{%
+  \ifx\ifmeasuring@\@@undefined%
+    \expandafter\@secondoftwo\else\expandafter\@iden%
+  \fi%
+  {\ifmeasuring@\expandafter\@gobble\else\expandafter\@iden\fi}%
+  {%
+    \global\setbox\fn@notes\vbox{%
+      \unvbox\fn@notes%
+      \fn@startnote%
+      \@makefntext{%
+        \rule\z@\footnotesep%
+        \ignorespaces%
+        #1%
+        \@finalstrut\strutbox%
+      }%
+      \fn@endnote%
+    }%
+  }%
+}
+\def\fn@getmark@i#1[#2]{%
+  \sbox\z@{\@tempcnta0#2\relax}%
+  \ifdim\wd\z@>0\p@\relax
+    \def\thempfn{#2}%
+    \fn@getmark@iii%
+  \else
+    \csname c@\@mpfn\endcsname#2%
+    \fn@getmark@ii%
+  \fi
+}
+\def\fn@getmark@iii#1{%
+  \unrestored@protected@xdef\@thefnmark{\thempfn}%
+  \endgroup%
+  #1%
+}
+\def\@xfootnote[#1]{%
+   \begingroup
+     \sbox\z@{\@tempcnta0#1\relax}%
+     \ifdim\wd\z@>0\p@\relax
+       \unrestored@protected@xdef\@thefnmark{#1}%
+     \else
+       \csname c@\@mpfn\endcsname #1\relax
+       \unrestored@protected@xdef\@thefnmark{\thempfn}%
+     \fi
+   \endgroup
+   \@footnotemark\@footnotetext%
+}
+\pretocmd\footnoterule{\ccaVstructStart[document]{footnoterule}}{}{}
+\apptocmd\footnoterule{\ccaVstructEnd{footnoterule}}{}{}
+\pretocmd\@footnotemark{%
+  \protected@xdef\@lt@fn@parent{\ccaGetCurStruct{idx}}%
+  \ccaStructStart{FootnoteMark}%
+}{}{}
+\apptocmd\@footnotemark{%
+  \ccaStructEnd{FootnoteMark}%
+}{}{}
+\pretocmd\@makefnmark{%
+  \ccaStructStart{Lbl}%\addAltText{\@thefnmark}
+}{}{}
+\apptocmd\@makefnmark{%
+  \ccaStructEnd{Lbl}%\addAltText{\@thefnmark}
+}{}{}
+\pretocmd\@makefntext{%
+  \ccaStructStart{FootnoteText}%
+  \ifx\@lt@fn@parent\@empty\relax\else\ccaAddToStruct{\@lt@fn@parent}\fi%
+}{}{}
+\apptocmd\@makefntext{%
+  \ccaAddID{auto}\ccaStructEnd{FootnoteText}%
+}{}{}
+\ccaAddRolemap{FootnoteMark}{Reference}
+\ccaAddRolemap{FootnoteText}{Note}
+\endinput
+%%
+%% End of file `coco-notes.sty'.
