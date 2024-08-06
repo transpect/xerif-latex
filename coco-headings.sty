@@ -110,7 +110,7 @@
 }% \cc@declare@heading
 \newcount\cch@tempcnta \cch@tempcnta\z@
 \def\cch@add@autoclose#1#2{%
-  \ccAddToHook[document]{cca/at/begin/document}{%
+  \AddToHook{cca/document/begin}[cch/autoclose]{%
     \ccaAddRolemap{#2}{Sect}%
     \cch@tempcnta=\numexpr\tw@-\cch@highest@level\relax
     \advance\cch@tempcnta by #1\relax
@@ -246,7 +246,8 @@
   \NewHook{cc/headings/#1/before}%
   \NewHook{cc/headings/#1/after}%
   \NewHook{cc/headings/#1/print/before}%
-  \NewHook{cc/headings/#1/run/after}%% Expanded after the local RunTitle has been generated
+  \NewHook{cc/headings/#1/run/after}%
+  \NewHook{env/heading/#1/begin}%
 }
 \def\cch@init@cnt#1{\ifcsname c@#1\endcsname\else\@definecounter{#1}\fi}
 \def\cch@auto@number#1#2{%
@@ -404,6 +405,7 @@
     }{}%
   \cch@reserve
   \edef\ccCurSecName{#2}%
+  \UseHook{env/heading/#2/begin}%
   \ccEvalAttributes[Heading]{#1}%
   \ccEvalType[#2]{Components}%
   \ignorespaces

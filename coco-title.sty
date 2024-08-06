@@ -60,8 +60,8 @@
 \def\ccDeclareTitlepage{\ccAddToType{Properties}{titlepage}}
 \def\cctmeta{\cc@opt@empty\cct@meta}
 \def\cct@meta[#1]{%
-  \ccParseAttributes{Meta}{#1}%
-  \ccUseHook[Meta]{attr-handler}%
+  \UseHook{env/meta/begin}%
+  \ccEvalAttributes[titlepage]{#1}%
   \ccEvalType{Components}%
   \let\and\relax
 }
@@ -83,7 +83,7 @@
   \cct@fundings@eval
   \cct@add@eval
   \cc@if@preamble\cct@set@pdfmeta\relax
-  \ccUseHook{document-meta-hook}%
+  \UseHook{cct/document/meta}%
   \let\cc@cur@cont\@empty
 }
 \def\cct@set@pdfmeta{%
@@ -203,9 +203,10 @@
 \cca@xmp@file@name\space not found.^^J
 Note that the ltpdfa package will create one^^J
 from the Components given in the Meta Container.}}}
-\ccDeclareHook[titlepage]{before-maketitle-hook}
-\ccDeclareHook[titlepage]{document-meta-hook}
-\ccDeclareHook[titlepage]{attr-handler}
+\NewHook{cct/maketitle/before}
+\NewHook{cct/maketitle/after}
+\NewHook{cct/document/meta}
+\NewHook{env/meta/begin}
 \def\cct@article@titlepage{%
   \ccUseProperty{article-title}%
 }
@@ -226,7 +227,7 @@ from the Components given in the Meta Container.}}}
 \def\cct@maketitle{%
   \expandafter\gdef\csname\ccPrefix Maketitle\endcsname{%
     \let\cc@cnt@grp\@empty
-    \ccUseHook[titlepage]{before-maketitle-hook}%
+    \UseHook{cct/maketitle/before}%
     \bgroup
       \ccSetContainer{titlepage}%
       \ccEvalType{Properties}%
@@ -240,7 +241,7 @@ from the Components given in the Meta Container.}}}
         \fi
       \fi
     \egroup
-    \ccUseHook[titlepage]{after-maketitle-hook}%
+    \UseHook{cct/maketitle/after}%
   }%
 }
 \def\cct@fundings@comp{%
@@ -663,12 +664,12 @@ from the Components given in the Meta Container.}}}
       components=\ccIfComp{IccComponents}{\ccUseComp{IccComponents}}{\cca@default@icc@comp};%
       identifier=\ccIfComp{IccIdentifier}{\ccUseComp{IccIdentifier}}{\cca@default@icc@iden}%
   }}
-  \ccAddToHook[titlepage]{document-meta-hook}{\edef\x{\noexpand\ccaAddToConfig{intent}{\ccUseProperty{output-intent}}}\x}
+  \AddToHook{cct/document/meta}{\edef\x{\noexpand\ccaAddToConfig{intent}{\ccUseProperty{output-intent}}}\x}
   \ccAddToType{Components}{titlepage}{%
   \ccDeclareGlobalComponent[2]{PDFAID}%
   \ccDeclareGlobalComponent[A]{PDFALevel}%
   \ccDeclareGlobalComponent[1]{PDFUAID}}%
-\ccAddToHook[titlepage]{document-meta-hook}{%
+\AddToHook{cct/document/meta}{%
   \ccIfCompEmpty{PDFAID}{}{\ccIfCompEmpty{PDFALevel}{}{%
       \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
           pdfaid=\ccUseComp{PDFAID};%

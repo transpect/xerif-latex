@@ -271,10 +271,10 @@
 \fi
 \DeclareAccessibilityCommand{\ccaConvertPdfString}[1]{\directlua{tex.print(ltpdfa.metadata.utf16ToUtf8('\luaescapestring{#1}'))}}
 \ccWhenAlly{%
-  \ccDeclareHook[document]{cca/at/begin/document}
+  \NewHook{cca/document/begin}%
   \AtBeginDocument{%
     \directlua{ltpdfa.beginDocument('\luaescapestring{\ltpdfa@last@page}')}
-    \ccUseHook[document]{cca/at/begin/document}%
+    \UseHook{cca/document/begin}%
     \directlua{ltpdfa.configAutoclose()}
     \ccaVstructStart{document}%
     \renewcommand\PDF@FinishDoc{%

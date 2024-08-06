@@ -109,7 +109,7 @@
   \ccDeclareRoleBlock[apply]{#2}{PDFInfo}{#1-list-pdfinfo-format}%
   \ccDeclareRoleBlock{#2}{Correspondence}{#1-list-correspondence-format}%
 }
-\def\ccAddToRole#1#2{\csgappto{@#1@hook}{#2}}
+\def\ccAddToRole#1#2{\csgappto{cc@group@#1@hook}{#2}}
 \def\ccDeclareLabeledComp{\cc@opt@empty\cc@declare@labeled@comp}
 \def\cc@declare@labeled@comp[#1]#2#3{%
   \ccDeclareComponent{#2}{\expandafter\global}{}%

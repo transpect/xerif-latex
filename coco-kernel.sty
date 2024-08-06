@@ -104,6 +104,7 @@
     \def\cc@declare@env[##1]##2##3{%
       \csgdef{\ccPrefix ##1}{\global\let\reserved@cont\cc@cur@cont\def\cc@cur@cont{#1}##2}%
       \csgdef{end\ccPrefix ##1}{##3}\global\let\cc@cur@cont\reserved@cont}%
+    \ccDeclareType{Attributes}{}%
     #2%
   \endgroup
 \ignorespaces}
@@ -209,11 +210,12 @@
   \ignorespaces}
 \def\ccUseComponentFrom#1#2{\csname cc@#1@#2\endcsname}
 \def\ccGetComp{\@ifstar\cc@sget@comp\cc@get@comp}
-\def\cc@get@comp#1{\ccWhenComp{#1}{%
-    \ccWhenAlly{\ccaStructStart{Para}}%
-    \ccUseComp{#1}%
-    \ccWhenAlly{\ccaStructEnd{Para}}%
-    \par}}
+\def\cc@get@comp#1{%
+  \ccWhenComp{#1}
+    {\ccWhenAlly{\ccaStructStart{Para}}%
+     \ccUseComp{#1}%
+     \ccWhenAlly{\ccaStructEnd{Para}}%
+     \par}}
 \def\cc@sget@comp#1{\ccWhenComp{#1}{\ccUseComp{#1}\par}}
 \long\def\ccIfComp#1#2#3{\expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\relax#3\else#2\fi}
 \long\def\ccWhenComp#1#2{\expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\relax\else#2\fi}
@@ -249,11 +251,12 @@
       \csgdef{cc@\cc@cur@cont @#2-\csname cc#2Cnt\endcsname @attrs}{##1}%
     \fi
     #3%
-    \csname @#2@hook\endcsname
+    \csname cc@group@#2@hook\endcsname
     \ignorespaces
   }%
   \csdef{end\ccPrefix#2}{{\ccToggleCountedConditionals\csuse{cc@compose@group@#2}}\aftergroup\ignorespaces}%
 }
+\def\ccAddToComponentGroup#1#2{\csappto{cc@group@#1@hook}{#2}}
 \def\ccDeclareGroupHandler#1#2{%
   \ifcsdef{cc@group@#1}
     {\ifcsdef{cc@compose@group@#1}
@@ -284,17 +287,15 @@
 }
 \def\ccIfComponentOverride#1#2#3{\expandafter\ifx\csname cc@used@#1@override\endcsname\@empty#2\else#3\fi}
 \def\ccComposeCollection#1#2#3{%
-  \ccIfComp{#3}{\cslet{cc@used@#3@override}\@empty}
-    {\ifcsdef{cc#1Cnt}{%
-          \cc@compose@collection{#1}{#2}%
-          \cc@assign@res{\ccPrefix#3}%
-        \fi}{}}}
+  \ccIfComp{#3}
+    {\cslet{cc@used@#3@override}\@empty}
+    {\cc@compose@collection{#1}{#2}%
+     \cc@assign@res{\ccPrefix#3}}}
 \def\ccApplyCollection#1#2#3{%
-  \ccIfComp{#3}{\cslet{cc@used@#3@override}\@empty}
+  \ccIfComp{#3}
+    {\cslet{cc@used@#3@override}\@empty}
     {\cc@apply@collection{#1}{#2}%
-     \cc@assign@res{\ccPrefix#3}%
-   }%
-}
+     \cc@assign@res{\ccPrefix#3}}}
 \def\cc@compose@collection#1#2{%
   \expandafter\ifnum\csname cc#1Cnt\endcsname > \z@\relax
     \edef\cc@iterate@res{%
@@ -323,7 +324,7 @@
           \expandafter\expandafter\expandafter{\expandafter\cc@iterate@res\@tempb}%
         }%
         \expandafter\def\expandafter\cc@iterate@res\expandafter{\cc@iterate@res\egroup}%
-    }
+  \fi}
 \def\cc@apply@collection#1#2{%
   \begingroup
     \global\let\cc@iterate@res\relax
@@ -407,17 +408,6 @@
     \expandafter\expandafter\expandafter\ifx\csname cc@\cc@cur@cont @##1\endcsname\cc@long@empty\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}%
   \ccToggleCountedConditionalsHook% legacy
 }
-\def\ccDeclareHook{\cc@opt@curcont\cc@declare@hook}
-\def\cc@declare@hook[#1]#2{\expandafter\global\expandafter\let\csname cc@hook@#1@#2\endcsname\@empty}
-\def\ccAddToHook{\cc@opt@curcont\cc@add@to@hook}
-\def\cc@add@to@hook[#1]#2#3{%
-  \expandafter\ifx\csname cc@hook@#1@#2\endcsname\relax
-    \ccDeclareHook[#1]{#2}%
-  \fi
-  \csgappto{cc@hook@#1@#2}{#3}%
-\ignorespaces}
-\def\ccUseHook{\cc@opt@curcont\cc@use@hook}
-\def\cc@use@hook[#1]#2{\csuse{cc@hook@#1@#2}\ignorespaces}
 \long\def\ccSetProperty#1#2{\long\csdef{cc@\cc@cur@cont @#1}{#2}\ignorespaces}
 \def\ccAppToProp#1#2{%
   \long\csappto{cc@\cc@cur@cont @#1}{#2}%
