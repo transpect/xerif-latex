@@ -53,8 +53,9 @@
   \ccDeclareType{Properties}{}%
   \ccDeclareEnv{\cch@heading}{\cch@end@heading}%
 }
-\long\def\ccDeclareHeading{\cc@opt@empty\cc@declare@heading}
-\long\def\cc@declare@heading[#1]#2#3#4{%
+\long\def\ccDeclareHeading{\global\let\cch@star@hdg\@undefined\@ifstar{\global\let\cch@star@hdg\relax\cc@declare@heading}{\cc@declare@heading}}
+\long\def\cc@declare@heading{\cc@opt@empty\@cc@declare@heading}
+\long\def\@cc@declare@heading[#1]#2#3#4{%
   \ifcsdef{cc@container@#3}{%
     \ccPackageInfo{Headings}{}{Appending to `#3'}%
     \ifcsstring{cch@#3@level}{#2}{}{%
@@ -106,7 +107,13 @@
       \cch@declare@heading{#2}{#3}%
     }% \ccDeclareContainer{#3}
   }% \ifcsdef cc@container@#3 fi
-  \ccIfAlly{\cch@add@autoclose{#2}{#3}}{}% \AtBeginDocument\ccIfAlly
+  \ccWhenAlly{%
+    \ifx\cch@star@hdg\relax
+      \expandafter\global\expandafter\let\csname cch@notag@#3\endcsname\@empty
+    \else
+      \cch@add@autoclose{#2}{#3}%
+    \fi
+  }%
 }% \cc@declare@heading
 \newcount\cch@tempcnta \cch@tempcnta\z@
 \def\cch@add@autoclose#1#2{%
@@ -191,8 +198,10 @@
     \cch@add@before@skip
     \cc@format@number{}{}{#1}%
     \ccIfProp{after-skip}{\expandafter\global\expandafter\@tempskipa\expandafter=\ccUseProperty{after-skip}\relax}{\global\@tempskipa=1sp\relax}%
-    \ifnum#1<\cch@min@level\relax\global\cch@min@level=#1\relax\fi
-    \ifnum#1>\cch@max@level\relax\global\cch@max@level=#1\relax\fi
+    \expandafter\ifx\csname cch@notag@#2\endcsname\@empty\else
+      \ifnum#1<\cch@min@level\relax\global\cch@min@level=#1\relax\fi
+      \ifnum#1>\cch@max@level\relax\global\cch@max@level=#1\relax\fi
+    \fi
     \cch@use@hook{print/before}{#2}%
     \def\@svsec{%
       \ccUseProperty{before-heading-block}%
@@ -391,18 +400,22 @@
 \def\cch@heading{\cc@opt@empty\@cch@heading}%
 \def\@cch@heading[#1]#2{%
   \ifhmode\unskip\fi%
-  \ccIfAlly
-    {\global\let\cch@currenvir\@currenvir
-     \endgroup
-     \ccaVstructStart{#2}%
-     \UseHook{env/\ccPrefix Heading/before}%
-     \@ignorefalse
-     \begingroup
-       \@endpefalse
-       \let\@currenvir\cch@currenvir
-       \edef\@currenvline{\on@line}%
-       \@execute@begin@hook{\ccPrefix Heading}%
-    }{}%
+  \expandafter\ifx\csname cch@notag@#2\endcsname\@empty\else
+    \ccWhenAlly{%
+      \global\let\cch@currenvir\@currenvir
+      \endgroup
+      \ifnum\cch@lowest@level=99\relax\else
+        \ccaVstructStart{#2}%
+      \fi
+      \UseHook{env/\ccPrefix Heading/before}%
+      \@ignorefalse
+      \begingroup
+        \@endpefalse
+        \let\@currenvir\cch@currenvir
+        \edef\@currenvline{\on@line}%
+        \@execute@begin@hook{\ccPrefix Heading}%
+    }%
+  \fi
   \cch@reserve
   \edef\ccCurSecName{#2}%
   \UseHook{env/heading/#2/begin}%
@@ -490,12 +503,12 @@
     }%
   \ccSetProperty{main-title-format}{%
     \ccUseProperty{title-face}%
-    \ccaVstructStart{\ccCurSecName head}%
+    \cchHeadTagStart
     \ccIfComp{Number}%
     {\ccUseProperty{hang-number}}%
     {\leftskip0pt}%
     \ccUseComp{Title}%
-    \ccaVstructEnd{\ccCurSecName head}%
+    \cchHeadTagEnd
     \par
   }
   \ccSetProperty{extended-heading}{%
@@ -605,8 +618,15 @@
   \ccPropertyLet{author-list-format}{author-list-print-format}%
   \ccSetProperty{author-contact-block-format}{% Format of the whole contact information block
     \ccUseComp{AuthorContact}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi
-  }%
-}
+  }}
+\def\cchHeadTagStart{%
+    \expandafter\ifx\csname cch@notag@\ccCurSecName\endcsname\@empty\else
+      \ccaVstructStart{\ccCurSecName head}%
+    \fi}
+\def\cchHeadTagEnd{%
+  \expandafter\ifx\csname cch@notag@\ccCurSecName\endcsname\@empty\else
+    \ccaVstructEnd{\ccCurSecName head}%
+  \fi}
 \newdimen\ccnewparskip \AtBeginDocument{\ifdim\ccnewparskip=\z@\relax \ccnewparskip=1\baselineskip\relax\fi}
 \def\ccNewPar{\@ifnextchar[{\cc@newpar}{\cc@newpar[\the\ccnewparskip]}}%]
 \def\cc@newpar[#1]{%
