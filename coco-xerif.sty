@@ -48,8 +48,8 @@
   \let\tpIfCompOverride\ccIfComponentOverride
   \let\tpCompGDef\ccxdefFromCountedComp
   \let\tpDeclareCountedComp\ccDeclareCountedComponent
-  \let\tpAddToHook\ccAddToHook
-  \let\tpUseHook\ccUseHook
+  \let\tpAddToHook\AddToHook
+  \let\tpUseHook\UseHook
   \let\tpSetProperty\ccSetProperty
   \let\tpPropertyLet\ccPropertyLet
   \let\tpPropertyLetX\ccPropertyLetX
@@ -104,6 +104,8 @@
   %% from coco-script.sty
   \let\tpBabelAlias\ccBabelAlias
   \let\tpDeclareBabelFont\ccDeclareBabelFont
+  %% from coco-title.sty
+  \let\tpDeclareTitlepage\ccDeclareTitlepage
 }
 
 \g@addto@macro\ccToggleCountedConditionalsHook{%
