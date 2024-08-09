@@ -85,7 +85,19 @@
   \let\tp@make@caption\ccf@make@caption
   \let\tp@str@bottom\ccf@str@bottom
   \let\tp@str@top\ccf@str@top
-  \let\tpDeclareFloat\ccDeclareFloat
+  %% LUP: falsch!
+  %\let\tpDeclareFloat\ccDeclareFloat
+  %LUP sollte das sein:
+  \newcommand\tpDeclareFloat[5][float]{%
+    \ifcsdef{cc@container@#2}
+      {\if!#1!\else\ccInherit{Properties,Components,Attributes}{#1}\fi
+       \ccAddToType{Properties}{#2}{#5}
+       \ccAddToType{FloatEnvInfo}{#2}
+         {\ccSetContainer{#2}
+          \def\ccfCapType{#3}
+          \def\ccf@cap@list@type{#4}}}
+      {\ccDeclareFloat[#1]{#2}{#3}{#4}{\ccDeclareType{Properties}{#5}}}
+    }%
   \def\tp@flt@process{\ccf@process}%
   \let\tpFloatBarrier\ccFloatBarrier
   \def\tp@captype{\ccf@cap@type}%
