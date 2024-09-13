@@ -99,19 +99,22 @@
   \let\ccf@prefix\@empty
   \let\ht@cur@element\ccfCapType
   \global\let\ccf@current@class\relax
+  \global\let\ccf@landscape\relax
 }
 \def\ccf@set@env{%
   \ifx\ccf@floatpos\@empty
     \let\ccf@begin@env\bgroup
     \let\ccf@end@env\egroup
   \else
-    \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}
-      {\edef\ccf@env@name{sideways\ccfCapType}%
+    \ifx\ccf@landscape\@empty
+      \edef\ccf@env@name{sideways\ccfCapType}%
        \edef\ccf@begin@env{\noexpand\begin{\ccf@env@name\ifx\ccf@do@dbl\relax*\fi}}%
-       \edef\ccf@end@env{\noexpand\end{\ccf@env@name\ifx\ccf@do@dbl\relax*\fi}}}
-      {\edef\ccf@env@name{\ifx\ccf@do@dbl\relax dbl\fi float}%
-       \edef\ccf@begin@env{\expandafter\noexpand\csname @x\ccf@env@name\endcsname {\ccfCapType}[\ccf@floatpos]}%
-       \edef\ccf@end@env{\expandafter\noexpand\csname end@\ccf@env@name\endcsname}}%
+       \edef\ccf@end@env{\noexpand\end{\ccf@env@name\ifx\ccf@do@dbl\relax*\fi}}
+   \else
+      \edef\ccf@env@name{\ifx\ccf@do@dbl\relax dbl\fi float}%
+      \edef\ccf@begin@env{\expandafter\noexpand\csname @x\ccf@env@name\endcsname {\ccfCapType}[\ccf@floatpos]}%
+      \edef\ccf@end@env{\expandafter\noexpand\csname end@\ccf@env@name\endcsname}%
+    \fi
   \fi}
 \def\ccf@get@seps{%
   \ifx\ccf@floatpos\@empty
@@ -119,12 +122,13 @@
   \else
     \expandafter\ccf@sep@top\dimexpr\ccUseProperty{float-skip-top}\relax%
   \fi
-    \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}{}
-      {\ifx\ccf@floatpos\@empty
-         \expandafter\ccf@sep@bottom\dimexpr\ccUseProperty{intext-skip-bottom}\relax%
-       \else
-         \expandafter\ccf@sep@bottom\dimexpr\ccUseProperty{float-skip-bottom}\relax%
-       \fi}}
+  \ifx\ccf@landscape\relax
+    \ifx\ccf@floatpos\@empty
+      \expandafter\ccf@sep@bottom\dimexpr\ccUseProperty{intext-skip-bottom}\relax%
+    \else
+      \expandafter\ccf@sep@bottom\dimexpr\ccUseProperty{float-skip-bottom}\relax%
+    \fi
+  \fi}
 \def\ccf@set@top@sep{\addvspace{\ccf@sep@top}}
 \def\ccf@set@bot@sep{\addvspace{\ccf@sep@bottom}}
 \def\ccfMakeComp#1{%
@@ -155,6 +159,7 @@
     \ccSetProperty{margin-left}{\z@}%
     \ccSetProperty{margin-right}{\z@}%
     \ccSetProperty{before-float}{\parindent\z@}%
+    \ccSetProperty{fix-dimen}{false}%
     \ccSetProperty{subfloat-content}{\ccUseComp{Content}}%
     \ccSetProperty{float-render}{\ccUseComp{Content}}%
     \ccSetProperty{subfloat-render}{\ccUseComp{Content}}%
@@ -239,12 +244,12 @@
     \ccSetProperty{list-of-after-entry}{\par}%
   }% /Properties
   \ccDeclareType{Attributes}{%
-    \ccDeclareAttributeHandler{class}{\ccf@attr@class{\ccAttrVal}}%
+    \ccDeclareAttributeHandler{class}{\xdef\ccf@current@class{\ccAttrVal}}%
     \ccDeclareAttributeHandler*{break-caption}[\@ccf@break@captfalse]{\@ccf@break@capttrue}%
     \ccDeclareAttributeHandler{float-pos}[\let\ccf@floatpos\@empty]{\ccf@attr@pos{\ccAttrVal}}%
     \ccDeclareAttributeHandler{orientation}{\ccf@attr@orient{\ccAttrVal}}
-    \ccDeclareAttributeHandler{debug}[\let\ccf@debug\relax]{\let\ccf@debug\ccf@attr@debug}
-    \ccDeclareAttributeHandler{no-same-height}{\@ccf@sameheightfalse}%
+    \ccDeclareAttributeHandler*{debug}[\let\ccf@debug\relax]{\let\ccf@debug\ccf@attr@debug}
+    \ccDeclareAttributeHandler*{no-same-height}{\@ccf@sameheightfalse}%
   }
 }% /Container
 \def\ccf@float{\cc@opt@empty\@ccf@float}
@@ -354,9 +359,6 @@
   \ccf@make@subcaption{top}%
   \bgroup\strut\ccUseComp{#2}\strut\par\egroup%
   \ccf@make@subcaption{bottom}}
-\def\ccf@attr@class#1{%
-  \gdef\ccf@current@class{#1}%%
-}
 \def\ccf@eval@class{%
   \ccUseStyleClass{default}{\ccfCapType}%
   \ifx\ccf@current@class\relax\else
@@ -373,9 +375,10 @@
   \fi
 }
 \def\ccf@attr@orient#1{%
-  \ccIfAttrIsStr{#1}{orientation}{landscape}
+  \ccIfStrEqual{#1}{landscape}
     {\linewidth\textheight
      \hsize\linewidth
+     \global\let\ccf@landscape\@empty
      \def\ccf@floatpos{p}}{}}
 \def\ccf@attr@debug{%
   \message{^^J[CoCo Float Debug]^^J
@@ -398,8 +401,9 @@
       Depth \the\ccSubFloatCnt:\space\space\space\space\space\space\expandafter\meaning\csname ccf@\cc@cur@cont @depth-\the\ccSubFloatCnt\endcsname^^J
 \fi}}
 \def\ccf@generate@listof@handlers#1#2#3{%
-  \expandafter\gdef\csname cc@#1@extract@data\endcsname##1##2##3##4{%
+  \expandafter\gdef\csname cc@#2@extract@data\endcsname##1##2##3##4{%
     \ccSetContainer{#3}%
+    \def\ccfCapType{#2}%
     \ccEvalType[#3]{Properties}%
     \ccDeclareComponent{ListofCaption}{}{}%
     \ccDeclareComponent{ListofLegend}{}{}%
@@ -410,14 +414,16 @@
     \cc@expand@l@contents{##3}{#3}{Listof}{Caption}%
     \cc@format@number{list-of-}{Listof}{##1}%
   }%
-  \expandafter\gdef\csname cc@#1@print@entry\endcsname##1{%
+  \expandafter\gdef\csname cc@#2@print@entry\endcsname##1{%
     \bgroup
-      \ccUseHook{list-of-before-hook-##1}%
+      \UseHook{cc/listof/##1/before}% was list-of-before-hook-##1
       \ccUseProperty{list-of-before-entry}%
       \ccUseProperty{list-of-block}%
-      \ccUseHook{list-of-after-hook-##1}%
+      \UseHook{cc/listof/##1/after}% was list-of-after-hook-##1
       \ccUseProperty{list-of-after-entry}%
     \egroup}%
+  \NewHook{cc/listof/#2/before}%
+  \NewHook{cc/listof/#2/after}%
 }
 \def\ccf@addcontentsline{%
   \ccWhenComp{ListofEntry}{%
@@ -439,7 +445,7 @@
   \ccWhenComp{ListofCaption}{\csgappto{ccf@listof@entry}{\string\ccComponent{ListofCaption}{\ccUseComp{ListofCaption}}}}%
   \ccWhenComp{ListofNumber}{\csgappto{ccf@listof@entry}{\string\ccComponent{ListofNumber}{\ccUseComp{ListofNumber}}}}%
   \ccWhenComp{ListofLegend}{\csgappto{ccf@listof@entry}{\string\ccComponent{ListofLegend}{\ccUseComp{ListofLegend}}}}%
-  \ccWhenComp{ListofSource}{\csgappto{ccf@listof@entry}{\string\ccCompoennt{ListofSource}{\ccUseComp{ListofSource}}}}%
+  \ccWhenComp{ListofSource}{\csgappto{ccf@listof@entry}{\string\ccComponent{ListofSource}{\ccUseComp{ListofSource}}}}%
   \ifx\ccf@listof@entry\relax\else
     \bgroup
       \ccGobble
@@ -647,11 +653,12 @@
   \ccf@capt@top@offset{#1}%
   \ifnum\the\ccSubFloatCnt=\z@\relax
     \def\ccf@caption@box{%
-      \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}
-        {\setbox\@tempboxa\vbox\bgroup\hsize\textheight}
-        {\hskip\ccf@margin@l%
-         \setbox\@tempboxa\vbox\bgroup\advance\hsize-\ccf@margin@l}%
-      }%
+      \ifx\ccf@landscape\@empty
+        \setbox\@tempboxa\vbox\bgroup\hsize\textheight
+      \else
+        \hskip\ccf@margin@l%
+         \setbox\@tempboxa\vbox\bgroup\advance\hsize-\ccf@margin@l%
+      \fi}%
   \else
     \expandafter\cc@tempskipa\csname ccf@capt@row@height@#1\endcsname\relax
     \expandafter\advance\expandafter\cc@tempskipa\dimexpr-\baselineskip+\topskip\relax
@@ -696,7 +703,7 @@
     \ccIfStrEqual{#1}{top}{\if@ccf@break@capt\else\nopagebreak\fi}{}%
   \fi}
 \def\ccf@make@subcaption#1{%
-  \expandafter\ifx\csname cc@has@\ccf@prefix capt@#1\endcsname\@empty
+  \expandafter\ifx\csname ccf@has@\ccf@prefix capt@#1\endcsname\@empty
     \ccf@make@caption{#1}{\ccUseProperty{\ccf@prefix caption-valign-#1}}%
   \fi}
 \def\ccDeclareFloat{\cc@opt@empty\ccf@declare@float}
@@ -756,9 +763,9 @@
 }
 \def\ccfFigureRender{%
   \bgroup
-    \ccIfAttrIsStr{\ccfCapType}{orientation}{landscape}
-      {\hsize\dimexpr\textwidth-\ccf@margin@r-\ccf@margin@l\relax}%
-      {}%
+    \ifx\ccf@landscape\@empty
+      \hsize\dimexpr\textwidth-\ccf@margin@r-\ccf@margin@l\relax%
+    \fi
     \let\includegraphics\ccf@includesubgraphics
     \hskip\ccf@margin@l
     \strut\ccUseComp{Fig}\strut
@@ -770,7 +777,8 @@
   }}
 \def\ccf@includesubgraphics{\cc@opt@empty\@ccf@includesubgraphics}%
 \def\@ccf@includesubgraphics[#1]#2{%
-  \def\@igopts{max width=\hsize,max height=\vsize,width=\hsize}%
+  \def\@igopts{max width=\hsize,max height=\vsize}%
+  \ccIfPropVal{fix-dimen}{true}{\apptocmd\@igopts{,width=\hsize}{}{}}{}%
   \if!#1!\else
     \apptocmd\@igopts{,#1}{}{}%
   \fi
@@ -781,6 +789,7 @@
   \fi%
   \expandafter\ccf@ltx@includegraphics\expandafter[\@igopts]{#2}%
   \if@cc@is@final
+    \ifx\cca@Gin@alt\@undefined\let\cca@Gin@alt\relax\fi
     \ifx\relax\cca@Gin@alt\relax
       \ccIfComp{AltText}
         {\ccaAddAltText{\ccUseComp{AltText}}}

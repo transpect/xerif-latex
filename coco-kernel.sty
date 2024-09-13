@@ -173,22 +173,26 @@
   \ccDeclareComponent{#2}{\expandafter\global}{}%
   \if!#1!\else\csname \ccPrefix #2\endcsname{#1}\fi%
   \ignorespaces}
+\def\ccCompWarning#1{\ccPackageWarning{Kernel}{}{Assigning value to previously undeclared^^J%
+    \cc@warning@spaces Component `#1'. Declaring now.}}
 \long\protected\def\ccComponent#1#2{%
   \ifx\cc@is@counted\relax
     \ifcsdef{cc@\cc@cur@cont @#1}{}
-      {\cc@def@counted@comp{\cc@counted@comp@scheme{#1}}{#1}{}{}}%
+      {\ccCompWarning{#1}\cc@def@counted@comp{\cc@counted@comp@scheme{#1}}{#1}{}{}}%
     \csgdef{cc@\cc@cur@cont @\cc@counted@comp@scheme{#1}}{#2}%
   \else
-    \ifcsdef{cc@\cc@cur@cont @#1}{}{\ccDeclareComponent{#1}{}{}}%
+    \ifcsdef{cc@\cc@cur@cont @#1}{}
+      {\ccCompWarning{#1}\ccDeclareComponent{#1}{}{}}%
     \csdef{cc@\cc@cur@cont @#1}{#2}%
   \fi\ignorespaces}
 \long\protected\global\def\ccGlobalComponent#1#2{%
   \ifx\cc@is@counted\relax
     \ifcsdef{cc@\cc@cur@cont @#1}{}
-      {\cc@def@counted@comp{\cc@counted@comp@scheme{#1}}{#1}{}{}}%
+      {\ccCompWarning{#1}\cc@def@counted@comp{\cc@counted@comp@scheme{#1}}{#1}{}{}}%
     \csgdef{cc@\cc@cur@cont @\cc@counted@comp@scheme{#1}}{#2}%
   \else
-    \ifcsdef{cc@\cc@cur@cont @#1}{}{\ccDeclareGlobalComponent{#1}{}{}}%
+    \ifcsdef{cc@\cc@cur@cont @#1}{}
+       {\ccCompWarning{#1}\ccDeclareGlobalComponent{#1}{}{}}%
     \csgdef{cc@\cc@cur@cont @#1}{#2}%
   \fi\ignorespaces}
 \long\protected\def\ccComponentEA#1#2{%
@@ -278,10 +282,14 @@
   \endgroup}
 \newcount\ccCurCount
 \def\cc@assign@res#1{%
-  \ifx\cc@iterate@res\relax
+  \ifx\cc@iterate@res\@undefined
     \cslet{#1}\relax
   \else
-    \expandafter\csname #1\expandafter\endcsname\expandafter{\cc@iterate@res}%
+    \ifx\cc@iterate@res\relax
+      \cslet{#1}\relax
+    \else
+      \expandafter\csname #1\expandafter\endcsname\expandafter{\cc@iterate@res}%
+    \fi
   \fi
   \global\let\cc@iterate@res\relax
 }

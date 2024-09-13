@@ -66,7 +66,10 @@
     \pdf_version_gset:n{2.0}
     \PassOptionsToPackage{init}{coco-accessibility}}
 \ExplSyntaxOff
-\DeclareOptionX{lang-id}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
+\DeclareOptionX{lang-id}{%
+  \PassOptionsToPackage{\CurrentOption}{coco-accessibility}%
+  \PassOptionsToPackage{\CurrentOption}{coco-title}%
+}
 \DeclareOptionX{nodetree}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
 \DeclareOptionX{showspaces}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
 \DeclareOptionX{no-spaces}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}

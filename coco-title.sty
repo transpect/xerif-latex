@@ -31,6 +31,8 @@
 \ProvidesPackage{coco-title}
     [2024/07/16 0.5.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
+\DeclareOptionX{lang-id}{\gdef\cct@lang@id{#1}}
+\ProcessOptionsX
 \ccDeclareContainer{titlepage}{%
   \ccInherit {Components,Properties}{CommonMeta}%
   \ifarticle\ccInherit{Components}{article-meta}\fi
@@ -137,6 +139,12 @@
   \cct@title@process@bkt
   \cct@title@process@bkk
   \cct@title@process@bka
+  \cct@title@process@bkl
+}
+\def\cct@title@process@bkl{%
+  \ifx\cct@lang@id\@undefined\else
+    \ccUnlessAlly{\cct@write@hr@infodict{pdflang}{\cct@lang@id}}%
+  \fi
 }
 \def\cct@title@process@bkt{%
   \cslet{\ccPrefix Break}\space
@@ -212,7 +220,7 @@ from the Components given in the Meta Container.}}}
 }
 \def\cct@journal@titlepage{%
   \ccUseProperty{before-titlepage}%
-  \ccUseProperty{coverpage}%Cover ist kein Bild, wird von uns gebaut
+  \ccWhenComp{Cover}{\ccUseProperty{coverpage}}%Cover ist kein Bild, wird von uns gebaut
   \ccUseProperty{before-titlepage-roman}%
   \ccUseProperty{titlepage-roman}%
   \ccUseProperty{after-titlepage}%

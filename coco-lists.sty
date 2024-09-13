@@ -150,8 +150,8 @@
 }
 \def\ccDeclareNested#1#2#3{%
   \@tempcnta=#2\relax
-  \ifx\@tempcnta<\@ne\relax
-    \ccPackageError{lists}{Nesting}{Invalid nesting level!}{You cannot declare nesting levels less than 1!}%
+  \ifx\@tempcnta<\z@\relax
+    \ccPackageError{lists}{Nesting}{Invalid nesting level!}{You cannot declare nesting levels less than 0!}%
   \fi
   \advance\@tempcnta\@ne\relax
   \ccDeclareContainer{#1-\the\@tempcnta}{%
@@ -221,7 +221,7 @@
   \cclCalculateVMargin{bottom}%
   \csdef{\ccPrefix Item}{\cc@opt@empty\ccl@item}%
   \def\ccl@item[##1]{%
-    \edef\ccl@item@label{##1}%
+    \protected@edef\ccl@item@label{##1}%
     \ifx\ccl@item@label\@empty
       \cclUseLabelHandler%
     \else
