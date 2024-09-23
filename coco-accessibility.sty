@@ -218,10 +218,12 @@
     \pretocmd\@evenfoot{\ccaStructStart[document]{footer}}{}{}%
     \apptocmd\@evenfoot{\ccaStructEnd{footer}}{}{}%
   \fi}
-\apptocmd\ps@empty{\ccaPagestyleArtifacts}{}{}
-\apptocmd\ps@plain{\ccaPagestyleArtifacts}{}{}
-\apptocmd\ps@headings{\ccaPagestyleArtifacts}{}{}
-\apptocmd\ps@myheadings{\ccaPagestyleArtifacts}{}{}
+\AtBeginDocument{%
+  \apptocmd\ps@empty{\ccaPagestyleArtifacts}{}{}%
+  \apptocmd\ps@plain{\ccaPagestyleArtifacts}{}{}%
+  \apptocmd\ps@headings{\ccaPagestyleArtifacts}{}{}%
+  \apptocmd\ps@myheadings{\ccaPagestyleArtifacts}{}{}%
+}
 \ccWhenAlly{%
   \ccaAddToConfig{artifact}{header={Type:Pagination}{Subtype:Header}}
   \ccaAddToConfig{artifact}{footer={Type:Pagination}{Subtype:Footer}}
