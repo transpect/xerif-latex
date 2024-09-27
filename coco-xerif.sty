@@ -109,7 +109,8 @@
   % The old "heading" environment was replaced with the |\ccPrefix
   % Heading| environment. With 'Heading' as name of the respective
   % Container, and the '\ccPrefix' set to 'tp', this makes
-  % the actual "official" env name |tpheading|.
+  % the actual "official" env name |tpHeading|. Note also the hooks
+  % defined below!
   \def\heading{\tpHeading}
   \def\endheading{\endtpHeading}
   \let\tpDeclareHeading\ccDeclareHeading
@@ -127,6 +128,16 @@
   \let\tpDeclareTitlepage\ccDeclareTitlepage
   %% publisher-specific
   \let\tpPI\ccPI
+}
+
+%% Hooks der {tpHeading} Umgebung:
+\AddToHook{env/heading/before}{\global\advance\cch@total@nesting@level\@ne\relax}
+\AddToHook{env/heading/end}{\ccaVstructEnd{SectMeta}}%
+\AddToHook{env/heading/after}{%
+  \ccaVstructStart{\ccCurSecName}%
+  \csxdef{cch@sec@\the\cch@total@nesting@level @name}{\ccCurSecName}%
+  \ccaMoveStruct{\cch@id@cur@head}%
+  \ccaMoveStruct{\cch@id@cur@meta}%
 }
 
 \g@addto@macro\ccToggleCountedConditionalsHook{%
