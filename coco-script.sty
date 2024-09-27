@@ -100,16 +100,16 @@
       \fi}%
     \expandafter\parse@script\usescript,,\relax
   \fi}
-\ifx\use@script@armenian\@empty
-  \message{^^J  [coco-script Loaded Script: Armenian]^^J}
-  \def\NotoArmenianPath{./fonts/Noto/Armenian/}
-  \newfontfamily\fallbackfont@armenian{NotoSansArmenian-Regular.ttf}%
-    [BoldFont = NotoSansArmenian-Bold.ttf,%
-     Path = \NotoArmenianPath,%
-     WordSpace = 1.25]
-  \DeclareTextFontCommand\armenian{\fallbackfont@armenian}
-  \let\tp@no@fallback@armenian\@empty%
-\fi
+\ccDeclareBabelFont{armenian}{[%
+    Path=./fonts/Noto/Armenian/,
+    BoldFont = NotoSerifArmenian-Bold.ttf,%
+    WordSpace = 1.25]{NotoSerifArmenian-Regular.ttf}}
+  {[%
+    Path=./fonts/Noto/Armenian/,
+    BoldFont = NotoSansArmenian-Bold.ttf,%
+    WordSpace = 1.25]{NotoSansArmenian-Regular.ttf}%
+  }
+\def\armenian{\foreignlanuage{armenian}}
 \tpDeclareBabelFont{chinese}{[%
     Path=./fonts/Noto/Chinese/,
     BoldFont = NotoSerifSC-Bold.otf,%
