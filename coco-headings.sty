@@ -84,7 +84,6 @@
   }{% ifcsdef cc@container@#3 else
     \ccDeclareContainer{#3}{%
       \csgdef{cch@#3@level}{#2}%
-      \ifcsdef{cch@#2@unique}{}{\csgdef{cch@#2@unique}{#3}}%%
       \ccPackageInfo{Headings}{}{Declaring heading `#3'}%
       \edef\@argi{#1}%
       \ccDeclareType{Parent}{\cch@create@parent{#1}{#3}}
@@ -106,72 +105,9 @@
       }%
       \cch@declare@heading{#2}{#3}%
     }% \ccDeclareContainer{#3}
+    \ccWhenAlly{\ccaAddRolemap{#3}{Sect}}%
   }% \ifcsdef cc@container@#3 fi
-  \ccWhenAlly{%
-    \ifx\cch@star@hdg\relax
-      \expandafter\global\expandafter\let\csname cch@notag@#3\endcsname\@empty
-    \else
-      \cch@add@autoclose{#2}{#3}%
-    \fi
-  }%
 }% \cc@declare@heading
-\newcount\cch@tempcnta \cch@tempcnta\z@
-\def\cch@add@autoclose#1#2{%
-  \AddToHook{cca/document/begin}[cch/autoclose]{%
-    \ccaAddRolemap{#2}{Sect}%
-    \cch@tempcnta=\numexpr\tw@-\cch@highest@level\relax
-    \advance\cch@tempcnta by #1\relax
-    \ccaAddRolemap{#2head}{H\the\cch@tempcnta}%
-    \ifnum\cch@tempcnta>6\relax
-      \ccaAddRolemap{H\the\cch@tempcnta}{H}%
-    \fi
-    \cch@tempcnta=#1\relax
-    \ccDebugMsg[a11y]{^^J===> Comparing #2 (\the\cch@tempcnta) with lowest \cch@lowest@level, and highest \cch@highest@level}%
-    \ifnum\cch@tempcnta=\cch@highest@level
-      \ccDebugMsg[a11y]{^^J===> #2 is highest, setting it as child of document}%
-      \edef\x{\noexpand\ccaAddToConfig{autoclose}{document={Type:Sectioning}{Child:\csname cch@#1@unique\endcsname}{Egroup:false}}}\x%
-    \fi
-    \ifnum\cch@tempcnta=\cch@lowest@level\relax
-      \ccDebugMsg[a11y]{^^J===> #2 is lowest, Setting Child to none}%
-      \ifcsstring{cch@#1@unique}{#2}
-        {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:none}{Egroup:false}}}\x}
-        {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:none}{Egroup:false}{Alias:\csname cch@#1@unique\endcsname}}}\x}%
-    \else
-      \ifnum\the\cch@tempcnta<\cch@highest@level\relax
-        \@tempswafalse
-      \else
-        \ccDebugMsg[a11y]{^^J===> #2 goes into the Loop...}%
-        \@tempswatrue
-      \fi
-      \loop
-        \advance\cch@tempcnta\@ne\relax
-      \if@tempswa
-        \ifnum\cch@tempcnta>\cch@lowest@level\relax
-          \ccDebugMsg[a11y]{^^J===> #2's next \csmeaning{cch@\the\cch@tempcnta @unique} is too low, breaking loop...}%
-          \@tempswafalse
-        \else
-          \expandafter\ifx\csname cch@\the\cch@tempcnta @unique\endcsname\relax
-          \ccDebugMsg[a11y]{^^J===> #2's next \csmeaning{cch@\the\cch@tempcnta @unique} is in range, going on (cur: \the\cch@tempcnta)...}%
-            \@tempswatrue
-          \else
-            \ccDebugMsg[a11y]{^^J===> Setting \csmeaning{cch@\the\cch@tempcnta @unique} as Child of #2 with cnt: \the\cch@tempcnta...}%
-            \ifcsstring{cch@#1@unique}{#2}
-              {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:\csname cch@\the\cch@tempcnta @unique\endcsname}{Egroup:false}}}\x}
-              {\edef\x{\noexpand\ccaAddToConfig{autoclose}{#2={Type:Sectioning}{Child:\csname cch@\the\cch@tempcnta @unique\endcsname}{Egroup:false}{Alias:\csname cch@#1@unique\endcsname}}}\x}%
-            \@tempswafalse
-          \fi
-        \fi
-      \repeat
-    \fi
-  }}
-\newcount\cch@min@level \cch@min@level=99\relax
-\newcount\cch@max@level \cch@max@level=-99\relax
-\ifx\cch@highest@level\@undefined \def\cch@highest@level{-99}\fi
-\ifx\cch@lowest@level\@undefined  \def\cch@lowest@level{99}\fi
-\AtEndDocument{%
-  \immediate\write\@mainaux{\string\gdef\string\cch@highest@level{\the\cch@min@level}}%
-  \immediate\write\@mainaux{\string\gdef\string\cch@lowest@level{\the\cch@max@level}}%
-}%
 \def\cch@create@parent#1#2{%
   \def\ccCurSecName{#2}%
   \if!#1!\else
@@ -198,10 +134,6 @@
     \cch@add@before@skip
     \cc@format@number{}{}{#1}%
     \ccIfProp{after-skip}{\expandafter\global\expandafter\@tempskipa\expandafter=\ccUseProperty{after-skip}\relax}{\global\@tempskipa=1sp\relax}%
-    \expandafter\ifx\csname cch@notag@#2\endcsname\@empty\else
-      \ifnum#1<\cch@min@level\relax\global\cch@min@level=#1\relax\fi
-      \ifnum#1>\cch@max@level\relax\global\cch@max@level=#1\relax\fi
-    \fi
     \cch@use@hook{print/before}{#2}%
     \def\@svsec{%
       \ccUseProperty{before-heading-block}%
@@ -366,9 +298,8 @@
 \newbox\cch@inline@sec@box
 \def\cch@make@inline{%
   \ccIfProp{after-indent}{\global\@afterindenttrue}{\global\@afterindentfalse}%
-  \ccIfProp{interline-para}
-    {\global\setbox\cch@inline@sec@box\hbox{\ifvoid\cch@inline@sec@box\else\unhbox\cch@inline@sec@box\ccUseProperty{interline-para-sep}\fi\@svsec}}%
-    {\global\setbox\cch@inline@sec@box\hbox{\@svsec}}
+  \global\setbox\cch@inline@sec@box\hbox{\ifvoid\cch@inline@sec@box\else\unhbox\cch@inline@sec@box\ccUseProperty{interline-para-sep}\fi\@svsec}%
+  \ccaEnable
   \@nobreakfalse
   \global\@noskipsectrue
   \gdef\next{%
@@ -399,26 +330,17 @@
     \ignorespaces}}
 \def\cch@heading{\cc@opt@empty\@cch@heading}%
 \def\@cch@heading[#1]#2{%
-  \ifhmode\unskip\fi%
-  \expandafter\ifx\csname cch@notag@#2\endcsname\@empty\else
-    \ccWhenAlly{%
-      \global\let\cch@currenvir\@currenvir
-      \endgroup
-      \ifnum\cch@lowest@level=99\relax\else
-        \ccaVstructStart{#2}%
-      \fi
-      \UseHook{env/\ccPrefix Heading/before}%
-      \@ignorefalse
-      \begingroup
-        \@endpefalse
-        \let\@currenvir\cch@currenvir
-        \edef\@currenvline{\on@line}%
-        \@execute@begin@hook{\ccPrefix Heading}%
-    }%
-  \fi
   \cch@reserve
-  \edef\ccCurSecName{#2}%
-  \UseHook{env/heading/#2/begin}%
+  \xdef\ccCurSecName{#2}%
+  \ccWhenAlly{%
+    \global\let\ccPrevSecLevel=\ccCurSecLevel\relax
+    \xdef\ccCurSecLevel{\csname cch@#2@level\endcsname}%
+    \cchAutoClose%
+    \ccDebugMsg[a11y]{Level after close: \the\cch@total@nesting@level}%
+    \ccaVstructStart{SectMeta}%
+    \ccaSaveCurStruct{cch@id@cur@meta}%
+  }%
+  \UseHook{env/\ccPrefix Heading/#2/begin}%
   \ccEvalAttributes[Heading]{#1}%
   \ccEvalType[#2]{Components}%
   \ignorespaces
@@ -477,7 +399,7 @@
   \ccSetProperty{interline-para}{}%
   \ccSetProperty{interline-para-sep}{\space}
   \ccSetProperty{heading-par}{%
-    \ccIfProp{interline-para}{\if@noskipsec \leavevmode \fi}{}%
+    \ccWhenProp{interline-para}{\if@noskipsec \leavevmode \fi}%
     \par
     \global\@afterindenttrue
   }%
@@ -496,17 +418,19 @@
     \egroup}
   \ccSetProperty{heading-block}
     {\ccUseProperty{main-title-format}%
-     \ccIfComp{Subtitle}{{\ccUseProperty{subtitle-face}\ccUseComp{Subtitle}}\par}{}%
-     \ccIfComp{AuthorNameList}{{\ccUseProperty{author-face}\ccUseComp{AuthorNameList}}\par}{}%
-     \ccIfComp{QuoteBlock}{\ccUseComp{QuoteBlock}}{}%
-     \ccIfComp{AffilBlock}{{\ccUseProperty{affil-block-face}\ccUseComp{AffilBlock}}\par}{}%
+     \ccaStructStart{Div}%
+     \ccWhenComp{Subtitle}{{\ccUseProperty{subtitle-face}\ccaStructStart{P}\ccUseComp{Subtitle}\ccaStructEnd{P}}\par}%
+     \ccWhenComp{AuthorNameList}{{\ccUseProperty{author-face}\ccaStructStart{P}\ccUseComp{AuthorNameList}\ccaStructEnd{P}}\par}%
+     \ccWhenComp{QuoteBlock}{\ccaStructStart{Div}\ccUseComp{QuoteBlock}\ccaStructStart{Div}}%
+     \ccWhenComp{AffilBlock}{{\ccUseProperty{affil-block-face}\ccaStructStart{Div}\ccUseComp{AffilBlock}\ccaStructStart{Div}}\par}%
+     \ccaStructEnd{Div}%
     }%
   \ccSetProperty{main-title-format}{%
     \ccUseProperty{title-face}%
     \cchHeadTagStart
     \ccIfComp{Number}%
-    {\ccUseProperty{hang-number}}%
-    {\leftskip0pt}%
+      {\ccaStructStart{Lbl}\ccUseProperty{hang-number}\ccaStructEnd{Lbl}}%
+      {\leftskip0pt}%
     \ccUseComp{Title}%
     \cchHeadTagEnd
     \par
@@ -521,8 +445,7 @@
       {\par\vskip\baselineskip
        {\bfseries\ccIfComp{KeywordsLabel}{\ccUseComp{KeywordsLabel}}{Keywords}}\par
        {\itshape\small\ccUseComp{Keywords}\par}}
-     {}%
-   }%
+      {}}%
   \ccSetProperty{before-skip}{\z@skip}%
   \ccSetProperty{after-heading-block}{}%
   \ccSetProperty{before-heading-block}{\parindent\z@ \parskip\z@}%
@@ -567,14 +490,14 @@
       \ccUseComp{TocNumber}%
       \ccUseProperty{toc-number-sep}%
     \egroup}
-  \ccSetProperty{toc-page-sep}{\dotfill}% between TocTitle and the page counter
+  \ccSetProperty{toc-page-sep}{\ccTocLink{\ccaAddKeep\ccaStructStart[document]{leaders}\dotfill\ccaStructEnd{leaders}}}% between TocTitle and the page counter
   \ccSetProperty{toc-page-face}{}% appearance of the page value
   \ccSetProperty{toc-page-format}{% format of the page value
     \ccUseProperty{toc-page-sep}%
     \bgroup
       \ccUseProperty{toc-page-face}%
-      \ccUseComp{TocPage}%
-    \egroup}%
+      \ccaStructStart{Span}\ccTocLink{\ccUseComp{TocPage}}\ccaStructEnd{Span}%
+    \egroup}%%
   \ccSetProperty{toc-level}{}%
   \ccSetProperty{toc-before-entry}{%
     \addvspace{\ccUseProperty{toc-margin-top}}%
@@ -592,13 +515,9 @@
     \ccIfComp{TocNumber}
       {\ccaStructStart{P}\ccaStructStart{Reference}\ccaStructStart{Lbl}\ccUseProperty{toc-hang-number}\ccaStructEnd{Lbl}}
       {\leftskip0pt\leavevmode}%
-    \ccaVstructStart{Span}%
-    \ccTocLink{%
-      \ccWhenComp{TocAuthorNameList}{\ccUseComp{TocAuthorNameList}:\space}%
-      \ccUseComp{TocTitle}%
-      \ccUseProperty{toc-page-format}%
-    }%
-    \ccaVstructEnd{Span}%
+    \ccWhenComp{TocAuthorNameList}{\ccaStructStart{Span}\ccTocLink{\ccUseComp{TocAuthorNameList}:\space}\ccaStructEnd{Span}}%
+    \ccaStructStart{Span}\ccTocLink{\ccUseComp{TocTitle}}\ccaStructEnd{Span}%
+    \ccUseProperty{toc-page-format}%
     \ccWhenComp{TocNumber}{\ccaStructEnd{Reference}\ccaStructEnd{P}}%
     \ccaVstructEnd{TOCI}%
   }%
@@ -619,14 +538,66 @@
   \ccSetProperty{author-contact-block-format}{% Format of the whole contact information block
     \ccUseComp{AuthorContact}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi
   }}
+\newcount\cch@total@nesting@level \cch@total@nesting@level=\z@\relax
+\def\cchAutoClose{%
+  \let\cca@next\relax
+  \ccDebugMsg[a11y]{Calling AutoClose for \ccCurSecName\space (\ccCurSecLevel).}
+  \ifx\ccPrevSecLevel\@undefined\else
+    \ifx\ccCurSecLevel\@undefined\else
+      \ccDebugMsg[a11y]{prev: \ccPrevSecLevel, cur: \ccCurSecLevel, abs: \the\cch@total@nesting@level.}
+      \ifnum\ccPrevSecLevel=\ccCurSecLevel\relax
+        \ccDebugMsg[a11y]{Closing \the\cch@total@nesting@level.}
+        \global\advance\cch@total@nesting@level\m@ne\relax
+        \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
+      \else
+        \ifnum\ccPrevSecLevel<\ccCurSecLevel\relax
+          \csxdef{cch@prev@parent@level@\ccCurSecLevel}{\ccPrevSecLevel}%
+        \else
+          \ifnum\ccPrevSecLevel>\ccCurSecLevel\relax
+            \ccDebugMsg[a11y]{Closing (inner) \the\cch@total@nesting@level.}
+            \global\advance\cch@total@nesting@level\m@ne\relax
+            \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
+            \ifnum\cch@total@nesting@level=\@ne\relax\else
+              \xdef\ccPrevSecLevel{\csname cch@prev@parent@level@\ccPrevSecLevel\endcsname}%
+              \let\cca@next\cchAutoClose
+            \fi
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+  \cca@next
+}
+\def\cchResetNesting{%
+  \ifnum\cch@total@nesting@level>\z@\relax
+    \loop
+      \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
+      \global\advance\cch@total@nesting@level\m@ne\relax
+    \ifnum\cch@total@nesting@level>\z@\relax
+    \repeat
+  \fi
+}
+\AddToHook{env/\ccPrefix Heading/before}{%
+  \ccDebugMsg[a11y]{Processing heading}%
+  \global\advance\cch@total@nesting@level\@ne\relax
+}
+\AddToHook{env/\ccPrefix Heading/after}{%
+  \ccaVstructEnd{SectMeta}%
+  \ccaVstructStart{\ccCurSecName}%
+  \csxdef{cch@sec@\the\cch@total@nesting@level @name}{\ccCurSecName}%
+  \ccaMoveStruct{\cch@id@cur@head}%
+  \ccaMoveStruct{\cch@id@cur@meta}%
+}
 \def\cchHeadTagStart{%
     \expandafter\ifx\csname cch@notag@\ccCurSecName\endcsname\@empty\else
-      \ccaVstructStart{\ccCurSecName head}%
+      \ccaVstructStart{H\the\numexpr\cch@total@nesting@level+\@ne\relax}%
+      \ccaSaveCurStruct{cch@id@cur@head}%
     \fi}
 \def\cchHeadTagEnd{%
   \expandafter\ifx\csname cch@notag@\ccCurSecName\endcsname\@empty\else
-    \ccaVstructEnd{\ccCurSecName head}%
+    \ccaVstructEnd{H\the\numexpr\cch@total@nesting@level+\@ne\relax}%
   \fi}
+\ccaAddRolemap{SectMeta}{Div}
 \newdimen\ccnewparskip \AtBeginDocument{\ifdim\ccnewparskip=\z@\relax \ccnewparskip=1\baselineskip\relax\fi}
 \def\ccNewPar{\@ifnextchar[{\cc@newpar}{\cc@newpar[\the\ccnewparskip]}}%]
 \def\cc@newpar[#1]{%

@@ -216,9 +216,9 @@
 \def\ccGetComp{\@ifstar\cc@sget@comp\cc@get@comp}
 \def\cc@get@comp#1{%
   \ccWhenComp{#1}
-    {\ccWhenAlly{\ccaStructStart{Para}}%
+    {\ccWhenAlly{\ccaStructStart{P}}%
      \ccUseComp{#1}%
-     \ccWhenAlly{\ccaStructEnd{Para}}%
+     \ccWhenAlly{\ccaStructEnd{P}}%
      \par}}
 \def\cc@sget@comp#1{\ccWhenComp{#1}{\ccUseComp{#1}\par}}
 \long\def\ccIfComp#1#2#3{\expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\relax#3\else#2\fi}
@@ -305,6 +305,7 @@
     {\cc@apply@collection{#1}{#2}%
      \cc@assign@res{\ccPrefix#3}}}
 \def\cc@compose@collection#1#2{%
+  \ccaProtect
   \expandafter\ifnum\csname cc#1Cnt\endcsname > \z@\relax
     \edef\cc@iterate@res{%
       \noexpand\bgroup
@@ -332,8 +333,10 @@
           \expandafter\expandafter\expandafter{\expandafter\cc@iterate@res\@tempb}%
         }%
         \expandafter\def\expandafter\cc@iterate@res\expandafter{\cc@iterate@res\egroup}%
-  \fi}
+  \fi
+  \ccaEnable}
 \def\cc@apply@collection#1#2{%
+  \ccaProtect
   \begingroup
     \global\let\cc@iterate@res\relax
     \letcs\ccTotalCount{cc#1Cnt}%
@@ -353,6 +356,7 @@
       \egroup
     }%
   \endgroup
+  \ccaEnable
 }
 \def\cc@comp@edef{\cc@opt@empty\@cc@comp@edef}
 \def\@cc@comp@edef[#1]#2#3#4{%
@@ -457,7 +461,12 @@
 \DeclareRobustCommand\ccPI[2]{\ifcsdef{cc@#1@active}{#2}{}}
 \long\def\ccIfProp#1#2#3{%
   \expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\relax#3\else
-    \expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\cc@long@empty #3\else#2\fi
+    \expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\cc@long@empty#3\else#2\fi
+  \fi
+\ignorespaces}
+\long\def\ccWhenProp#1#2{%
+  \expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\relax\else
+    \expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\cc@long@empty\else#2\fi
   \fi
 \ignorespaces}
 \long\def\ccIfPropVal#1#2#3#4{\long\def\@tempa{#2}%

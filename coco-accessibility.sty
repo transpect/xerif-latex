@@ -79,7 +79,7 @@
   \directlua{ltpdfa.config.showspaces = \ifx\cca@do@showspaces\relax true\else false\fi}
   \directlua{ltpdfa.config.dospaces = \ifx\cca@do@dospaces\relax true\else false\fi}
   \directlua{ltpdfa.config.doparas = \ifx\cca@do@doparas\relax true\else false\fi}
-  \directlua{ltpdfa.config.headnums = false}
+  \directlua{ltpdfa.tagger.doautoclose = false}
   \directlua{ltpdfa.config.driver = "\luaescapestring{pdftex}"}
   \directlua{ltpdfa.config.lang = '\luaescapestring{\cca@lang@id}'}
   \directlua{ltpdfa.init()}%
@@ -277,8 +277,11 @@
   \AtBeginDocument{%
     \directlua{ltpdfa.beginDocument('\luaescapestring{\ltpdfa@last@page}')}
     \UseHook{cca/document/begin}%
-    \directlua{ltpdfa.configAutoclose()}
     \ccaVstructStart{document}%
+    \ccaSaveCurStruct{cca@id@document}%
+    \ccaStructStart{dummy}%
+      \ccaSaveCurStruct{cca@id@document@dummy}%
+    \ccaStructEnd{dummy}%
     \renewcommand\PDF@FinishDoc{%
       \Hy@DisableOption{pdfauthor}%
       \Hy@DisableOption{pdftitle}%
@@ -291,11 +294,14 @@
       \Hy@DisableOption{pdftrapped}%
       \Hy@DisableOption{pdfinfo}%
     }%
-  }
+  }%
   \AtEndDocument{%
+    \ccDebugMsg[a11y]{Final AutoClose. \meaning\ccPrevSecLevel, \meaning\ccCurSecLevel}%
+    \cchResetNesting
+    \ccDebugMsg[a11y]{End Document}%
     \ccaVstructEnd{document}
     \directlua{ltpdfa.endDocument()}%
-  }
+  }%
 }
 \AtBeginDocument{%
   \apptocmd{\(}{\ccaStructStart{Formula}}{}{\cca@patch@error\(}

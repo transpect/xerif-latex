@@ -305,6 +305,7 @@ from the Components given in the Meta Container.}}}
   \ccDeclareGlobalComponent{PDFCreator}%
   \ccDeclareGlobalComponent[le-tex xerif with CoCoTeX v.0.5.0]{PDFProducer}%
   \ccDeclareGlobalComponent{Year}%
+  \ccDeclareGlobalComponent[\today]{Date}%
   \ccDeclareGlobalComponent{Edition}%
   \ccDeclareGlobalComponent{EditionNote}%
   \ccDeclareGlobalComponent{ISBNPreText}%
@@ -352,7 +353,26 @@ from the Components given in the Meta Container.}}}
   \ccDeclareGlobalComponent{AddNoteIV}%
 }
 \ccAddToProperties{titlepage}{%
-  \ccSetProperty{article-title}{}%
+  \ccSetProperty{article-title}{%
+    \newpage
+    \null
+    \vskip 2em
+    \begin{center}%
+      \ccaStructStart{Titlepage}%
+      \let \footnote \thanks
+      {\LARGE\ccaStructStart{Title}\ccaReplaceStruct{\cca@id@document@dummy}\ccUseComp{Title}\ccaStructEnd{Title}\par}%
+      \vskip 1.5em%
+      {\large
+        \lineskip .5em%
+        \ccaStructStart{Authors}\ccUseComp{AuthorNameList}\ccaStructEnd{Authors}\par
+      }%
+      \vskip 1em%
+      {\large \ccaStructStart{P}\ccUseComp{Date}\ccaStructEnd{P}}%       % Set date in \large size.
+      \end{center}%
+      \ccaStructEnd{Titlepage}%
+      \par
+      \vskip 1.5em
+  }%
   % Title page hooks
   % Before \ccPrefix Maketitle and outside the group
   \ccSetProperty{before-titlepage}{%
@@ -411,8 +431,13 @@ from the Components given in the Meta Container.}}}
   \ccSetProperty{fund-format}{% Format of a single fund/grant/sponsor
     \strut\vtop{%
       \hsize\ccUseProperty{fund-width}%
-      \ccIfComp{FundName}{\ccUseComp{FundName}\\[1ex]}{}%
-      \includegraphics[width=\ccUseProperty{fund-width}]{\ccUseComp{FundLogo}}}%
+      \ccWhenComp{FundName}{\ccaStructStart{P}\ccUseComp{FundName}\ccaStructEnd{P}\\[1ex]}%
+      \ccaStructStart{Figure}%
+      \ccaAddPlacement{Block}%
+      \ccaAddAltText{\ccGetComp*{FundName} Logo}%
+      \includegraphics[width=\ccUseProperty{fund-width}]{\ccUseComp{FundLogo}}%
+      \ccaStructEnd{Figure}%
+    }%
     \ccUseProperty{fund-sep}%
   }%
   \ccSetProperty{funding-sep}{4mm}%
@@ -421,7 +446,7 @@ from the Components given in the Meta Container.}}}
       \ccSetPropertyX{fund-width}{\dimexpr(\textwidth/\ccUseProperty{funding-columns})-(\ccUseProperty{funding-sep}/\ccUseProperty{funding-columns})\relax}
       \ccUseProperty{funding-format}%
       \ccGetComp{FundingPreText}%
-      \ccGetComp{FundingBlock}%
+      \ccGetComp*{FundingBlock}%
       \ccGetComp{FundingPostText}%
       \par
     \egroup
@@ -432,48 +457,68 @@ from the Components given in the Meta Container.}}}
     \def\thepage{\roman{page}}%
   }%
   \ccSetProperty{titlepage-i}{%
+    \ccaStructStart{Titlepage}%
     \ifmonograph
-      \ccUseComp{AuthorNameList}%
+      \ccaStructStart{Authors}\ccUseComp{AuthorNameList}\ccaStructEnd{Authors}%
     \else
-      \ccUseProperty{EditorNameList}%
+      \ccaStructStart{Editors}\ccUseProperty{EditorNameList}\ccaStructEnd{Editors}%
     \fi%
     \vskip\baselineskip
     \bgroup
-      \ccUseProperty{title-face}\ccUseComp{Title}%
+      \ccUseProperty{title-face}\ccaStructStart{Title}\ccaReplaceNode{\cca@id@document@dummy}\ccUseComp{Title}\ccaStructEnd{Title}%
     \egroup
+    \ccaStructEnd{Titlepage}%
   }%
   \ccSetProperty{titlepage-ii}{%
+    \ccaStructStart{Titlepage}%
     \ccGetComp{Editorial}%
     \ccGetComp{SeriesNote}%
     \ccGetComp{GenericMetaBlock}%
     \vfill
     \ccUseProperty{bio-output}%
+    \ccaStructEnd{Titlepage}%
   }%
   \ccSetProperty{titlepage-iii}{%
+    \ccaStructStart{Titlepage}%
     \ifmonograph
-      \ccUseComp{AuthorNameList}%
+      \ccaStructStart{Authors}\ccUseComp{AuthorNameList}\ccaStructEnd{Authors}%
     \else
-      \ccUseProperty{EditorNameList}%
+      \ccaStructStart{Editors}\ccUseProperty{EditorNameList}\ccaStructEnd{Editors}%
     \fi%
     \par
     \ccUseProperty{title-format}
     \ccGetComp{Edition}%
     \ccGetComp{EditionNote}%
+    \ccaStructEnd{Titlepage}%
     \vfill
     \clearpage
   }%
   \ccSetProperty{titlepage-iv}{%
+    \ccaStructStart{Titlepage}%
     \ccGetComp{Dedication}%   Dedication
     \ccGetComp{Acknowledgements}%   Dedication
-    \ccUseProperty{imprint-format}%
     \ccUseProperty{funding-block}%
     \vfill
     \bgroup
       \ccUseProperty{imprint-face}%
-      \ccIfComp{Biblio}{{\bfseries\ccGetComp{BiblioTitle}}\ccGetComp{Biblio}}{}%
+      \ccaStructStart{MetaDatumBlock}%
+      \ccWhenComp{Biblio}{%
+        \ccaStructStart{MetaDatum}%
+          {\bfseries
+           \ccaStructStart{MetaDatumLabel}%
+           \ccGetComp*{BiblioTitle}%
+           \ccaStructEnd{MetaDatumLabel}%
+          }%
+        \ccaStructStart{MetaDatumValue}%
+        \ccGetComp*{Biblio}%
+        \ccaStructEnd{MetaDatumValue}%
+        \ccaStructEnd{MetaDatum}%
+      }%
       \ccUseProperty{imprint-sep}%
       \ccUseProperty{imprint}%
+      \ccaStructEnd{MetaDatumBlock}%
     \egroup
+    \ccaStructEnd{Titlepage}
     \clearpage
   }%
   %% predefined face and format Properties
@@ -549,10 +594,12 @@ from the Components given in the Meta Container.}}}
     \ccGetComp{LicenceText}%
   }%
   \ccSetProperty{copyright}{%
+    \ccaStructStart{MetaDatumBlock}%
     \ccIfComp{Copyright}
       {\ccUseComp{Copyright}\par}
       {\textcopyright\space\ccUseComp{Year}\space\ccUseComp{Publisher},\space\ccUseComp{PubPlace}\par}%
-    }%
+    \ccaStructEnd{MetaDatumBlock}%
+  }%
   \ccSetProperty{publisher}{%
     \ccGetComp{PubDivInfo}%
     \ccUseProperty{copyright}%
