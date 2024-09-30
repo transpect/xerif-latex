@@ -132,8 +132,8 @@
 
 %% Hooks der {tpHeading} Umgebung:
 \AddToHook{env/heading/before}{\global\advance\cch@total@nesting@level\@ne\relax}
-\AddToHook{env/heading/end}{\ccaVstructEnd{SectMeta}}%
 \AddToHook{env/heading/after}{%
+  \ccaVstructEnd{SectMeta}%
   \ccaVstructStart{\ccCurSecName}%
   \csxdef{cch@sec@\the\cch@total@nesting@level @name}{\ccCurSecName}%
   \ccaMoveStruct{\cch@id@cur@head}%
