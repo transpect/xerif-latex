@@ -131,13 +131,16 @@
 }
 
 %% Hooks der {tpHeading} Umgebung:
-\AddToHook{env/heading/before}{\global\advance\cch@total@nesting@level\@ne\relax}
-\AddToHook{env/heading/after}{%
-  \ccaVstructEnd{SectMeta}%
-  \ccaVstructStart{\ccCurSecName}%
-  \csxdef{cch@sec@\the\cch@total@nesting@level @name}{\ccCurSecName}%
-  \ccaMoveStruct{\cch@id@cur@head}%
-  \ccaMoveStruct{\cch@id@cur@meta}%
+\AtBeginDocument{%
+  \AddToHook{env/heading/before}{\UseHook{env/\ccPrefix Heading/before}}
+  \AddToHook{env/heading/begin}{\UseHook{env/\ccPrefix Heading/begin}}%
+  \AddToHook{env/heading/end}{\UseHook{env/\ccPrefix Heading/end}}%
+  \AddToHook{env/heading/after}{\UseHook{env/\ccPrefix Heading/after}}%
+}
+\g@addto@macro\ccAfterClassHook{%
+  \apptocmd\cch@init@hooks{%
+    \NewHook{env/heading/#1/begin}%
+    \AddToHook{env/\ccPrefix heading/#1/begin}{\UseHook{env/heading/#1/begin}}}{}{}%
 }
 
 \g@addto@macro\ccToggleCountedConditionalsHook{%
