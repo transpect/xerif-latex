@@ -114,9 +114,9 @@
   \def\heading{\tpHeading}
   \def\endheading{\endtpHeading}
   \let\tpDeclareHeading\ccDeclareHeading
-  \let\tpAbstractTitle\ccAbstractTitle
-  \let\tpKeywordsTitle\ccKeywordsTitle
-  \let\tpTitleEnTitle\ccTitleEnTitle
+  \def\tpAbstractTitle{\tpAbstractLabel}%
+  \def\tpKeywordsTitle{\tpKeywordsLabel}%
+  \def\tpTitleEnTitle{\tpTitleEnLabel}%
   \def\tpHeadingLevel{\cchLevel}%
   %% from coco-meta.sty
   \let\tpUseLabeledComp\ccUseLabeledComp
