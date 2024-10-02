@@ -141,11 +141,16 @@
       \leftskip\ccUseProperty{margin-left}%
       \rightskip\ccUseProperty{margin-right}%
       \bgroup
+        \ccWhenAlly{%
+          \ccaStructStart{SectMeta}%
+          \ccaSaveCurStruct{cch@id@cur@meta}%
+        }%
         \ccUseProperty{heading-block}%
         \ccIfPropVal{no-toc}{true}{}{\cch@make@toc}% ToC entries
         \ccIfPropVal{no-BM}{true}{}{\cch@make@bookmarks}% Bookmarks
         \ccUseProperty{toc-hook}%
         \ccIfProp{extended}{\ccUseProperty{extended-heading}}{}%
+        \ccWhenAlly{\ccaStructEnd{SectMeta}}%
       \egroup%
       \cch@make@run% Running headers
       \cch@use@hook{run/after}{#2}%
@@ -188,7 +193,10 @@
   \NewHook{cc/headings/#1/after}%
   \NewHook{cc/headings/#1/print/before}%
   \NewHook{cc/headings/#1/run/after}%
-  \NewHook{env/heading/#1/begin}%
+  \NewHook{env/\ccPrefix Heading/#1/begin}%
+  \ifcsname cc@parent@#1\endcsname
+    \AddToHook{env/\ccPrefix Heading/#1/begin}{\UseHook{env/\ccPrefix Heading/\csname cc@parent@#1\endcsname/begin}}%
+  \fi
 }
 \def\cch@init@cnt#1{\ifcsname c@#1\endcsname\else\@definecounter{#1}\fi}
 \def\cch@auto@number#1#2{%
@@ -337,8 +345,6 @@
     \xdef\ccCurSecLevel{\csname cch@#2@level\endcsname}%
     \cchAutoClose%
     \ccDebugMsg[a11y]{Level after close: \the\cch@total@nesting@level}%
-    \ccaVstructStart{SectMeta}%
-    \ccaSaveCurStruct{cch@id@cur@meta}%
   }%
   \UseHook{env/\ccPrefix Heading/#2/begin}%
   \ccEvalAttributes[Heading]{#1}%
@@ -362,6 +368,8 @@
   \def\ccAffilCnt{\z@}%
   \cc@reset@components{\cc@cur@cont}%
   \let\cch@current@class\relax
+  \global\let\cch@id@cur@meta\@undefined
+  \global\let\cch@id@cur@head\@undefined
   \ignorespaces}
 \def\cch@reset{%
   \let\cc@cur@cont\relax
@@ -490,13 +498,13 @@
       \ccUseComp{TocNumber}%
       \ccUseProperty{toc-number-sep}%
     \egroup}
-  \ccSetProperty{toc-page-sep}{\ccTocLink{\ccaAddKeep\ccaStructStart[document]{leaders}\dotfill\ccaStructEnd{leaders}}}% between TocTitle and the page counter
+  \ccSetProperty{toc-page-sep}{\ccaAddKeep\ccaStructStart[Document]{leaders}\dotfill\ccaStructEnd{leaders}}% between TocTitle and the page counter
   \ccSetProperty{toc-page-face}{}% appearance of the page value
   \ccSetProperty{toc-page-format}{% format of the page value
     \ccUseProperty{toc-page-sep}%
     \bgroup
       \ccUseProperty{toc-page-face}%
-      \ccaStructStart{Span}\ccTocLink{\ccUseComp{TocPage}}\ccaStructEnd{Span}%
+      \ccaStructStart{Span}\ccUseComp{TocPage}\ccaStructEnd{Span}%
     \egroup}%%
   \ccSetProperty{toc-level}{}%
   \ccSetProperty{toc-before-entry}{%
@@ -512,12 +520,15 @@
   \ccSetProperty{toc-format}{%
     \ccUseProperty{toc-title-face}%
     \ccaVstructStart{TOCI}%
-    \ccIfComp{TocNumber}
-      {\ccaStructStart{P}\ccaStructStart{Reference}\ccaStructStart{Lbl}\ccUseProperty{toc-hang-number}\ccaStructEnd{Lbl}}
-      {\leftskip0pt\leavevmode}%
-    \ccWhenComp{TocAuthorNameList}{\ccaStructStart{Span}\ccTocLink{\ccUseComp{TocAuthorNameList}:\space}\ccaStructEnd{Span}}%
-    \ccaStructStart{Span}\ccTocLink{\ccUseComp{TocTitle}}\ccaStructEnd{Span}%
-    \ccUseProperty{toc-page-format}%
+    \ccWhenComp{TocNumber}{\ccaStructStart{P}\ccaStructStart{Reference}}%
+    \ccTocLink{%
+      \ccIfComp{TocNumber}
+        {\ccaStructStart{Lbl}\ccUseProperty{toc-hang-number}\ccaStructEnd{Lbl}}
+        {\leftskip0pt\leavevmode}%
+      \ccWhenComp{TocAuthorNameList}{\ccaStructStart{Span}\ccUseComp{TocAuthorNameList}:\space\ccaStructEnd{Span}}%
+      \ccaStructStart{Span}\ccUseComp{TocTitle}\ccaStructEnd{Span}%
+      \ccUseProperty{toc-page-format}%
+    }%
     \ccWhenComp{TocNumber}{\ccaStructEnd{Reference}\ccaStructEnd{P}}%
     \ccaVstructEnd{TOCI}%
   }%
@@ -539,6 +550,16 @@
     \ccUseComp{AuthorContact}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi
   }}
 \newcount\cch@total@nesting@level \cch@total@nesting@level=\z@\relax
+\newcount\cch@max@nesting@level   \cch@max@nesting@level=\z@\relax
+\ccWhenAlly{\if@cc@pdf@two\else\AtEndDocument{\cch@add@h@rolemap}\fi}%
+\def\cch@add@h@rolemap{%
+  \@tempcnta=7\relax
+  \loop
+  \unless\ifnum\@tempcnta>\cch@max@nesting@level\relax
+    \ccaAddRolemap{H\the\@tempcnta}{P}%
+    \advance\@tempcnta\@ne\relax
+  \repeat
+}
 \def\cchAutoClose{%
   \let\cca@next\relax
   \ccDebugMsg[a11y]{Calling AutoClose for \ccCurSecName\space (\ccCurSecLevel).}
@@ -569,32 +590,44 @@
   \cca@next
 }
 \def\cchResetNesting{%
-  \ifnum\cch@total@nesting@level>\z@\relax
-    \loop
-      \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
-      \global\advance\cch@total@nesting@level\m@ne\relax
+  \ccWhenAlly{%
     \ifnum\cch@total@nesting@level>\z@\relax
-    \repeat
-  \fi
-}
+      \loop
+        \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
+        \global\advance\cch@total@nesting@level\m@ne\relax
+      \ifnum\cch@total@nesting@level>\z@\relax
+      \repeat
+    \fi
+  }}
 \AddToHook{env/\ccPrefix Heading/before}{%
   \ccDebugMsg[a11y]{Processing heading}%
   \global\advance\cch@total@nesting@level\@ne\relax
 }
 \AddToHook{env/\ccPrefix Heading/after}{%
-  \ccaVstructEnd{SectMeta}%
   \ccaVstructStart{\ccCurSecName}%
   \csxdef{cch@sec@\the\cch@total@nesting@level @name}{\ccCurSecName}%
-  \ccaMoveStruct{\cch@id@cur@head}%
-  \ccaMoveStruct{\cch@id@cur@meta}%
+  \ifx\cch@id@cur@head\@undefined\else
+    \ccaMoveStruct{\cch@id@cur@head}%
+  \fi
+  \ifx\cch@id@cur@meta\@undefined\else
+    \ccaMoveStruct{\cch@id@cur@meta}%
+  \fi%
 }
 \def\cchHeadTagStart{%
-    \expandafter\ifx\csname cch@notag@\ccCurSecName\endcsname\@empty\else
-      \ccaVstructStart{H\the\numexpr\cch@total@nesting@level+\@ne\relax}%
-      \ccaSaveCurStruct{cch@id@cur@head}%
-    \fi}
+  \if@cc@pdf@two
+    \ccaVstructStart{Title}%
+  \else
+    \ccaVstructStart{H\the\numexpr\cch@total@nesting@level+\@ne\relax}%
+    \ifnum\cch@total@nesting@level>\cch@max@nesting@level
+      \global\cch@max@nesting@level=\cch@total@nesting@level\relax
+    \fi
+  \fi
+  \ccaSaveCurStruct{cch@id@cur@head}%
+}
 \def\cchHeadTagEnd{%
-  \expandafter\ifx\csname cch@notag@\ccCurSecName\endcsname\@empty\else
+  \if@cc@pdf@two
+    \ccaVstructEnd{Title}%
+  \else
     \ccaVstructEnd{H\the\numexpr\cch@total@nesting@level+\@ne\relax}%
   \fi}
 \ccaAddRolemap{SectMeta}{Div}

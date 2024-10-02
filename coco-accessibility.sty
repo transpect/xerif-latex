@@ -36,7 +36,9 @@
 \RequirePackage{xparse}
 \def\cca@lang@id{eng}%
 \DeclareOptionX{lang-id}{\gdef\cca@lang@id{#1}}
-\DeclareOptionX{init}{\global\let\cc@do@ally\relax}
+\newif\if@cc@do@ally \@cc@do@allyfalse
+\DeclareOptionX{init}{\global\@cc@do@allytrue}
+\DeclareOptionX{init-20}{\global\@cc@do@allytrue\global\@cc@pdf@twotrue}
 \DeclareOptionX{nodetree}{\let\cca@do@nodetree\relax}
 \DeclareOptionX{show-spaces}{\let\cca@do@showspaces\relax}
 \let\cca@do@dospaces\relax
@@ -48,10 +50,10 @@
   \ccPackageError{a11y}{compatibility}
   {Could not patch \noexpand#1}
   {You probably use a LaTeX package that re-defines the \noexpand#1 control sequence. It is apparently not compatbile with coco-accessibility.sty. Sorry}}
-\def\cc@if@ally{\ifx\cc@do@ally\relax\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
+\def\cc@if@ally{\if@cc@do@ally\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
 \let\ccIfAlly\cc@if@ally
-\def\ccWhenAlly{\ifx\cc@do@ally\relax\expandafter\@firstofone\else\expandafter\@gobble\fi}
-\def\ccUnlessAlly{\ifx\cc@do@ally\relax\expandafter\@gobble\else\expandafter\@firstofone\fi}
+\def\ccWhenAlly{\if@cc@do@ally\expandafter\@firstofone\else\expandafter\@gobble\fi}
+\def\ccUnlessAlly{\if@cc@do@ally\expandafter\@gobble\else\expandafter\@firstofone\fi}
 \ccWhenAlly{%
   \ifluatex\else
     \ccPackageError{a11y}{engine}
@@ -131,15 +133,16 @@
 \DeclareAccessibilityCommand{\ccaAddToStruct}[1]{\directlua{ltpdfa.tagger.addToStruct('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaMoveStruct}[1]{\relax\directlua{ltpdfa.tagger.moveStruct('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaReplaceStruct}[1]{\relax\directlua{ltpdfa.tagger.replaceStruct('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaMoveChildren}[1]{\relax\directlua{ltpdfa.tagger.moveChilds('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaAddID}[1]{\directlua{ltpdfa.tagger.addID('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaSetDocinfo}[3][]{\directlua{ltpdfa.setDocInfo('\luaescapestring{#2}','\luaescapestring{#3}','\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaAddRolemap}[2]{\directlua{ltpdfa.tagger.addRolemap('\luaescapestring{#1}','\luaescapestring{#2}')}}
 \DeclareAccessibilityCommand{\ccaAddPlacement}[1]{\directlua{ltpdfa.tagger.addPlacement('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaAddNumbering}[1]{\directlua{ltpdfa.tagger.addNumbering('\luaescapestring{#1}')}}
 \ccWhenAlly{\directlua{ally = require('coco-accessibility')}}
-\DeclareAccessibilityCommand{\ccaAddAltText}[1]{\directlua{ltpdfa.tagger.addAltText('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddAltText}[1]{\if@cc@is@final\directlua{ltpdfa.tagger.addAltText('\luaescapestring{#1}')}\fi}
 \define@key{Gin}{alt}{\gdef\cca@Gin@alt{#1}}
-\DeclareAccessibilityCommand{\ccaAddLastLink}{\directlua{ltpdfa.tagger.addLastLink()}}
+\DeclareAccessibilityCommand{\ccaAddLastLink}{\if@cc@is@final\directlua{ltpdfa.tagger.addLastLink()}\fi}
 \DeclareAccessibilityCommand{\ccaGetStructParent}{\directlua{ltpdfa.tagger.getStructParent()}}
 \begingroup
 \@makeother\#
@@ -165,14 +168,9 @@
       }
       {/C[\@urlbordercolor]%
         \fi
-       /StructParent \@ltpdfmy@parent%
-       /Contents(\@argii)
+        /StructParent \@ltpdfmy@parent%
+        /Contents(\@argii)
       }{}{\cca@patch@error\hyper@linkurl}
-    % \patchcmd\hyper@linkurl
-    %   {\Hy@href@nextactionraw}
-    %   {
-    %    \Hy@href@nextactionraw}
-    %   {}{\cca@patch@error\hyper@linkurl}
     \patchcmd\close@pdflink
       {\pdfendlink}
       {\pdfendlink
@@ -203,19 +201,19 @@
 \endgroup
 \DeclareAccessibilityCommand{\ccaPagestyleArtifacts}{%
   \ifx\@oddhead\@empty\else
-    \pretocmd\@oddhead{\ccaStructStart[document]{header}}{}{}%
+    \pretocmd\@oddhead{\ccaStructStart[Document]{header}}{}{}%
     \apptocmd\@oddhead{\ccaStructEnd{header}}{}{}%
   \fi
   \ifx\@evenhead\@empty\else
-    \pretocmd\@evenhead{\ccaStructStart[document]{header}}{}{}%
+    \pretocmd\@evenhead{\ccaStructStart[Document]{header}}{}{}%
     \apptocmd\@evenhead{\ccaStructEnd{header}}{}{}%
   \fi
   \ifx\@oddfoot\@empty\else
-    \pretocmd\@oddfoot{\ccaStructStart[document]{footer}}{}{}%
+    \pretocmd\@oddfoot{\ccaStructStart[Document]{footer}}{}{}%
     \apptocmd\@oddfoot{\ccaStructEnd{footer}}{}{}%
   \fi
   \ifx\@evenfoot\@empty\else
-    \pretocmd\@evenfoot{\ccaStructStart[document]{footer}}{}{}%
+    \pretocmd\@evenfoot{\ccaStructStart[Document]{footer}}{}{}%
     \apptocmd\@evenfoot{\ccaStructEnd{footer}}{}{}%
   \fi}
 \AtBeginDocument{%
@@ -232,7 +230,7 @@
   \ccaAddToConfig{artifact}{Rule={Type:Layout}}
   \ccaAddToConfig{artifact}{Artifact={Type:Layout}}
 }
-\def\ccaArtifact{\ccaStructStart[document]{Artifact}\ccaDisable}
+\def\ccaArtifact{\ccaStructStart[Document]{Artifact}\ccaDisable}
 \def\endccaArtifact{\ccaEnable\ccaStructEnd{Artifact}}
 \DeclareAccessibilityCommand{\ccaAddFigure}[7]{\directlua{ltpdfa.tagger.addFigure(
     '\luaescapestring{#1}',
@@ -277,7 +275,7 @@
   \AtBeginDocument{%
     \directlua{ltpdfa.beginDocument('\luaescapestring{\ltpdfa@last@page}')}
     \UseHook{cca/document/begin}%
-    \ccaVstructStart{document}%
+    \ccaVstructStart{Document}%
     \ccaSaveCurStruct{cca@id@document}%
     \ccaStructStart{dummy}%
       \ccaSaveCurStruct{cca@id@document@dummy}%
@@ -299,22 +297,27 @@
     \ccDebugMsg[a11y]{Final AutoClose. \meaning\ccPrevSecLevel, \meaning\ccCurSecLevel}%
     \cchResetNesting
     \ccDebugMsg[a11y]{End Document}%
-    \ccaVstructEnd{document}
+    \if@backmatter\ccaVstructEnd{Backmatter}\fi
+    \ccaVstructEnd{Document}
+    \ifarticle\else
+      \ccaAddRolemap{Frontmatter}{Part}%
+      \ccaAddRolemap{Mainmatter}{Part}%
+      \ccaAddRolemap{Backmatter}{Part}%
+    \fi
     \directlua{ltpdfa.endDocument()}%
   }%
 }
 \AtBeginDocument{%
   \apptocmd{\(}{\ccaStructStart{Formula}}{}{\cca@patch@error\(}
   \pretocmd{\)}{\ccaStructEnd{Formula}}{}{\cca@patch@error\)}
-  \apptocmd{\[}{\ccaVstructStart{Para}\ccaStructStart{Formula}}{}{\cca@patch@error\[}
-  \pretocmd{\]}{\ccaStructEnd{Formula}\ccaVstructEnd{Para}}{}{\cca@patch@error\]}
+  \apptocmd{\[}{\ccaVstructStart{P}\ccaStructStart{Formula}}{}{\cca@patch@error\[}
+  \pretocmd{\]}{\ccaStructEnd{Formula}\ccaVstructEnd{P}}{}{\cca@patch@error\]}
   \@ifpackageloaded{amsmath}{%
-    \pretocmd{\start@align}{\ccaVstructStart{Para}\ccaStructStart{Formula}}{}{\cca@patch@error\start@align}%
-    \apptocmd{\endalign}{\ccaStructEnd{Formula}\ccaVstructEnd{Para}}{}{\cca@patch@error\endalign}%
+    \pretocmd{\start@align}{\ccaVstructStart{P}\ccaStructStart{Formula}}{}{\cca@patch@error\start@align}%
+    \apptocmd{\endalign}{\ccaStructEnd{Formula}\ccaVstructEnd{P}}{}{\cca@patch@error\endalign}%
   }{}%
 }
-\ccaAddRolemap{document}{Document}
-\ccaAddRolemap{Para}{P}
+ % none so far.
 \ccWhenAlly{\AtBeginShipout{\directlua{ltpdfa.pageprocessor(tex.box["AtBeginShipoutBox"])}}}%
 \endinput
 %%

@@ -723,16 +723,16 @@ from the Components given in the Meta Container.}}}
   \ccAddToType{Components}{titlepage}{%
   \ccDeclareGlobalComponent[2]{PDFAID}%
   \ccDeclareGlobalComponent[A]{PDFALevel}%
-  \ccDeclareGlobalComponent[1]{PDFUAID}}%
-\AddToHook{cct/document/meta}{%
-  \ccIfCompEmpty{PDFAID}{}{\ccIfCompEmpty{PDFALevel}{}{%
-      \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
-          pdfaid=\ccUseComp{PDFAID};%
-          level=\ccUseComp{PDFALevel}%
-          \ccIfCompEmpty{PDFUAID}{}{;pdfuaid=\ccUseComp{PDFUAID}}}}%
-      \x}}}
-\ccaAddRolemap{Title}{H1}
-\ccaAddRolemap{Titlepage}{Div}
+  \ccDeclareGlobalComponent[\if@cc@pdf@two2\else1\fi]{PDFUAID}}%
+  \AddToHook{cct/document/meta}{%
+    \ccIfCompEmpty{PDFAID}{}{\ccIfCompEmpty{PDFALevel}{}{%
+        \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
+            pdfaid=\ccUseComp{PDFAID};%
+            level=\ccUseComp{PDFALevel}%
+            \ccIfCompEmpty{PDFUAID}{}{;pdfuaid=\ccUseComp{PDFUAID}}}}%
+        \x}}}
+  \if@cc@pdf@two\else\ccaAddRolemap{Title}{H1}\fi
+  \ccaAddRolemap{Titlepage}{Div}
 }%ccWhenAlly
 \fi
 \endinput

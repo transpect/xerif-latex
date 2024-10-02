@@ -56,15 +56,17 @@
 \DeclareOptionX{debug}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
 \DeclareOptionX{debug-domain}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
 \DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
+\newif\if@cc@pdf@two \@cc@pdf@twofalse
 \ExplSyntaxOn
   \DeclareOptionX{a11y}{%
     \sys_ensure_backend:
-    \pdf_version_gset:n{1.7}
-    \PassOptionsToPackage{init}{coco-accessibility}}
+    \pdf_version_gset:n{1.7}%
+    \PassOptionsToPackage{init}{coco-accessibility}}%
   \DeclareOptionX{a11y20}{%
+    \global\@cc@pdf@twotrue
     \sys_ensure_backend:
-    \pdf_version_gset:n{2.0}
-    \PassOptionsToPackage{init}{coco-accessibility}}
+    \pdf_version_gset:n{2.0}%
+    \PassOptionsToPackage{init}{coco-accessibility}}%
 \ExplSyntaxOff
 \DeclareOptionX{lang-id}{%
   \PassOptionsToPackage{\CurrentOption}{coco-accessibility}%
@@ -108,21 +110,34 @@
     \hbox{}\thispagestyle{empty}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
 \ifarticle\else
   \newif\if@frontmatter  \@frontmatterfalse
+  \newif\if@backmatter   \@backmatterfalse
   \renewcommand\frontmatter{%
     \cleardoublepage
-    \@mainmatterfalse
-    \@frontmattertrue
+    \cchResetNesting
+    \global\@mainmatterfalse
+    \global\@backmatterfalse
+    \global\@frontmattertrue
+    \ccaVstructStart{Frontmatter}%
     \pagenumbering{arabic}}
   \renewcommand\mainmatter{%
+    \if@frontmatter\ccaVstructEnd{Frontmatter}\fi
     \cleardoublepage
-    \@frontmatterfalse
-    \@mainmattertrue}
+    \cchResetNesting
+    \global\@frontmatterfalse
+    \global\@backmatterfalse
+    \global\@mainmattertrue
+    \ccaVstructStart{Mainmatter}%
+  }
   \renewcommand\backmatter{%
+    \if@mainmatter\ccaStructEnd{Mainmatter}\fi%
     \cleardoublepage
-    \@mainmatterfalse
-    \@frontmatterfalse}
-\fi
-\usepackage{soul}
+    \cchResetNesting
+    \global\@mainmatterfalse
+    \global\@frontmatterfalse
+    \global\@backmattertrue
+    \ccaVstructStart{Backmatter}%
+  }
+\fi% \ifarticle
 \RequirePackage{coco-accessibility}
 \ifLuaTeX
 \RequirePackage{coco-script}

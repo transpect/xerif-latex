@@ -96,6 +96,7 @@
   \renewcommand\glossary[2][]{}%
   \let\hypertarget\@gobbletwo
   \let\label\@gobble
+  \@cc@is@finalfalse
 }%
 \def\CalcRatio#1#2{\strip@pt\dimexpr\number\numexpr\number\dimexpr#1\relax*65536/\number\dimexpr#2\relax\relax sp}
 \def\CalcModulo#1#2{\number\numexpr#1+#2-((#1+#2/2)/#2)*#2\relax}

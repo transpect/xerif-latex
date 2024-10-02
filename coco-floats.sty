@@ -287,15 +287,11 @@
       \ccf@test@caption{0}{}{bottom}%
       \bgroup
         \@cc@is@finaltrue
-        \ccIfCompFromVal{titlepage}{PDFUAID}{2}
-          {\ccaStructStart{Aside}}
-          {\ccaStructStart{Div}}%
+        \ccaStructStart{\if@cc@pdf@two\relax Aside\else Div\fi}%
         \edef\ccf@parstruct@id{\ccaGetCurStruct{idx}}%
         \hsize\ccf@total@width
         \ccf@process
-        \ccIfCompFromVal{titlepage}{PDFUAID}{2}
-          {\ccaStructEnd{Aside}}
-          {\ccaStructEnd{Div}}%
+        \ccaStructEnd{\if@cc@pdf@two Aside\else Div\fi}%
         \par
       \egroup
       \ccSavePage
@@ -600,7 +596,7 @@
   \csedef{cc@\cc@cur@cont @res@height}{\the\@tempdimb}%
 }
 \def\ccf@test@caption#1#2#3{%
-  \@cc@is@finalfalse
+  \ccaDisable\@cc@is@finalfalse
   \setbox\cc@tempboxa\hbox{\ccGobble\ccSubFloatCnt=0#1\relax\ccUseProperty{#2caption-#3}\relax}%
   \setbox\cc@tempboxb\hbox{\ccGobble\ccSubFloatCnt\m@ne\relax\ccUseProperty{#2caption-#3}\relax}%
   \edef\my@wda{\expandafter\strip@pt\wd\cc@tempboxa sp}%
@@ -608,7 +604,7 @@
   \ifdim\my@wda>\my@wdb\relax
     \expandafter\global\expandafter\let\csname ccf@has@#2capt@#3\endcsname\@empty
   \fi
-  \@cc@is@finaltrue
+  \ccaEnable\@cc@is@finaltrue
 }
 \def\ccf@test@subcapt{%
   \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
@@ -694,7 +690,6 @@
     }%
     \immediate\write\@auxout{\string\expandafter\string\gdef\string\csname\space ccFloat\the\ccf@int@cnt Cap#1\string\endcsname{\the\dimexpr \ht\z@+\dp\z@\relax}}%
     \bgroup
-      \@cc@is@finaltrue
       \savenotes
       \if@ccf@break@capt\else\nopagebreak\fi
       \ccSubFloatCnt\z@
@@ -915,8 +910,12 @@
   \ccComponent{Content}{\unvbox\ccf@floatbox}%
   \ccUseComp{Content}%
   \ccaStructStart{Table}%
-  \ifx\ht@structID@THead\@undefined\else\ccaMoveStruct{\ht@structID@THead}\fi%
-  \ifx\ht@structID@TBody\@undefined\else\ccaMoveStruct{\ht@structID@TBody}\fi%
+  \ifx\ht@structID@THead\@undefined
+    \ccaMoveChildren{\ht@structID@TBody}%
+  \else
+    \ccaMoveStruct{\ht@structID@THead}%
+    \ifx\ht@structID@TBody\@undefined\else\ccaMoveStruct{\ht@structID@TBody}\fi%
+  \fi
   \ifx\ht@structID@TFoot\@undefined\else\ccaMoveStruct{\ht@structID@TFoot}\fi%
   \par\if@ccf@break@capt\else\nopagebreak\fi
   \vskip\dp\strutbox
