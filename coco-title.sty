@@ -263,7 +263,9 @@ from the Components given in the Meta Container.}}}
 \def\cct@fundings@eval{{%
     \def\cc@cur@cont{titlepage}%
     \ccComposeCollection{Funding}{fund-format}{FundingBlock}%
+    \UseHook{cc/titlepage/funding}%
 }}
+\NewHook{cc/titlepage/funding}
 \def\cct@eds@eval#1{%
   \ccm@role@eval{#1}%
   \cct@create@editor@string{#1}}
