@@ -49,6 +49,13 @@
       \let\cch@current@class\ccAttrVal
       \expandafter\ccUseStyleClass\expandafter{\ccAttrVal}{Heading}%
     }%
+    \ccDeclareAttributeHandler*{notag}{%
+      \let\ccaEnable\relax
+      \let\ccaProtect\ccaDisable
+      \global\let\cch@notag\relax
+      \global\advance\cch@total@nesting@level\m@ne\relax
+      \ccaArtifact\ccaDisable
+    }%
   }
   \ccDeclareType{Properties}{}%
   \ccDeclareEnv{\cch@heading}{\cch@end@heading}%
@@ -202,8 +209,7 @@
 \def\cch@auto@number#1#2{%
   \ccIfPropVal{numbering}{auto}
     {\expandafter\ifx\csname c@#2\endcsname\relax\cch@init@cnt{#2}\fi
-     \ccIfAttrIsSet{Heading}{nonumber}
-       {}
+     \ccIfAttrIsSet{Heading}{nonumber}{}
        {\ccIfComp{Number}
          {}
          {\ifnum #1>\c@secnumdepth\relax\else
@@ -294,8 +300,7 @@
   \cc@check@empty[Toc]{Heading}{Number}{BM}%
   \cc@check@empty[Toc]{Heading}{AuthorNameList}{BM}%
   \cc@check@empty[Toc]{Heading}{Subtitle}{BM}%
-  \ccIfAttrIsSet{Heading}{noBM}
-    {}
+  \ccIfAttrIsSet{Heading}{noBM}{}
     {\ccIfProp{bookmark-level}{\edef\Hy@toclevel{\ccUseProperty{bookmark-level}}}{}%
      \begingroup
        \ccGobble
@@ -340,14 +345,15 @@
 \def\@cch@heading[#1]#2{%
   \cch@reserve
   \xdef\ccCurSecName{#2}%
-  \ccWhenAlly{%
-    \global\let\ccPrevSecLevel=\ccCurSecLevel\relax
-    \xdef\ccCurSecLevel{\csname cch@#2@level\endcsname}%
-    \cchAutoClose%
-    \ccDebugMsg[a11y]{Level after close: \the\cch@total@nesting@level}%
-  }%
-  \UseHook{env/\ccPrefix Heading/#2/begin}%
   \ccEvalAttributes[Heading]{#1}%
+  \ifx\cch@notag\relax\else
+    \ccWhenAlly{%
+      \global\let\ccPrevSecLevel=\ccCurSecLevel\relax
+      \xdef\ccCurSecLevel{\csname cch@#2@level\endcsname}%
+      \cchAutoClose%
+      \ccDebugMsg[a11y]{Level after close: \the\cch@total@nesting@level}}%
+  \fi
+  \UseHook{env/\ccPrefix Heading/#2/begin}%
   \ccEvalType[#2]{Components}%
   \ignorespaces
 }
@@ -370,12 +376,18 @@
   \let\cch@current@class\relax
   \global\let\cch@id@cur@meta\@undefined
   \global\let\cch@id@cur@head\@undefined
+  \global\let\cch@no@tag\@undefined%
+  \global\let\cch@ccaEnable\ccaEnable
+  \global\let\cch@ccaProtect\ccaProtect
   \ignorespaces}
 \def\cch@reset{%
   \let\cc@cur@cont\relax
   \let\\\cch@ltx@dbl@backslash
   \let\label\cc@ltx@label
   \let\ccCurSecName\relax
+  \global\let\ccaEnable\cch@ccaEnable
+  \global\let\ccaProtect\cch@ccaProtect
+  \ifx\cch@notag\relax\endccaArtifact\fi
   }
 \def\cch@provide@quotes{%
   \ccDeclareComponent{QuoteBlock}{}{}%
@@ -560,7 +572,7 @@
     \advance\@tempcnta\@ne\relax
   \repeat
 }
-\def\cchAutoClose{%
+\DeclareAccessibilityCommand\cchAutoClose{%
   \let\cca@next\relax
   \ccDebugMsg[a11y]{Calling AutoClose for \ccCurSecName\space (\ccCurSecLevel).}
   \ifx\ccPrevSecLevel\@undefined\else
@@ -589,7 +601,7 @@
   \fi
   \cca@next
 }
-\def\cchResetNesting{%
+\DeclareAccessibilityCommand\cchResetNesting{%
   \ccWhenAlly{%
     \ifnum\cch@total@nesting@level>\z@\relax
       \loop
@@ -604,14 +616,18 @@
   \global\advance\cch@total@nesting@level\@ne\relax
 }
 \AddToHook{env/\ccPrefix Heading/after}{%
-  \ccaVstructStart{\ccCurSecName}%
-  \csxdef{cch@sec@\the\cch@total@nesting@level @name}{\ccCurSecName}%
-  \ifx\cch@id@cur@head\@undefined\else
-    \ccaMoveStruct{\cch@id@cur@head}%
+  \ifx\cch@notag\relax
+    \global\let\cch@notag\@undefined
+  \else
+    \ccaVstructStart{\ccCurSecName}%
+    \csxdef{cch@sec@\the\cch@total@nesting@level @name}{\ccCurSecName}%
+    \ifx\cch@id@cur@head\@undefined\else
+      \ccaMoveStruct{\cch@id@cur@head}%
+    \fi
+    \ifx\cch@id@cur@meta\@undefined\else
+      \ccaMoveStruct{\cch@id@cur@meta}%
+    \fi%
   \fi
-  \ifx\cch@id@cur@meta\@undefined\else
-    \ccaMoveStruct{\cch@id@cur@meta}%
-  \fi%
 }
 \def\cchHeadTagStart{%
   \if@cc@pdf@two

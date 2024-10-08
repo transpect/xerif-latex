@@ -54,6 +54,10 @@
       [CoCoTeX #1 #2 Error] #3%
    }{}{#4}%
 }
+\def\cc@patch@error#1#2{%
+  \ccPackageError{#1}{compatibility}
+  {Could not patch \noexpand#2}
+  {You probably use a LaTeX package that re-defines the \noexpand#1 control sequence. It is apparently not compatbile with CoCoTeX. Sorry}}
 \def\ccPackageWarning#1#2#3{%
    \GenericWarning{%
       (#1)\@spaces\@spaces\@spaces\@spaces

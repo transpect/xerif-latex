@@ -152,3 +152,16 @@
   \let\tpIfCompEmpty\ccIfCompEmpty
 }
 
+% Neuerdings wird der counter bei \printnotes nur zurückgesetzt, wenn
+% die resetnotesperchapter ebenfalls gesetzt ist, andernfalls
+% nicht. Dieser Hook sorgt dafür, dass \printnotes den endnote-Zähler
+% *unabhängig von der resetnotesperchapter Option* zurücksetzt (so,
+% wie es vorher war).
+%
+% Um den Hook zu deaktivieren und das (neue) coco-notes-Verhalten
+% wiederherzustellen, setze
+%
+% \RemoveFromHook{begindocument}[reset-counter-at-printnotes]
+%
+% in die Verlags-Style-Datei.
+\AddToHook{begindocument}[reset-counter-at-printnotes]{\patchcmd{\printnotes}{\if@enotesopen}{\if@enotesopen\global\c@endnote\z@}{}{}}

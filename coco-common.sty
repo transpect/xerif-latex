@@ -54,7 +54,12 @@
   \fi
 }
 \ProcessOptionsX
-\ifx\cc@color@enc\relax\else\PassOptionsToPackage{\cc@color@enc}{xcolor}\fi%
+\ifx\cc@color@enc\relax\else
+  \ExplSyntaxOn
+    \tl_gset:Nn \l_color_fixed_model_tl {\cc@color@enc}%
+  \ExplSyntaxOff
+  \PassOptionsToPackage{\cc@color@enc}{xcolor}%
+\fi%
 \def\cc@if@preamble{\ifx\@nodocument\relax\expandafter\@secondoftwo\else\expandafter\@firstoftwo\fi}
 \let\ccIfPreamble\cc@if@preamble
 \IfFileExists{coco-xerif.sty}{\RequirePackage{coco-xerif}}{}
