@@ -147,7 +147,7 @@
 \AtBeginDocument{%
     \patchcmd\Hy@StartlinkName
       {\pdfstartlink}
-      {\pdfstringdef\@argii{#2}\ccaStructStart{Link}\ccaAddAltText{#2}\edef\@ltpdfmy@parent{\ccaGetStructParent}%
+      {\Hy@pstringdef\@argii{#2}\ccaStructStart{Link}\ccaAddAltText{#2}\edef\@ltpdfmy@parent{\ccaGetStructParent}%
        \pdfstartlink}
       {}{\cca@patch@error\Hy@StartlinkName}
     \patchcmd\Hy@StartlinkName
@@ -156,7 +156,7 @@
       {}{\cca@patch@error\Hy@StartlinkName}
     \patchcmd\hyper@linkurl
       {\pdfstartlink}
-      {\pdfstringdef\@argii{#2}\ccaStructStart{Link}\ccaAddAltText{#2}\edef\@ltpdfmy@parent{\ccaGetStructParent}%
+      {\Hy@pstringdef\@argii{#2}\ccaStructStart{Link}\ccaAddAltText{#2}\edef\@ltpdfmy@parent{\ccaGetStructParent}%
        \pdfstartlink}
       {}{\cca@patch@error\hyper@linkurl}
     \patchcmd\hyper@linkurl

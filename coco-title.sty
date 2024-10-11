@@ -709,12 +709,17 @@ from the Components given in the Meta Container.}}}
     \ccDeclareGlobalComponent{IccProfileFile}
     \ccDeclareGlobalComponent{IccComponents}
     \ccDeclareGlobalComponent{IccIdentifier}}
-  \ifdefstring\cc@color@enc{cmyk}
-    {\def\cca@default@icc@comp{4}}
-    {\def\cca@default@icc@comp{3}}
-  \ifdefstring\cc@color@enc{cmyk}
-    {\def\cca@default@icc@iden{Coated FOGRA39}}
-    {\def\cca@default@icc@iden{sRGB IEC61966-2.1}}
+  \ifx\cc@color@enc\cc@str@cmyk
+    \def\cca@default@icc@comp{4}%
+    \def\cca@default@icc@iden{Coated FOGRA39}%
+  \else\ifx\cc@color@enc\cc@str@rgb
+      \def\cca@default@icc@comp{3}%
+      \def\cca@default@icc@iden{IEC 61966-2.1 Default RGB colour space - sRGB}%
+    \else
+      \def\cca@default@icc@comp{1}%
+      \def\cca@default@icc@iden{ISO Coated v2 - GREY 1c - (basICColor)}%
+    \fi
+  \fi
   \ccAddToType{Properties}{titlepage}{%
     \ccSetProperty{output-intent}{%
       profile=\ccIfComp{IccProfileFile}{\ccUseComp{IccProfileFile}}{suppl/\cc@color@enc.icc};%
