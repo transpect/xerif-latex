@@ -342,7 +342,7 @@
 \long\def\ccfRenderSubFloats#1#2{%
   \leavevmode
   \savenotes
-  \ifnum#1>\@ne\hfill\fi
+  \ifnum#1>\@ne\relax\hskip\ccf@sub@sep\fi%\hfill\fi
   \vtop\bgroup
     \expandafter\hsize\csname  cc@\cc@cur@cont @res@width-#1\endcsname\relax
     \let\includegraphics\ccf@includesubgraphics
@@ -534,13 +534,15 @@
     \egroup
   \else
     \ccf@test@subcapt
-    \@cc@is@finalfalse
     \ccf@calc@sameheight
     \def\ccf@prefix{sub}%
     \ifx\ccf@has@subcapt@top\@empty\ccf@calc@row@ht{top}\fi%
     \ifx\ccf@has@subcapt@bottom\@empty\ccf@calc@row@ht{bottom}\fi%
-    \@cc@is@finaltrue
-    \ccUseProperty{subfloat-render}%
+    \bgroup
+      \advance\hsize-\ccf@margin@l
+      \@cc@is@finaltrue
+      \ccUseProperty{subfloat-render}%
+    \egroup
     \let\ccf@prefix\@empty
   \fi
   \ccf@make@outer@caption{bottom}%
@@ -586,11 +588,13 @@
       \csedef{cc@\cc@cur@cont @res@width-\the\@tempcnta}{\dimexpr\@tempa\ccf@calc@width\relax}%
       \@tempdimc\dimexpr\csname ccf@\cc@cur@cont @height-\the\@tempcnta\endcsname\relax
       \@tempdimc\dimexpr\@tempa\@tempdimc\relax
-      \ifdim\@tempa\@tempdimb<\@tempdimc\@tempdimb\@tempdimc\relax\fi
+      \ifdim\@tempa\@tempdimb<\@tempdimc\relax
+        \@tempdimb=\@tempdimc\relax
+      \fi
     }%
   \else
     \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
-      \csletcs{cc@\cc@cur@cont @res@width-\the\@tempcnta}{ccf@\cc@cur@cont @width-\the\@tempcnta}
+      \csletcs{cc@\cc@cur@cont @res@width-\the\@tempcnta}{ccf@\cc@cur@cont @width-\the\@tempcnta}%
     }%
   \fi
   \csedef{cc@\cc@cur@cont @res@height}{\the\@tempdimb}%
@@ -770,7 +774,7 @@
   \hskip\ccf@margin@l
   \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
     \ccfRenderSubFloats{\the\@tempcnta}{Fig}%
-  }}
+  }\par}
 \def\ccf@includesubgraphics{\cc@opt@empty\@ccf@includesubgraphics}%
 \def\@ccf@includesubgraphics[#1]#2{%
   \def\@igopts{max width=\hsize,max height=\vsize}%
