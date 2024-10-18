@@ -342,7 +342,7 @@
 \long\def\ccfRenderSubFloats#1#2{%
   \leavevmode
   \savenotes
-  \ifnum#1>\@ne\relax\hskip\ccf@sub@sep\fi%\hfill\fi
+  \ifnum#1>\@ne\relax\hfill\fi
   \vtop\bgroup
     \expandafter\hsize\csname  cc@\cc@cur@cont @res@width-#1\endcsname\relax
     \let\includegraphics\ccf@includesubgraphics
@@ -701,6 +701,8 @@
       \spewnotes
     \egroup
     \ccIfStrEqual{#1}{top}{\if@ccf@break@capt\else\nopagebreak\fi}{}%
+  \else
+    \par
   \fi}
 \def\ccf@make@subcaption#1{%
   \expandafter\ifx\csname ccf@has@\ccf@prefix capt@#1\endcsname\@empty
@@ -774,7 +776,7 @@
   \hskip\ccf@margin@l
   \cc@iterate{\@tempcnta}{\@ne}{\ccSubFloatCnt}{%
     \ccfRenderSubFloats{\the\@tempcnta}{Fig}%
-  }\par}
+  }}
 \def\ccf@includesubgraphics{\cc@opt@empty\@ccf@includesubgraphics}%
 \def\@ccf@includesubgraphics[#1]#2{%
   \def\@igopts{max width=\hsize,max height=\vsize}%
