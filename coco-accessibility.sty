@@ -27,7 +27,7 @@
 %%
 %% lualatex  -  texlive > 2018
 %%
-\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\NeedsTeXFormat{LaTeX2e}[2020/06/01]
 \ProvidesPackage{coco-accessibility}
     [2024/07/16 0.5.0 CoCoTeX accessibility module]
 \RequirePackage{kvoptions-patch}
@@ -111,7 +111,7 @@
   \edef\y{\noexpand\let\noexpand#1\expandafter\noexpand\csname cc@no@\CsToStr{#1}\endcsname}%
   \global\expandafter\appto\expandafter\cca@relaxed@defs\expandafter{\y}%
   \ccIfAlly{\x}{\y}%
-  \edef\z{\noexpand\protected\noexpand\def\noexpand#1{\noexpand#1}}%
+  \edef\z{\noexpand\def\noexpand#1{\noexpand\protect\noexpand#1}}%
   \global\expandafter\appto\expandafter\cca@protected@defs\expandafter{\z}%
   \let\cca@temp@signature\@empty
 }
@@ -137,7 +137,7 @@
 \DeclareAccessibilityCommand{\ccaAddPlacement}[1]{\directlua{ltpdfa.tagger.addPlacement('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaAddNumbering}[1]{\directlua{ltpdfa.tagger.addNumbering('\luaescapestring{#1}')}}
 \ccWhenAlly{\directlua{ally = require('coco-accessibility')}}
-\DeclareAccessibilityCommand{\ccaAddAltText}[1]{\if@cc@is@final\directlua{ltpdfa.tagger.addAltText('\luaescapestring{#1}')}\fi}
+\DeclareAccessibilityCommand{\ccaAddAltText}[1]{\if@cc@is@final\directlua{ltpdfa.tagger.addAltText(ltpdfa.metadata.utf8toPDFenc('\luaescapestring{#1}'))}\fi}
 \define@key{Gin}{alt}{\gdef\cca@Gin@alt{#1}}
 \DeclareAccessibilityCommand{\ccaAddLastLink}{\if@cc@is@final\directlua{ltpdfa.tagger.addLastLink()}\fi}
 \DeclareAccessibilityCommand{\ccaGetStructParent}{\directlua{ltpdfa.tagger.getStructParent()}}

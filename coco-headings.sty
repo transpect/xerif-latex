@@ -25,9 +25,9 @@
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
-%% lualatex  -  texlive >= 2019
+%% lualatex  -  texlive >= 2020
 %%
-\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\NeedsTeXFormat{LaTeX2e}[2020/06/01]
 \ProvidesPackage{coco-headings}
     [2024/07/16 0.5.0 CoCoTeX headings module]
 \RequirePackage{coco-meta}
@@ -247,10 +247,11 @@
        {\edef\cch@toc@sec@name{\ccUseProperty{toc-level}}}
        {\let\cch@toc@sec@name\ccCurSecName}%
      \protected@write\@auxout
-       {\ccGobble}%
+       {\ccGobble\ccaProtect}%
        {\string\@writefile{toc}{\protect\ccContentsline{\cch@toc@sec@name}{\cch@toc@entry}{\thepage}{\@currentHref}\protected@file@percent}}\relax
      \ccCreateContentListEntries{Heading}{\cch@toc@sec@name}{\cch@toc@entry}{\thepage}{\@currentHref}%
      \ccCreateContentListEntries{\cch@toc@sec@name}{\cch@toc@sec@name}{\cch@toc@entry}{\thepage}{\@currentHref}%
+     \protected@write\@auxout{\ccaEnable}{}%
    }}
 \def\cc@toc@extract@data#1#2#3#4{%
   \ccSetContainer{Heading}%
@@ -456,16 +457,48 @@
     \par\nobreak
   }
   \ccSetProperty{extended-heading}{%
-    \ccIfComp{Abstract}
-      {\par\vskip\baselineskip
-       {\bfseries\ccIfComp{AbstractLabel}{\ccUseComp{AbstractLabel}}{Abstract}}\par\nobreak
-       {\itshape\small\ccUseComp{Abstract}}\par}
-      {}%
-    \ccIfComp{Keywords}
-      {\par\vskip\baselineskip
-       {\bfseries\ccIfComp{KeywordsLabel}{\ccUseComp{KeywordsLabel}}{Keywords}}\par\nobreak
-       {\itshape\small\ccUseComp{Keywords}\par}}
-      {}}%
+    \ccWhenComp{Abstract}{%
+      \par\vskip\baselineskip
+      \ccaStructStart{Abstract}%
+      \bgroup
+        \bfseries
+        \ccaStructStart{AbstractLabel}%
+        \ccIfComp{AbstractLabel}
+          {\ccUseComp{AbstractLabel}}
+          {Abstract}%
+        \ccaStructEnd{AbstractLabel}%
+      \egroup
+      \par\nobreak
+      \bgroup
+        \itshape\small
+        \ccaStructStart{AbstractText}%
+        \ccUseComp{Abstract}%
+        \ccaStructEnd{AbstractText}%
+      \egroup
+      \par
+      \ccaStructEnd{Abstract}%
+    }%
+    \ccWhenComp{Keywords}{%
+      \par\vskip\baselineskip
+      \ccaStructStart{Keywords}%
+      \bgroup
+        \bfseries
+        \ccaStructStart{KeywordsLabel}%
+        \ccIfComp{KeywordsLabel}
+          {\ccUseComp{KeywordsLabel}}
+          {Keywords}%
+        \ccaStructEnd{KeywordsLabel}%
+      \egroup%
+      \par\nobreak
+      \bgroup
+        \itshape\small
+        \ccaStructStart{KeywordsText}%
+        \ccUseComp{Keywords}%
+        \ccaStructEnd{KeywordsText}%
+        \par%
+      \egroup
+      \ccaStructEnd{Keywords}%
+    }}%
   \ccSetProperty{before-skip}{\z@skip}%
   \ccSetProperty{after-heading-block}{}%
   \ccSetProperty{before-heading-block}{\parindent\z@ \parskip\z@}%
@@ -492,27 +525,27 @@
     \ccUseComp{RunTitle}%
   }%
   %% ToC
-  \ccSetProperty{no-toc}{false}% toc entries are generally disabled iff true
-  \ccSetProperty{no-BM}{false}% bookmark entries are generally disabled, iff true
-  \ccSetProperty{toc-margin-top}{\z@}% left indent of the whole entry
-  \ccSetProperty{toc-margin-bottom}{\z@}% bottom margin of the whole entry
-  \ccSetProperty{toc-margin-left}{auto}% left indent of the whole entry
-  \ccSetProperty{toc-margin-right}{\@pnumwidth}% right margin of the whole entry
-  \ccSetProperty{toc-title-face}{}% appearance of title
+  \ccSetProperty{no-toc}{false}%
+  \ccSetProperty{no-BM}{false}%
+  \ccSetProperty{toc-margin-top}{\z@}%
+  \ccSetProperty{toc-margin-bottom}{\z@}%
+  \ccSetProperty{toc-margin-left}{auto}%
+  \ccSetProperty{toc-margin-right}{\@pnumwidth}%
+  \ccSetProperty{toc-title-face}{}%
   \ccSetProperty{toc-indent}{auto}%
-  \ccSetProperty{toc-number-width}{}% current width of the TocNumber
-  \ccSetProperty{toc-number-align}{left}% alignment of TocNumber within the hbox when hanging
-  \ccPropertyLet{toc-number-face}{toc-title-face}% appearance of the TocNumber
-  \ccSetProperty{toc-number-sep}{\enskip}% thing between TocNumber and TocTitle
-  \ccSetProperty{toc-number-format}{% Format of the TocNumber
+  \ccSetProperty{toc-number-width}{}%
+  \ccSetProperty{toc-number-align}{left}%
+  \ccPropertyLet{toc-number-face}{toc-title-face}%
+  \ccSetProperty{toc-number-sep}{\enskip}%
+  \ccSetProperty{toc-number-format}{%
     \bgroup
       \ccUseProperty{toc-number-face}%
       \ccUseComp{TocNumber}%
       \ccUseProperty{toc-number-sep}%
     \egroup}
-  \ccSetProperty{toc-page-sep}{\ccaAddKeep\ccaStructStart[Document]{leaders}\dotfill\ccaStructEnd{leaders}}% between TocTitle and the page counter
-  \ccSetProperty{toc-page-face}{}% appearance of the page value
-  \ccSetProperty{toc-page-format}{% format of the page value
+  \ccSetProperty{toc-page-sep}{\ccaAddKeep\ccaStructStart[Document]{leaders}\dotfill\ccaStructEnd{leaders}}%
+  \ccSetProperty{toc-page-face}{}%
+  \ccSetProperty{toc-page-format}{%
     \ccUseProperty{toc-page-sep}%
     \bgroup
       \ccUseProperty{toc-page-face}%
@@ -558,7 +591,7 @@
     \ccUseProperty{orcid-link}%
   }%
   \ccPropertyLet{author-list-format}{author-list-print-format}%
-  \ccSetProperty{author-contact-block-format}{% Format of the whole contact information block
+  \ccSetProperty{author-contact-block-format}{%
     \ccUseComp{AuthorContact}\ifnum\ccCurCount<\ccTotalCount\ccUseProperty{counted-name-sep}\fi
   }}
 \newcount\cch@total@nesting@level \cch@total@nesting@level=\z@\relax

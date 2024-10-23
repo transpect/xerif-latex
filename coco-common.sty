@@ -27,7 +27,7 @@
 %%
 %% lualatex  -  texlive > 2019
 %%
-\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\NeedsTeXFormat{LaTeX2e}[2020/06/01]
 \ProvidesPackage{coco-common}
     [2024/07/16 0.5.0 CoCoTeX common module]
 \RequirePackage{kvoptions-patch}
@@ -96,6 +96,12 @@
       {\setbox\z@\lastbox}%
       \everypar{}%
     \fi}}
+\ExplSyntaxOn
+\cs_new:Npn\ccSanitizeStr #1 #2
+  {
+    \edef #1 { \text_purify:n { #2 } }
+  }
+\ExplSyntaxOff
 \let\hack\@firstofone
 \let\hackfor\@gobble
 \let\Hack\@firstofone
@@ -233,8 +239,10 @@
 \def\ccCreateContentListEntries#1#2#3#4#5{%
   \def\cc@add@extra@cl##1{%
     \expandafter\protected@write\csname cc@cl@##1\endcsname
-      {\ccGobble}%
+      {\ccGobble\ccaProtect}%
       {\protect\ccContentsline{#2}{#3}{#4}{#5}\protected@file@percent}\relax
+    \expandafter\protected@write\csname cc@cl@##1\endcsname
+      {\ccaEnable}{}%
   }%
   \ifcsdef{cc@#1@extra@cl}{%
     \cc@parse@csv\cc@add@extra@cl{cc@#1@extra@cl}}{}%
@@ -347,7 +355,7 @@
       \def\cc@labelname@comp{Title}%
     \fi
     \begingroup
-      \ccGobble
+      \ccGobble\ccaProtect
       \ccgdefFromComp\@currentlabel{Number}%
       \ccgdefFromComp\@currentlabelname{\cc@labelname@comp}%
     \endgroup}%
@@ -355,7 +363,10 @@
   %% leaving this will generate lots of "duplicate destination"
   %% messages from pdfbackend
   %\expandafter\hypertarget\expandafter{#1}{}%
+  \@tempswafalse\ifx\cc@saved@ccaStructStart\ccaStructStart\@tempswatrue\fi
+  \ccaProtect
   \expandafter\label\expandafter{#1}%
+  \if@tempswa\ccaEnable\else\ccaDisable\fi
 }
 \def\cc@fallback@anchor{\phantomsection}%
 \def\ccSetBabelLabel#1#2#3{%

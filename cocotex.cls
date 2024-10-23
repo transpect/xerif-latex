@@ -27,7 +27,7 @@
 %%
 %% lualatex  -  texlive > 2019
 %%
-\NeedsTeXFormat{LaTeX2e}[2018/12/01]
+\NeedsTeXFormat{LaTeX2e}[2020/06/01]
 \ProvidesClass{cocotex}
     [2024/07/16 0.5.0 cocotex]
 \RequirePackage{xkeyval}
