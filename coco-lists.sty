@@ -176,7 +176,11 @@
   }
 }
 \tpDeclareContainer{tpList}{%
-  \tpDeclareType{Properties}{\tp@list@default}%
+  \IfFileExists{coco-xerif.sty}{%
+    \ccDeclareType{Properties}{\tp@list@default}%
+  }{%
+    \tpDeclareType{Properties}{\tp@list@default}%
+  }%
 }
 \def\tpList{\@ifnextchar [{\tp@list}{\tp@list[]}}%]
 \def\endtpList{%
