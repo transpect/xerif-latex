@@ -21,4 +21,4 @@ else
     XINDY=$(which xindy)
 fi
 
-echo "xindy path: $XINDY"
+echo "xindy  path: $XINDY"
