@@ -58,6 +58,13 @@
           \fi\fi\fi\fi\fi\fi
 \if@tempswa\def\cc@bidi{,bidi=basic}\fi
 \RequirePackage[silent\cc@bidi]{babel}
+\def\ccsTestFont#1#2#3{\edef\@argi{#1}\expandafter\expandafter\expandafter\ccs@testfont\expandafter\f@family\expandafter.\expandafter\@nil\@argi.\@nil{#2}{#3}\@nil}
+\def\ccs@testfont #1.#2\@nil#3.#4\@nil#5#6\@nil{\expandafter\ifnum\pdf@strcmp{#1}{#3}=\z@\relax#5\else#6\fi}
+\AddToHook{begindocument}{%
+  \begingroup\rmfamily\xdef\ccs@rmdefault{\f@family}\endgroup%
+  \begingroup\sffamily\xdef\ccs@sfdefault{\f@family}\endgroup%
+  \begingroup\ttfamily\xdef\ccs@ttdefault{\f@family}\endgroup%
+}
 \newfontfamily\fallbackfont{NotoSerif-Regular.ttf}%
 [BoldFont = NotoSerif-Bold.ttf,%
  ItalicFont = NotoSerif-Italic.ttf,%
@@ -70,8 +77,15 @@
  BoldItalicFont = NotoSans-BoldItalic.ttf,%
  Path = ./fonts/Noto/Sans/,%
  WordSpace = 1.25]
+\newfontfamily\ttfallbackfont{NotoSansMono-Regular.ttf}%
+[BoldFont = NotoSansMono-Bold.ttf,%
+ ItalicFont = NotoSansMono-Light.ttf,%
+ BoldItalicFont = NotoSansMono-SemiBold.ttf,%
+ Path = ./fonts/Noto/Mono/,%
+ WordSpace = 1.25]
 \DeclareTextFontCommand\textfallback{\fallbackfont}
 \DeclareTextFontCommand\textsffallback{\sffallbackfont}
+\DeclareTextFontCommand\textttfallback{\ttfallbackfont}
 \newfontfamily\emojifont{NotoEmoji-Regular.ttf}%
 [BoldFont = NotoEmoji-Bold.ttf,%
  Path = ./fonts/Noto/Emoji/]
@@ -83,6 +97,15 @@ BoldFont = Junicode-Bold.ttf,%
 BoldItalicFont = Junicode-BoldItalic.ttf,%
 ]{Junicode.ttf}
 \def\mdvfont#1{{\mdvfamily#1}}
+\let\ccIpaFont\fallbackfont
+\let\ccIpaSfFont\sffallbackfont
+\let\ccIpaTtFont\ttfallbackfont
+\DeclareTextFontCommand\ccTextipa{%
+  \ccsTestFont{\ccs@rmdefault}
+    {\ccIpaFont}
+    {\ccsTestFont{\ccs@sfdefault}
+      {\ccIpaSfFont}
+      {\ccIpaTtFont}}}%
 \def\ccDeclareBabelFont{\cc@opt@empty\ccs@declare@babel@font}%
 \def\ccs@declare@babel@font[#1]#2#3#4{%
   \expandafter\ifx\csname use@script@#2\endcsname\@empty
