@@ -55,6 +55,7 @@
 \DeclareOptionX{prefix}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
 \DeclareOptionX{debug}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
 \DeclareOptionX{debug-domain}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
+\DeclareOptionX{silent}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
 \DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
 \newif\if@cc@pdf@two \@cc@pdf@twofalse
 \ExplSyntaxOn

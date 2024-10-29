@@ -240,9 +240,8 @@
 \DeclareAccessibilityCommand{\ccaFigureStart}[1]{\directlua{ltpdfa.tagger.figureStart('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaFigureEnd}[1]{\directlua{ltpdfa.tagger.figureEnd('\luaescapestring{#1}')}}
 \AtBeginDocument{%
-  \let\ltx@Ginclulde@graphics\Ginclude@graphics
-  \def\Ginclude@graphics#1{\if@cc@is@final\ccaFigureStart{}\fi\ltx@Ginclulde@graphics{#1}\if@cc@is@final\ccaFigureEnd{}\fi}%
-}
+  \pretocmd{\Gin@setfile}{\if@cc@is@final\ccaFigureStart{}\fi}{}{}%
+  \apptocmd{\Gin@setfile}{\if@cc@is@final\ccaFigureEnd{}\fi}{}{}}
 \apptocmd\Ginclude@@pdftex{\if@cc@is@final%
   \def\@tempa{!}%
   \ccaAddFigure{\Gin@llx}{\Gin@lly}{\Gin@urx}{\Gin@ury}
