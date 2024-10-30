@@ -21,8 +21,6 @@ else
     XINDY=$(which xindy)
 fi
 
-echo "xindy path: $XINDY"
-
 # dependencies for accessibility
 # export LUAINPUTS=.:ltpdfa:
 # export CLUAINPUTS=.:ltpdfa//:
@@ -32,3 +30,4 @@ echo "xindy path: $XINDY"
 # export ENCFONTS=.:ltpdfa:
 # export DVIPSHEADERS=.:suppl:
 # echo "tex input path: $TEXINPUTS"
+echo "xindy path: $XINDY"
