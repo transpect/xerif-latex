@@ -109,9 +109,10 @@
 }
 \def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
     \hbox{}\thispagestyle{empty}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+\newif\if@frontmatter  \@frontmatterfalse
+\newif\if@mainmatter   \@mainmatterfalse
+\newif\if@backmatter   \@backmatterfalse
 \ifarticle\else
-  \newif\if@frontmatter  \@frontmatterfalse
-  \newif\if@backmatter   \@backmatterfalse
   \renewcommand\frontmatter{%
     \cleardoublepage
     \cchResetNesting
