@@ -226,6 +226,7 @@
   \ccaAddToConfig{artifact}{footnoterule={Type:Layout}}
   \ccaAddToConfig{artifact}{Rule={Type:Layout}}
   \ccaAddToConfig{artifact}{Artifact={Type:Layout}}
+  \ccaAddToConfig{artifact}{Background={Type:Background}}
 }
 \def\ccaArtifact{\ccaStructStart[Document]{Artifact}\ccaDisable}
 \def\endccaArtifact{\ccaEnable\ccaStructEnd{Artifact}}
@@ -240,8 +241,9 @@
 \DeclareAccessibilityCommand{\ccaFigureStart}[1]{\directlua{ltpdfa.tagger.figureStart('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaFigureEnd}[1]{\directlua{ltpdfa.tagger.figureEnd('\luaescapestring{#1}')}}
 \AtBeginDocument{%
-  \pretocmd{\Gin@setfile}{\if@cc@is@final\ccaFigureStart{}\fi}{}{}%
-  \apptocmd{\Gin@setfile}{\if@cc@is@final\ccaFigureEnd{}\fi}{}{}}
+  \let\ltx@Ginclude@graphics\Ginclude@graphics
+  \def\Ginclude@graphics#1{\if@cc@is@final\ccaFigureStart{}\fi\ltx@Ginclude@graphics{#1}\if@cc@is@final\ccaFigureEnd{}\fi}%
+}
 \apptocmd\Ginclude@@pdftex{\if@cc@is@final%
   \def\@tempa{!}%
   \ccaAddFigure{\Gin@llx}{\Gin@lly}{\Gin@urx}{\Gin@ury}

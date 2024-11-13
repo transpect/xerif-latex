@@ -469,7 +469,7 @@ from the Components given in the Meta Container.}}}
     \fi%
     \vskip\baselineskip
     \bgroup
-      \ccUseProperty{title-face}\ccaStructStart{Title}\ccaReplaceNode{\cca@id@document@dummy}\ccUseComp{Title}\ccaStructEnd{Title}%
+      \ccUseProperty{title-face}\ccaStructStart{Title}\ccaReplaceStruct{\cca@id@document@dummy}\ccUseComp{Title}\ccaStructEnd{Title}%
     \egroup
     \ccaStructEnd{Titlepage}%
   }%
@@ -599,9 +599,13 @@ from the Components given in the Meta Container.}}}
   }%
   \ccSetProperty{copyright}{%
     \ccaStructStart{MetaDatumBlock}%
+    \ccaStructStart{MetaDatum}%
+    \ccaStructStart{MetaDatumValue}%
     \ccIfComp{Copyright}
       {\ccUseComp{Copyright}\par}
       {\textcopyright\space\ccUseComp{Year}\space\ccUseComp{Publisher},\space\ccUseComp{PubPlace}\par}%
+    \ccaStructEnd{MetaDatumValue}%
+    \ccaStructEnd{MetaDatum}%
     \ccaStructEnd{MetaDatumBlock}%
   }%
   \ccSetProperty{publisher}{%
