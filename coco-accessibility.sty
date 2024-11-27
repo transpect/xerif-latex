@@ -136,6 +136,18 @@
 \DeclareAccessibilityCommand{\ccaAddRolemap}[2]{\directlua{ltpdfa.tagger.addRolemap('\luaescapestring{#1}','\luaescapestring{#2}')}}
 \DeclareAccessibilityCommand{\ccaAddPlacement}[1]{\directlua{ltpdfa.tagger.addPlacement('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaAddNumbering}[1]{\directlua{ltpdfa.tagger.addNumbering('\luaescapestring{#1}')}}
+\DeclareAccessibilityCommand{\ccaAddLang}[1]{\directlua{ltpdfa.tagger.setLang('\luaescapestring{#1}')}}
+\ccWhenAlly{%
+  \AddToHook{babel/*/foreign}{%
+    \pretocmd\BabelText
+      {\ccaVstructStart{Span}\ccaAddLang{\localeinfo{tag.bcp47}}}
+      {}{\cca@patch@error\BabelText}%
+    \apptocmd\BabelText
+      {\ccaVstructEnd{Span}}
+      {}{\cca@patch@error\BabelText}%
+    }%
+  \AtBeginDocument{\ActivateGenericHook{babel/*/foreign}}%
+}% /ccWhenAlly
 \ccWhenAlly{\directlua{ally = require('coco-accessibility')}}
 \DeclareAccessibilityCommand{\ccaAddAltText}[1]{\if@cc@is@final\directlua{ltpdfa.tagger.addAltText(ltpdfa.metadata.utf8toPDFenc('\luaescapestring{#1}'))}\fi}
 \define@key{Gin}{alt}{\gdef\cca@Gin@alt{#1}}
