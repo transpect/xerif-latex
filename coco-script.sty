@@ -50,11 +50,11 @@
 \def\cc@bidi{}
 \@tempswafalse
 \ifx\usescript\relax\else
-  \ifx\csname use@script@arabic\endcsname\@empty\@tempswatrue
-  \else\ifx\csname use@script@hebrew\endcsname\@empty\@tempswatrue
-    \else\ifx\csname use@script@amharic\endcsname\@empty\@tempswatrue
-      \else\ifx\csname use@script@ethiop\endcsname\@empty\@tempswatrue
-        \else\ifx\csname use@script@syriac\endcsname\@empty\@tempswatrue
+  \expandafter\ifx\csname use@script@arabic\endcsname\@empty\@tempswatrue
+  \else\expandafter\ifx\csname use@script@hebrew\endcsname\@empty\@tempswatrue
+    \else\expandafter\ifx\csname use@script@amharic\endcsname\@empty\@tempswatrue
+      \else\expandafter\ifx\csname use@script@ethiop\endcsname\@empty\@tempswatrue
+        \else\expandafter\ifx\csname use@script@syriac\endcsname\@empty\@tempswatrue
           \fi\fi\fi\fi\fi\fi
 \if@tempswa\def\cc@bidi{,bidi=basic}\fi
 \RequirePackage[silent\cc@bidi]{babel}
@@ -186,23 +186,29 @@ BoldItalicFont = Junicode-BoldItalic.ttf,%
   ]{NotoSansKR-Regular.otf}%
 }
 \ccDeclareBabelFont{hebrew}{[%
+    Renderer=Harfbuzz,%
     Scale=MatchUppercase,%
     Path=./fonts/Noto/Hebrew/,%
     Ligatures=TeX,%
+    Script=Hebrew,%
     BoldFont = NotoSerifHebrew-Bold.ttf]{NotoSerifHebrew-Regular.ttf}%
 }{[%
+    Renderer=Harfbuzz,%
     Scale=MatchUppercase,%
     Path=./fonts/Noto/Hebrew/,%
     Ligatures=TeX,%
+    Script=Hebrew,%
     BoldFont = NotoSansHebrew-Bold.ttf]{NotoSansHebrew-Regular.ttf}%
 }
 \ccDeclareBabelFont{arabic}{[%
     BoldFont = NotoNaskhArabic-Bold.ttf,%
-    Path = ./fonts/Noto/Arabic/%
+    Path = ./fonts/Noto/Arabic/,%
+    Script=Arabic%
     ]{NotoNaskhArabic-Regular.ttf}}
   {[%
     BoldFont = NotoSansArabic-Bold.ttf,%
-    Path = ./fonts/Noto/Arabic/%
+    Path = ./fonts/Noto/Arabic/,%
+    Script=Arabic%
     ]{NotoSansArabic-Regular.ttf}%
   }
 \ccDeclareBabelFont{greek}{[%
@@ -210,12 +216,14 @@ BoldItalicFont = Junicode-BoldItalic.ttf,%
     ItalicFont = NotoSerif-Italic.ttf,%
     BoldItalicFont = NotoSerif-BoldItalic.ttf,%
     Path = ./fonts/Noto/Serif/,%
+    Script=Greek,%
     WordSpace = 1.25
     ]{NotoSerif-Regular.ttf}}
   {[BoldFont = NotoSans-Bold.ttf,%
     ItalicFont = NotoSans-Italic.ttf,%
     BoldItalicFont = NotoSans-BoldItalic.ttf,%
     Path = ./fonts/Noto/Sans/,%
+    Script=Greek,%
     WordSpace = 1.25%
     ]{NotoSans-Regular.ttf}%
   }
