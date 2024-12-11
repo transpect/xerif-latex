@@ -20,16 +20,21 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
-\NeedsTeXFormat{LaTeX2e}[2020/06/01]
+%%
+%% CoCoTeX Kernel
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+\NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-kernel}
-    [2024/07/16 0.5.0 cocotex kernel]
+    [2024/07/16 v0.5.0 cocotex kernel]
 \ifx\IfFormatAtLeastTF\@undefined
   \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}%
 \fi
 \IfFormatAtLeastTF{2020/06/01}{}%
   {\PackageError{CoCoTeX Kernel}
     {LaTeX kernel too old!}
-    {CoCoTeX v0.5.0 and newer needs at least LaTeX kernel version 2020/06/01!}}
+    {CoCoTeX v0.5.0 and newer needs at least LaTeX kernel version 2023/11/01!}}
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \RequirePackage{etoolbox}

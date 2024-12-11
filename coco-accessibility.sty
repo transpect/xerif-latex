@@ -25,17 +25,15 @@
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
-%% lualatex  -  texlive > 2018
+%% requires LuaLaTeX and ltpdfa!
 %%
-\NeedsTeXFormat{LaTeX2e}[2020/06/01]
+\NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2024/07/16 0.5.0 CoCoTeX accessibility module]
+    [2024/07/16 v0.5.0 CoCoTeX accessibility module]
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
 \RequirePackage{atbegshi}
 \RequirePackage{xparse}
-\def\cca@lang@id{eng}%
-\DeclareOptionX{lang-id}{\gdef\cca@lang@id{#1}}
 \newif\if@cc@do@ally \@cc@do@allyfalse
 \DeclareOptionX{init}{\global\@cc@do@allytrue}
 \DeclareOptionX{init-20}{\global\@cc@do@allytrue\global\@cc@pdf@twotrue}
@@ -80,8 +78,11 @@
   \directlua{ltpdfa.config.doparas = \ifx\cca@do@doparas\relax true\else false\fi}
   \directlua{ltpdfa.tagger.doautoclose = false}
   \directlua{ltpdfa.config.driver = "\luaescapestring{pdftex}"}
-  \directlua{ltpdfa.config.lang = '\luaescapestring{\cca@lang@id}'}
-  \directlua{ltpdfa.init()}%
+  \AtBeginDocument{%
+    \edef\cca@lang@id{\localeinfo*{tag.bcp47}}% tag.bcp47
+    \directlua{ltpdfa.config.lang = '\luaescapestring{\cca@lang@id}'}%
+    \directlua{ltpdfa.init()}%
+  }%
   \edef\@ltpdfa@pattr{\directlua{ltpdfa.getAttribute('\luaescapestring{parentattr}')}}
   \edef\@ltpdfa@tattr{\directlua{ltpdfa.getAttribute('\luaescapestring{typeattr}')}}
   \attributedef\@ltpdfa@typeattr=\@ltpdfa@tattr

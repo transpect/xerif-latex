@@ -25,13 +25,11 @@
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
-%% lualatex  -  texlive > 2019
-%%
-\NeedsTeXFormat{LaTeX2e}[2020/06/01]
+\NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-title}
-    [2024/07/16 0.5.0 CoCoTeX title module]
+    [2024/07/16 v0.5.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
-\DeclareOptionX{lang-id}{\gdef\cct@lang@id{#1}}
+\DeclareOptionX{lang-id}{}
 \ProcessOptionsX
 \ccDeclareContainer{titlepage}{%
   \ccInherit {Components,Properties}{CommonMeta}%
@@ -142,9 +140,10 @@
   \cct@title@process@bkl
 }
 \def\cct@title@process@bkl{%
-  \ifx\cct@lang@id\@undefined\else
-    \ccUnlessAlly{\cct@write@hr@infodict{pdflang}{\cct@lang@id}}%
-  \fi
+  \ccUnlessAlly{%
+    \edef\cct@lang@id{\localeinfo*{name.english}}%tag.bcp47
+    \cct@write@hr@infodict{pdflang}{\cct@lang@id}%}%
+  }%
 }
 \def\cct@title@process@bkt{%
   \cslet{\ccPrefix Break}\space
@@ -305,7 +304,7 @@ from the Components given in the Meta Container.}}}
   \ccDeclareGlobalComponent{PubWeb}%
   \ccDeclareGlobalComponent[\jobname]{XmpFile}%
   \ccDeclareGlobalComponent{PDFCreator}%
-  \ccDeclareGlobalComponent[le-tex xerif with CoCoTeX v.0.5.0]{PDFProducer}%
+  \ccDeclareGlobalComponent[le-tex xerif with CoCoTeX v.v0.5.0]{PDFProducer}%
   \ccDeclareGlobalComponent{Year}%
   \ccDeclareGlobalComponent[\today]{Date}%
   \ccDeclareGlobalComponent{Edition}%

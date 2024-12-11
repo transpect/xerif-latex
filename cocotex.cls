@@ -25,11 +25,9 @@
 %%
 %% Maintainer: p.schulz@le-tex.de
 %%
-%% lualatex  -  texlive > 2019
-%%
-\NeedsTeXFormat{LaTeX2e}[2020/06/01]
+\NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2024/07/16 0.5.0 cocotex]
+    [2024/07/16 v0.5.0 cocotex]
 \RequirePackage{xkeyval}
 \SetDefaultHookLabel{cc}
 \DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
@@ -58,7 +56,28 @@
 \DeclareOptionX{silent}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
 \DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
 \newif\if@cc@pdf@two \@cc@pdf@twofalse
+\let\cc@pdf@std A
 \ExplSyntaxOn
+\keys_define:nn { cocotex/cls }
+{
+  pdf-standard .choice:,
+  pdf-standard / X .code:n = { \let\cc@pdf@std X },
+  pdf-standard / A .code:n = { \let\cc@pdf@std A },
+  pdf-standard / UA .code:n =
+  {
+    \let\cc@pdf@std U
+    \PassOptionsToPackage{init}{coco-accessibility}%
+  },
+  pdf-standard .initial:n = A,
+  pdf-version .choices:nn =
+    { 1.3, 1.4, 1.5, 1.6, 1.7, 2.0 }
+    {
+      \sys_ensure_backend:
+      \exp_args:Ne\pdf_version_gset:n{\tl_use:N \l_keys_choice_tl}
+    },
+  pdf-version .initial:n = { 1.7 },
+}
+  % LEGACY
   \DeclareOptionX{a11y}{%
     \sys_ensure_backend:
     \pdf_version_gset:n{1.7}%
@@ -69,10 +88,7 @@
     \pdf_version_gset:n{2.0}%
     \PassOptionsToPackage{init}{coco-accessibility}}%
 \ExplSyntaxOff
-\DeclareOptionX{lang-id}{%
-  \PassOptionsToPackage{\CurrentOption}{coco-accessibility}%
-  \PassOptionsToPackage{\CurrentOption}{coco-title}%
-}
+\DeclareOptionX{lang-id}{}
 \DeclareOptionX{nodetree}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
 \DeclareOptionX{showspaces}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
 \DeclareOptionX{no-spaces}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
@@ -86,7 +102,14 @@
 \DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
-\ProcessOptionsX
+\ExplSyntaxOn
+  \ProcessOptionsX
+  \ProcessKeyOptions[cocotex/cls]
+
+\ExplSyntaxOff
+\if\cc@pdf@std U
+    \PassOptionsToPackage{init}{coco-accessibility}%
+\fi
 \def\ccAfterClassHook{}
 \def\ccToggleCountedConditionalsHook{}%
 \RequirePackage{coco-common}
