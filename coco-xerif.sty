@@ -21,6 +21,10 @@
 
 %% previously in cocotex.cls:
 \usepackage{soul}
+%% previously in cocotex.cls, but indirectly still in coco-floats.sty
+%% (via the adjustbox package). To be sure, we use \RequirePackage
+%% instead of \usepackage:
+\RequirePackage{xkeyval}
 
 %%
 %% Please check your style files if any of the following aliases is
