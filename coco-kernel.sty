@@ -439,6 +439,17 @@
     \expandafter\expandafter\expandafter\ifx\csname cc@\cc@cur@cont @##1\endcsname\cc@long@empty\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}%
   \ccToggleCountedConditionalsHook% legacy
 }
+\let\cc@reserved@if@comp\ccIfComp
+\let\cc@reserved@when@comp\ccWhenComp
+\let\cc@reserved@unless@comp\ccUnlessComp
+\let\cc@reserved@if@comp@empty\ccIfCompEmpty
+\def\ccUntoggleCountedConditionals{%
+  \let\cc@is@counted\@undefined
+  \let\ccIfComp\cc@reserved@if@comp
+  \let\ccWhenComp\cc@reserved@when@comp
+  \let\ccUnlessComp\cc@reserved@unless@comp
+  \let\ccIfCompEmpty\cc@reserved@if@comp@empty
+}
 \long\def\ccSetProperty#1#2{\long\csdef{cc@\cc@cur@cont @#1}{#2}\ignorespaces}
 \def\ccAppToProp#1#2{%
   \long\csappto{cc@\cc@cur@cont @#1}{#2}%

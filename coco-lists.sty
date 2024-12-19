@@ -136,7 +136,7 @@
     }%
   }%
   \ccDeclareType{Components}{%
-    \ccDeclareComponent{Label}%
+    \ccDeclareComponent{Label}{}{}%
   }%
   \ccDeclareEnv{cc@list}{endcc@list}%
 }
@@ -211,6 +211,9 @@
 }
 \def\cc@list{\cc@opt@empty\@cc@list}
 \def\@cc@list[#1]{%
+  \ifx\cc@is@counted\relax
+    \ccUntoggleCountedConditionals
+  \fi
   \ccl@advance@depth\@ne%
   \ccl@incr@count%
   \edef\ccl@cur@cont{\cc@cur@cont-\cclCurDepth}%
@@ -228,6 +231,7 @@
   \ccSetPropertyX{prev-margin-left}{\ccl@leftskip}%
   \ccSetPropertyX{prev-margin-right}{\ccl@rightskip}%
   \ccEvalType[\ccl@cur@cont]{Properties}%
+  \ccEvalType[\ccl@cur@cont]{Components}%
   \edef\ccl@list@type{\ccUseProperty{list-type}}%
   \cclUseAttributeHandler{#1}%
   \cclCalculateMarginLeft%
