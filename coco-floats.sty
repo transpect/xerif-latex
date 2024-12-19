@@ -27,9 +27,14 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-floats}
-    [2024/07/16 v0.5.0 CoCoTeX floats module]
-\DeclareOptionX{nofigs}{\global\let\ccf@no@figs\relax}
-\ProcessOptionsX
+    [2024/12/19 v0.5.0 CoCoTeX floats module]
+\ExplSyntaxOn
+\keys_define:nn { cocotex/floats }
+{
+  nofigs .code:n = {\global\let\ccf@no@figs\relax}
+}
+\ProcessKeyOptions[cocotex/floats]
+\ExplSyntaxOff
 \RequirePackage{coco-common}
 \RequirePackage{rotating}
 \RequirePackage{grffile}
@@ -808,7 +813,8 @@
     \else
       \ccSanitizeStr\@cca@Gin@alt{\cca@Gin@alt}%
     \fi
-    \ccaAddAltText{\@cca@Gin@alt}%
+    \Hy@pdfstringdef\@@cca@Gin@alt{\@cca@Gin@alt}%
+    \ccaAddAltText{\@@cca@Gin@alt}%
     \ccaStructEnd{Figure}%
   \fi
 }

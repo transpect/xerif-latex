@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-kernel}
-    [2024/07/16 v0.5.0 cocotex kernel]
+    [2024/12/19 v0.5.0 cocotex kernel]
 \ifx\IfFormatAtLeastTF\@undefined
   \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}%
 \fi
@@ -35,23 +35,33 @@
   {\PackageError{CoCoTeX Kernel}
     {LaTeX kernel too old!}
     {CoCoTeX v0.5.0 and newer needs at least LaTeX kernel version 2023/11/01!}}
-\RequirePackage{kvoptions-patch}
-\RequirePackage{xkeyval}
 \RequirePackage{etoolbox}
 \SetDefaultHookLabel{cc}
 \newif\if@cc@debug \@cc@debugfalse
-\DeclareOptionX{debug}{\global\@cc@debugtrue}
+\ExplSyntaxOn
+\keys_define:nn { cocotex/kernel }
+{
+  debug .code:n = {\global\@cc@debugtrue}
+}
 \global\let\debug@domain@list\relax
-\DeclareOptionX{debug-domain}{%
-  \global\@cc@debugtrue
-  \if!#1!\else
-    \def\do##1{\listadd\debug@domain@list{##1}}%
-    \docsvlist{#1}%
-  \fi
-}%
+\keys_define:nn { cocotex/kernel }
+{
+  debug-domain .code:n = {%
+    \global\@cc@debugtrue
+    \if!#1!\else
+      \def\do##1{\listadd\debug@domain@list{##1}}%
+      \docsvlist{#1}%
+    \fi
+  }%
+}
 \let\cc@prefix\@empty
-\DeclareOptionX{prefix}[]{\gdef\cc@prefix{#1}}%
-\ProcessOptionsX
+\keys_define:nn { cocotex/kernel }
+{
+  prefix .code:n = {\gdef\cc@prefix{#1}},%
+  prefix .initial:n = {}
+}
+\ProcessKeyOptions[cocotex/kernel]
+\ExplSyntaxOff
 \def\ccPackageError#1#2#3#4{%
    \GenericError{%
       (#1)\@spaces\@spaces\@spaces\@spaces

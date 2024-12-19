@@ -27,14 +27,23 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-notes}
-    [2024/07/16 v0.5.0 le-tex coco notes module]
+    [2024/12/19 v0.5.0 le-tex coco notes module]
 \newif\if@ccn@use@en \@ccn@use@enfalse
-\DeclareOption{endnotes}{\global\@ccn@use@entrue}
-\DeclareOption{ennotoc}{\global\let\ccn@en@no@toc\relax}
-\DeclareOption{resetnotesperchapter}{\global\let\ccn@reset@notes@per@chapter\relax}
-\DeclareOption{endnoteswithchapters}{\global\@ccn@use@entrue\global\let\ccn@en@with@chapters\relax}
-\DeclareOption{endnotelinks}{}
-\ProcessOptions
+\ExplSyntaxOn
+\keys_define:nn { cocotex/notes }
+{
+  endnotes .code:n = { \global\@ccn@use@entrue },
+  ennotoc  .code:n = { \global\let\ccn@en@no@toc\relax },
+  resetnotesperchapter .code:n = { \global\let\ccn@reset@notes@per@chapter\relax },
+  endnoteswithchapters .code:n =
+  {
+    \global\@ccn@use@entrue
+    \global\let\ccn@en@with@chapters\relax
+  },
+  endnotelinks .code:n = {}
+}
+\ProcessKeyOptions[cocotex/notes]
+\ExplSyntaxOff
 \RequirePackage{footnote}
 \newif\if@enotesopen
 \AtBeginDocument{\edef\ccn@parindent{\the\parindent}}

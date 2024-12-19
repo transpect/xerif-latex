@@ -27,27 +27,36 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-lists}
-    [2024/07/16 v0.5.0 CoCoTeX lists module]
+    [2024/12/19 v0.5.0 CoCoTeX lists module]
 \RequirePackage{coco-common}
 \newif\if@ccl@replace \@ccl@replacefalse
-\DeclareOptionX{replace}{\global\@ccl@replacetrue}%
+\ExplSyntaxOn
+\keys_define:nn { cocotex/lists }
+{
+  replace .code:n = {\global\@ccl@replacetrue}
+}
 \def\ccl@ih@common{common}
 \def\ccl@ih@conseq{conseq}%
+\let\ccl@inherit\ccl@ih@common
+\keys_define:nn { cocotex/lists }
+{
+  inherit .choice:,
+  inherit / conseq .code:n = { \global\let\ccl@inherit\ccl@ih@conseq },
+  inherit / common .code:n = { \global\let\ccl@inherit\ccl@ih@common },
+  inherit .initial:n = common
+}
 \def\ccl@str@local{local}%
 \def\ccl@str@global{global}%
-\let\ccl@inherit\ccl@ih@common
-\define@choicekey{coco-lists.sty}{inherit}[\@ccl@inherit\nr]{conseq,common}{%
-  \ifcase\nr\relax% conseq: nested lists of the same type inherit only from the previous level
-    \global\let\ccl@inherit\ccl@ih@conseq
-  \fi
-}
 \let\ccl@nesting\ccl@str@global
-\define@choicekey{coco-lists.sty}{nesting}[\@ccl@nesting\nr]{local,global}{%
-  \ifcase\nr\relax% local
-    \global\let\ccl@nesting\ccl@str@local
-  \fi
+\keys_define:nn { cocotex/lists }
+{
+ nesting .choice:,
+ nesting / local  .code:n = {\global\let\ccl@nesting\ccl@str@local },
+ nesting / global .code:n = {\global\let\ccl@nesting\ccl@str@global },
+ nesting       .initial:n = global
 }
-\ProcessOptionsX
+\ProcessKeyOptions[cocotex/lists]
+\ExplSyntaxOff
 \ccDeclareContainer{List}{%
   \ccDeclareType{Properties}{%
     \ccSetProperty{before-list}{% at the very beginning of each (nested) list

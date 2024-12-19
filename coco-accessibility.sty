@@ -29,21 +29,27 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2024/07/16 v0.5.0 CoCoTeX accessibility module]
-\RequirePackage{kvoptions-patch}
-\RequirePackage{xkeyval}
-\RequirePackage{atbegshi}
-\RequirePackage{xparse}
+    [2024/12/19 v0.5.0 CoCoTeX accessibility module]
 \newif\if@cc@do@ally \@cc@do@allyfalse
-\DeclareOptionX{init}{\global\@cc@do@allytrue}
-\DeclareOptionX{init-20}{\global\@cc@do@allytrue\global\@cc@pdf@twotrue}
-\DeclareOptionX{nodetree}{\let\cca@do@nodetree\relax}
-\DeclareOptionX{show-spaces}{\let\cca@do@showspaces\relax}
+\ExplSyntaxOn
+\keys_define:nn { cocotex/a11y }
+{
+  init .code:n = {\global\@cc@do@allytrue},
+  nodetree .code:n = {\let\cca@do@nodetree\relax},
+  show-spaces .code:n = {\let\cca@do@showspaces\relax},
+}
 \let\cca@do@dospaces\relax
-\DeclareOptionX{no-spaces}{\let\cca@do@dospaces\@undefined}
+\keys_define:nn { cocotex/a11y }
+{
+  no-spaces .code:n = {\let\cca@do@dospaces\@undefined}
+}
 \let\cca@do@doparas\relax
-\DeclareOptionX{no-paras}{\let\cca@do@doparas\@undefined}
-\ProcessOptionsX
+\keys_define:nn { cocotex/a11y }
+{
+  no-paras .code:n = {\let\cca@do@doparas\@undefined}
+}
+\ProcessKeyOptions[cocotex/a11y]
+\ExplSyntaxOff
 \def\cca@patch@error{\cc@patch@error{a11y}}
 \def\cc@if@ally{\if@cc@do@ally\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
 \let\ccIfAlly\cc@if@ally
@@ -329,7 +335,7 @@
   }{}%
 }
  % none so far.
-\ccWhenAlly{\AtBeginShipout{\directlua{ltpdfa.pageprocessor(tex.box["AtBeginShipoutBox"])}}}%
+\ccWhenAlly{\AddToHook{shipout/before}{\directlua{ltpdfa.pageprocessor(tex.box["ShipoutBox"])}}}%
 \endinput
 %%
 %% End of file `coco-accessibility.sty'.

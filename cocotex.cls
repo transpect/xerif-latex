@@ -27,89 +27,105 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2024/07/16 v0.5.0 cocotex]
-\RequirePackage{xkeyval}
+    [2024/12/19 v0.5.0 cocotex]
 \SetDefaultHookLabel{cc}
-\DeclareOptionX{main}{\PassOptionsToPackage{\CurrentOption}{babel}}
-\DeclareOption{es-noindentfirst}{\PassOptionsToPackage{es-noindentfirst}{babel}}
-\DeclareOption{es-noshorthands}{\PassOptionsToPackage{es-noshorthands}{babel}}
+\ExplSyntaxOn
+\keys_define:nn { cocotex/cls }
+{
+  main .code:n = { \PassOptionsToPackage{main=#1}{babel} },
+  es-noindentfirst .code:n = { \PassOptionsToPackage{es-noindentfirst}{babel} },
+  es-noshorthands  .code:n = { \PassOptionsToPackage{es-noshorthands}{babel} }
+}
 \PassOptionsToPackage{shorthands=off}{babel}
-\DeclareOption{no-hyperindex}{\global\let\cc@no@hyperindex\relax}
+\keys_define:nn { cocotex/cls }
+{
+  no-hyperindex .code:n = {\global\let\cc@no@hyperindex\relax}
+}
 \newif\ifcollection \collectionfalse
 \newif\ifarticle    \articlefalse
 \newif\ifmonograph  \monographfalse
 \newif\ifjournal    \journalfalse
-\define@choicekey{cocotex.cls}{pubtype}[\cc@pub@type\nr]{collection,article,journal,mono}{%
-  \ifcase\nr\relax% collection
-    \global\collectiontrue
-  \or% article
-    \global\articletrue
-  \or% journal
-    \global\journaltrue
-  \else% monograph
-    \global\monographtrue
-  \fi
-}
-\DeclareOptionX{prefix}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
-\DeclareOptionX{debug}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
-\DeclareOptionX{debug-domain}{\PassOptionsToPackage{\CurrentOption}{coco-kernel}}
-\DeclareOptionX{silent}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
-\DeclareOptionX{nofigs}{\PassOptionsToPackage{\CurrentOption}{coco-floats}}
-\newif\if@cc@pdf@two \@cc@pdf@twofalse
-\let\cc@pdf@std A
-\ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
 {
-  pdf-standard .choice:,
-  pdf-standard / X .code:n = { \let\cc@pdf@std X },
-  pdf-standard / A .code:n = { \let\cc@pdf@std A },
-  pdf-standard / UA .code:n =
-  {
-    \let\cc@pdf@std U
-    \PassOptionsToPackage{init}{coco-accessibility}%
-  },
-  pdf-standard .initial:n = A,
-  pdf-version .choices:nn =
-    { 1.3, 1.4, 1.5, 1.6, 1.7, 2.0 }
-    {
-      \sys_ensure_backend:
-      \exp_args:Ne\pdf_version_gset:n{\tl_use:N \l_keys_choice_tl}
-    },
-  pdf-version .initial:n = { 1.7 },
+  pubtype .choice:,
+  pubtype / collection .code:n = { \global\collectiontrue },
+  pubtype / article    .code:n = { \global\articletrue    },
+  pubtype / journal    .code:n = { \global\journaltrue    },
+  pubtype / mono       .code:n = { \global\monographtrue  },
+  pubtype           .initial:n = mono,
 }
-  % LEGACY
-  \DeclareOptionX{a11y}{%
+\keys_define:nn { cocotex/cls }
+{
+  prefix .code:n = { \PassOptionsToPackage{prefix=#1}{coco-kernel} },
+  debug        .code:n = { \PassOptionsToPackage{debug}{coco-kernel} },
+  debug-domain .code:n = { \PassOptionsToPackage{debug-domain=#1}{coco-kernel} },
+  silent       .code:n = {\PassOptionsToPackage{silent}{coco-common}},
+   nofigs      .code:n = {\PassOptionsToPackage{nofigs}{coco-floats}},
+}
+\newif\if@cc@pdf@two \@cc@pdf@twofalse
+\keys_define:nn { cocotex/cls }
+{
+  pdf-standard .code:n =
+    {
+      \exp_args:Nnx
+      \keys_set:nn {cocotex/cls} {_pdfstandard=\str_uppercase:n{#1}}
+    },
+  _pdfstandard .choices:nn =
+    {
+      A-1B, A-1A, A-2B, A-2A, A-2U, A-3B, A-3A, A-3U, A-4,
+      X-3, X-4, X-4P, X-5G, X-5N, X-5PG, X-6, X-6N, X-6P,
+      UA-1, UA-2
+    }
+    {
+      \xdef\cc@pdf@standard{ \tl_use:N \l_keys_choice_tl }
+      \xdef\cc@pdf@std{\expandafter\@car\cc@pdf@standard\@nil}
+    },
+  _pdfstandard .initial:n = A-2B,
+  _pdfstandard / unknown .code:n =
+    { \msg_warning:nnn{pdf}{unknown-standard}{#1} },
+  a11y         .code:n = { \keys_set:nn { cocotex/cls } { pdf-standard = UA-1 } },
+  a11y20       .code:n = { \keys_set:nn { cocotex/cls } { pdf-standard = UA-2 } },
+  lang-id      .code:n = {},
+  nodetree     .code:n = {\PassOptionsToPackage{nodetree}{coco-accessibility}},
+  show-spaces  .code:n = {\PassOptionsToPackage{show-spaces}{coco-accessibility}},
+  no-spaces    .code:n = {\PassOptionsToPackage{no-spaces}{coco-accessibility}},
+  no-paras     .code:n = {\PassOptionsToPackage{no-paras}{coco-accessibility}},
+  no-compress  .code:n =
+  {
     \sys_ensure_backend:
-    \pdf_version_gset:n{1.7}%
-    \PassOptionsToPackage{init}{coco-accessibility}}%
-  \DeclareOptionX{a11y20}{%
-    \global\@cc@pdf@twotrue
-    \sys_ensure_backend:
-    \pdf_version_gset:n{2.0}%
-    \PassOptionsToPackage{init}{coco-accessibility}}%
+    \ifx\pdfobjcompresslevel\@undefined
+      \edef\pdfobjcompresslevel{\pdfvariable objcompresslevel}%
+    \fi
+    %\pdfcompresslevel=0
+    \pdfobjcompresslevel=0
+    \pdf_uncompress:
+  },
+  color-enc    .code:n = {\PassOptionsToPackage{color-enc=#1}{coco-common}},
+  usescript    .code:n = {\PassOptionsToPackage{usescript={#1}}{coco-script}},
+  endnotes     .code:n = {\PassOptionsToPackage{endnotes}{coco-notes}},
+  ennotoc      .code:n = {\PassOptionsToPackage{ennotoc}{coco-notes}},
+  endnoteswithchapters .code:n = {\PassOptionsToPackage{endnoteswithchapters}{coco-notes}},
+  resetnotesperchapter .code:n = {\PassOptionsToPackage{resetnotesperchapter}{coco-notes}},
+}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
+\ProcessOptions
+\ProcessKeyOptions[cocotex/cls]
+\sys_ensure_backend:
+\prg_generate_conditional_variant:Nnn \regex_match_case:nn {nV} {T,F,TF}
+\regex_match_case:nVF
+  {
+    { ^UA\-1 }   { \pdf_version_gset:n { 1.7 } \PassOptionsToPackage{init}{coco-accessibility} }
+    { ^UA\-2 }   { \pdf_version_gset:n { 2.0 } \PassOptionsToPackage{init}{coco-accessibility} }
+    { ^A\-1 }    { \pdf_version_gset:n { 1.4 } }
+    { ^A\-[23] } { \pdf_version_gset:n { 1.7 } }
+    { ^A\-4 }    { \pdf_version_gset:n { 2.0 } }
+    { ^X\-[123] }{ \pdf_version_gset:n { 1.4 } }
+    { ^X\-[45] } { \pdf_version_gset:n { 1.6 } }
+    { ^X\-6 }    { \pdf_version_gset:n { 2.0 } }
+  } \cc@pdf@standard
+  { \pdf_version_gset:n { 1.7 } }
 \ExplSyntaxOff
-\DeclareOptionX{lang-id}{}
-\DeclareOptionX{nodetree}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
-\DeclareOptionX{showspaces}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
-\DeclareOptionX{no-spaces}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
-\DeclareOptionX{no-paras}{\PassOptionsToPackage{\CurrentOption}{coco-accessibility}}
-\DeclareOptionX{no-compress}{\let\cc@no@pdf@compression\relax}
-\DeclareOptionX{color-enc}{\PassOptionsToPackage{\CurrentOption}{coco-common}}
-\DeclareOptionX{usescript}{\PassOptionsToPackage{\CurrentOption}{coco-script}}
-\DeclareOptionX{endnotes}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
-\DeclareOptionX{ennotoc}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
-\DeclareOptionX{endnoteswithchapters}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
-\DeclareOptionX{resetnotesperchapter}{\PassOptionsToPackage{\CurrentOption}{coco-notes}}
-\DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
-\DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{book}}
-\ExplSyntaxOn
-  \ProcessOptionsX
-  \ProcessKeyOptions[cocotex/cls]
-
-\ExplSyntaxOff
-\if\cc@pdf@std U
-    \PassOptionsToPackage{init}{coco-accessibility}%
-\fi
 \def\ccAfterClassHook{}
 \def\ccToggleCountedConditionalsHook{}%
 \RequirePackage{coco-common}
@@ -175,6 +191,10 @@
 \RequirePackage{coco-notes}
 \RequirePackage{index}
 \makeindex
+\if\cc@pdf@std X
+  \let\href\relax
+  \RequirePackage{nohyperref}
+\else
 \RequirePackage{hyperref}
 \hypersetup{%
     breaklinks%
@@ -186,12 +206,6 @@
    ,bookmarksopen=false%
    ,hyperindex=\ifx\cc@no@hyperindex\relax false\else true\fi
 }
-\ifx\cc@no@pdf@compression\relax
-  \ifx\pdfobjcompresslevel\@undefined
-    \edef\pdfobjcompresslevel{\pdfvariable objcompresslevel}%
-  \fi
-  \pdfcompresslevel=0
-  \pdfobjcompresslevel=0
 \fi
 \ccAfterClassHook
 \endinput

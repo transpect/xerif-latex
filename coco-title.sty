@@ -27,10 +27,8 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-title}
-    [2024/07/16 v0.5.0 CoCoTeX title module]
+    [2024/12/19 v0.5.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
-\DeclareOptionX{lang-id}{}
-\ProcessOptionsX
 \ccDeclareContainer{titlepage}{%
   \ccInherit {Components,Properties}{CommonMeta}%
   \ifarticle\ccInherit{Components}{article-meta}\fi
@@ -730,18 +728,13 @@ from the Components given in the Meta Container.}}}
       identifier=\ccIfComp{IccIdentifier}{\ccUseComp{IccIdentifier}}{\cca@default@icc@iden}%
   }}
   \AddToHook{cct/document/meta}{\edef\x{\noexpand\ccaAddToConfig{intent}{\ccUseProperty{output-intent}}}\x}
-  \ccAddToType{Components}{titlepage}{%
-  \ccDeclareGlobalComponent[2]{PDFAID}%
-  \ccDeclareGlobalComponent[A]{PDFALevel}%
-  \ccDeclareGlobalComponent[\if@cc@pdf@two2\else1\fi]{PDFUAID}}%
   \AddToHook{cct/document/meta}{%
-    \ccIfCompEmpty{PDFAID}{}{\ccIfCompEmpty{PDFALevel}{}{%
-        \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
-            pdfaid=\ccUseComp{PDFAID};%
-            level=\ccUseComp{PDFALevel}%
-            \ccIfCompEmpty{PDFUAID}{}{;pdfuaid=\ccUseComp{PDFUAID}}}}%
-        \x}}}
-  \if@cc@pdf@two\else\ccaAddRolemap{Title}{H1}\fi
+    \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
+        pdfaid=2;%
+        level=A%
+        ;pdfuaid=\if@cc@pdf@two2\else1\fi}}%
+    \x}%
+  \if@cc@pdf@two\else\ccaAddRolemap{Title}{P}\fi
   \ccaAddRolemap{Titlepage}{Div}
 }%ccWhenAlly
 \fi

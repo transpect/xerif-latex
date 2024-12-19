@@ -27,18 +27,18 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-frame}
-    [2024/07/16 v0.5.0 coco-frame]\relax
+    [2024/12/19 v0.5.0 coco-frame]\relax
 \let\cc@frame@mode n
-\define@choicekey{coco-frame.sty}{frame}[\cc@frame@mode\nr]{none,crop,frame}{%
-  \ifcase\nr\relax% none
-    \let\cc@frame@mode n
-  \or% crop
-    \let\cc@frame@mode p
-  \else% frame
-    \let\cc@frame@mode w
-  \fi
-}%
-\ProcessOptionsX\relax
+\ExplSyntaxOn
+\keys_define:nn { cocotex/frame }
+{
+  frame .choice:,
+  frame / none  .code:n = { \global\let\cc@frame@mode n }
+  frame / crop  .code:n = { \global\let\cc@frame@mode p }
+  frame / frame .code:n = { \global\let\cc@frame@mode w }
+}
+\ProcessKeyOptions[cocotex/frame]
+\ExplSyntaxOff
 \ifx\cc@frame@mode p\relax
   \ifx\bleed\@undefined \newdimen\bleed \bleed4mm\relax\fi
   \ifx\cc@frame@@offset\@undefined \newdimen\cc@frame@@offset \cc@frame@@offset4em\relax\fi
