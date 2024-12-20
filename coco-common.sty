@@ -383,6 +383,50 @@
   \expandafter\href\expandafter{\@argi}{#2}%
 }
 \def\ccPageLabel#1{\phantomsection\label{#1}}
+\let\ccBurlTokenSep\@empty
+\ExplSyntaxOn
+\DeclareRobustCommand*{\ccBurl}[1][\ccBurlTokenSep]{%
+  \begingroup
+    \tl_if_blank:eF { #1 }
+    {
+      \token_if_active:NT #1 { \edef#1{ \token_to_str:N #1 } }
+      \edef\ccBurlTokenSep{#1}
+    }
+    \hyper@normalise\cc@url}
+\ExplSyntaxOff%
+\cslet{\ccPrefix Burl}\ccBurl
+\def\cc@url#1{%
+  \toks@{#1}\edef\Url@String{\the\toks@}%
+  \edef\Url@String{\expandafter\strip@prefix\meaning\Url@String}%
+  \edef\x{%
+    \noexpand\def\noexpand\cc@break@link\unexpanded{##1}\ccBurlTokenSep\unexpanded{##2}\ccBurlTokenSep\noexpand\@nil{%
+      \unexpanded{##1}\noexpand\cc@url@sep%
+      \noexpand\if\relax\unexpanded{##2}\relax\noexpand\else
+        \noexpand\cc@break@link\unexpanded{##2}\ccBurlTokenSep\noexpand\@nil
+        \noexpand\fi
+    }}\x
+  \begingroup
+    \let\cc@url@sep\@empty
+    \edef\x{\noexpand\cc@break@link\unexpanded{#1}\ccBurlTokenSep\ccBurlTokenSep\noexpand\@nil}%
+    \xdef\Url@String{\x}%
+  \endgroup
+  \expandafter\def\expandafter\x\expandafter{\expandafter\href\expandafter{\Url@String}}%
+  \expandafter\x\expandafter{\@cc@url{#1}}}
+\def\@cc@url{%
+ \let\do\@makeother \dospecials % verbatim catcodes
+ \catcode`{\@ne \catcode`}\tw@ % with exceptions
+ \catcode`\ =10 % allow "\url {x}"
+ \catcode`\#=6  % always # -> ##, so I can later convert ## -> #
+ \obeyspaces\obeylines\cc@urlz}
+\def\cc@urlz#1{\toks@{#1}\edef\Url@String{\the\toks@}%
+  \edef\Url@String{\expandafter\strip@prefix\meaning\Url@String}%
+  \Url@ObeySp %
+  \Url@acthash
+  \Url@actpercent
+  \Url@HyperHook
+  \edef\z{\noexpand\expandafter\noexpand\cc@break@link\noexpand\Url@String\ccBurlTokenSep\ccBurlTokenSep\noexpand\@nil}\z
+  \endgroup}
+\def\ccUrlSep#1{\def\cc@url@sep{#1}}\ccUrlSep{\hskip0sp\@plus1sp}
 \endinput
 %%
 %% End of file `coco-common.sty'.

@@ -221,6 +221,8 @@
 \def\ccdefFromComp#1#2{\cc@store@comp{e}#1{#2}}
 \def\ccgdefFromComp#1#2{\cc@store@comp{x}#1{#2}}
 \def\ccpgdefFromComp#1#2{\def\x{\cc@store@comp{x}}\expandafter\x\csname\ccPrefix #1\endcsname{#2}}
+\def\ccdefTlFromComp#1#2{\edef#1{\expandafter\unexpanded\expandafter\expandafter\expandafter{\csname cc@\cc@cur@cont @#2\endcsname}}}
+\def\ccgdefTlFromComp#1#2{\xdef#1{\expandafter\unexpanded\expandafter\expandafter\expandafter{\csname cc@\cc@cur@cont @#2\endcsname}}}
 \def\strip@longprefix#1\long macro:->#2{#2}
 \long\def\cc@store@comp#1#2#3{%
   \edef\@tempa{\expandonce{\csname protected@#1def\endcsname}\noexpand#2}%
