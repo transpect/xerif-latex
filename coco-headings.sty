@@ -134,8 +134,7 @@
       \rightskip\tpUseProperty{margin-right}%
       \bgroup
         \tpUseProperty{heading-block}%
-        \tpIfPropVal{no-toc}{true}{}{\tp@make@toc}% ToC entries
-        \tpIfPropVal{no-BM}{true}{}{\tp@make@bookmarks}% Bookmarks
+        \tpGenerateToC
         \tpUseProperty{toc-hook}%
         \tpIfProp{extended}{\tpUseProperty{extended-heading}}{}%
       \egroup%
@@ -149,6 +148,13 @@
     \fi
     \aftergroup\next%
   }%
+}
+\def\tpGenerateToC{%
+  \ifx\tp@hd@open@toc\relax
+    \tpIfPropVal{no-toc}{true}{}{\tp@make@toc}% ToC entries
+    \tpIfPropVal{no-BM}{true}{}{\tp@make@bookmarks}% Bookmarks
+    \global\let\tp@hd@open@toc\@undefined
+  \fi
 }
 \def\tp@hd@use@hook#1#2{%
   \expandafter\ifx\csname tp@parent@#2\endcsname\relax\else
@@ -358,6 +364,7 @@
   \let\tp@heading@label\relax
   \def\tpAuthorCnt{\z@}%
   \def\tpAffilCnt{\z@}%
+  \global\let\tp@hd@open@toc\relax
   \tp@reset@components{\tp@cur@cont}%
   }
 \def\tp@heading@reset{%
