@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-frame}
-    [2025/02/07 v0.5.0 coco-frame]\relax
+    [2025/02/11 v0.5.0 coco-frame]\relax
 \let\cc@frame@mode n
 \ExplSyntaxOn
 \keys_define:nn { cocotex/frame }
@@ -58,13 +58,15 @@
     %/CropBox[\b@l@offset\space\b@u@offset\space\b@r@offset\space\b@o@offset]
     %/MediaBox[\b@l@offset\space\b@u@offset\space\b@r@offset\space\b@o@offset]
   }
-  \expandafter\pdfpageattr\expandafter{\@tempa}
 \fi
 \@ifundefined{pdfpagewidth}{%
   \RequirePackage{luatex85}
   \pdfpagewidth\paperwidth
   \pdfpageheight\paperheight
 }{}
+\ifx\cc@frame@mode p\relax
+  \expandafter\pdfpageattr\expandafter{\@tempa}
+\fi
 \ifx\cc@frame@mode n\relax\else
   \ifx\cc@frame@mode p\relax
     \edef\stockwidth{\the\dimexpr\paperwidth+\cc@frame@@offset+\cc@frame@@offset\relax}
