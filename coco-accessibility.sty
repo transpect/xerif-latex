@@ -171,7 +171,12 @@
       {}{\cca@patch@error\Hy@StartlinkName}
     \patchcmd\Hy@StartlinkName
       {#1}
-      {#1 /StructParent \@ltpdfmy@parent /Contents(\@argii)}
+      {#1
+       \ifx\ccaGetStructParent\cc@no@ccaGetStructParent\else
+         /StructParent \@ltpdfmy@parent
+         /Contents(\@argii)
+       \fi
+      }
       {}{\cca@patch@error\Hy@StartlinkName}
     \patchcmd\hyper@linkurl
       {\pdfstartlink}
@@ -184,8 +189,10 @@
       }
       {/C[\@urlbordercolor]%
         \fi
-        /StructParent \@ltpdfmy@parent%
-        /Contents(\@argii)
+        \ifx\ccaGetStructParent\cc@no@ccaGetStructParent\else
+          /StructParent \@ltpdfmy@parent%
+          /Contents(\@argii)
+        \fi
       }{}{\cca@patch@error\hyper@linkurl}
     \patchcmd\close@pdflink
       {\pdfendlink}
