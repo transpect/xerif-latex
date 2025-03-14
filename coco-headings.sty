@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-headings}
-    [2025/02/14 v0.5.0 CoCoTeX headings module]
+    [2025/03/14 v0.5.0 CoCoTeX headings module]
 \RequirePackage{coco-meta}
 \RequirePackage{bookmark}%
 \hypersetup{bookmarksdepth=-999}%
@@ -151,14 +151,11 @@
           \ccaSaveCurStruct{cch@id@cur@meta}%
         }%
         \ccUseProperty{heading-block}%
-        \ccIfPropVal{no-toc}{true}{}{\cch@make@toc}% ToC entries
-        \ccIfPropVal{no-BM}{true}{}{\cch@make@bookmarks}% Bookmarks
-        \ccUseProperty{toc-hook}%
+        \cchGenerateToC
         \ccIfProp{extended}{\ccUseProperty{extended-heading}}{}%
         \ccWhenAlly{\ccaStructEnd{SectMeta}}%
       \egroup%
-      \cch@make@run% Running headers
-      \cch@use@hook{run/after}{#2}%
+      \cchGenerateRun%
       \ccUseProperty{after-heading-block}%
       \cch@use@hook{after}{#2}%
     }%
@@ -229,6 +226,14 @@
       \fi
     \fi
   }}%
+\def\cchGenerateToC{%
+  \ifx\cch@open@toc\relax
+    \ccIfPropVal{no-toc}{true}{}{\cch@make@toc}% ToC entries
+    \ccIfPropVal{no-BM}{true}{}{\cch@make@bookmarks}% Bookmarks
+    \ccUseProperty{toc-hook}%
+    \global\let\cch@open@toc\@undefined
+  \fi
+}
 \def\cch@make@toc{%
   \cc@check@empty{Heading}{Title}{Toc}%
   \cc@check@empty{Heading}{Number}{Toc}%
@@ -271,6 +276,13 @@
     \cch@use@hook{toc/after}{#1}%
     \ccUseProperty{toc-after-entry}%
   \egroup}
+\def\cchGenerateRun{%
+  \ifx\cch@open@run\relax
+    \cch@make@run% Running headers
+    \cch@use@hook{run/after}{\ccCurSecName}%
+    \global\let\cch@open@run\@undefined
+  \fi
+}
 \def\cch@make@run{%
   \cc@check@empty{Heading}{Title}{Run}%
   \cc@check@empty{Heading}{Number}{Run}%
@@ -378,6 +390,8 @@
   \global\let\cch@no@tag\@undefined%
   \global\let\cch@ccaEnable\ccaEnable
   \global\let\cch@ccaProtect\ccaProtect
+  \global\let\cch@open@toc\relax
+  \global\let\cch@open@run\relax
   \ignorespaces}
 \def\cch@reset{%
   \let\cc@cur@cont\relax
@@ -608,22 +622,24 @@
   \ccDebugMsg[a11y]{Calling AutoClose for \ccCurSecName\space (\ccCurSecLevel).}
   \ifx\ccPrevSecLevel\@undefined\else
     \ifx\ccCurSecLevel\@undefined\else
-      \ccDebugMsg[a11y]{prev: \ccPrevSecLevel, cur: \ccCurSecLevel, abs: \the\cch@total@nesting@level.}
-      \ifnum\ccPrevSecLevel=\ccCurSecLevel\relax
-        \ccDebugMsg[a11y]{Closing \the\cch@total@nesting@level.}
-        \global\advance\cch@total@nesting@level\m@ne\relax
-        \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
-      \else
-        \ifnum\ccPrevSecLevel<\ccCurSecLevel\relax
-          \csxdef{cch@prev@parent@level@\ccCurSecLevel}{\ccPrevSecLevel}%
+      \ifnum\cch@total@nesting@level=\@ne\relax\else
+        \ccDebugMsg[a11y]{prev: \ccPrevSecLevel, cur: \ccCurSecLevel, abs: \the\cch@total@nesting@level.}
+        \ifnum\ccPrevSecLevel=\ccCurSecLevel\relax
+          \ccDebugMsg[a11y]{Closing \the\cch@total@nesting@level.}
+          \global\advance\cch@total@nesting@level\m@ne\relax
+          \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
         \else
-          \ifnum\ccPrevSecLevel>\ccCurSecLevel\relax
-            \ccDebugMsg[a11y]{Closing (inner) \the\cch@total@nesting@level.}
-            \global\advance\cch@total@nesting@level\m@ne\relax
-            \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
-            \ifnum\cch@total@nesting@level=\@ne\relax\else
-              \xdef\ccPrevSecLevel{\csname cch@prev@parent@level@\ccPrevSecLevel\endcsname}%
-              \let\cca@next\cchAutoClose
+          \ifnum\ccPrevSecLevel<\ccCurSecLevel\relax
+            \csxdef{cch@prev@parent@level@\ccCurSecLevel}{\ccPrevSecLevel}%
+          \else
+            \ifnum\ccPrevSecLevel>\ccCurSecLevel\relax
+              \ccDebugMsg[a11y]{Closing (inner) \the\cch@total@nesting@level.}
+              \global\advance\cch@total@nesting@level\m@ne\relax
+              \ccaVstructEnd{\csname cch@sec@\the\cch@total@nesting@level @name\endcsname}%
+              \ifnum\cch@total@nesting@level=\@ne\relax\else
+                \xdef\ccPrevSecLevel{\csname cch@prev@parent@level@\ccPrevSecLevel\endcsname}%
+                \let\cca@next\cchAutoClose
+              \fi
             \fi
           \fi
         \fi

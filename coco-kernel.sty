@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-kernel}
-    [2025/02/14 v0.5.0 cocotex kernel]
+    [2025/03/14 v0.5.0 cocotex kernel]
 \ifx\IfFormatAtLeastTF\@undefined
   \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}%
 \fi
@@ -72,7 +72,7 @@
 \def\cc@patch@error#1#2{%
   \ccPackageError{#1}{compatibility}
   {Could not patch \noexpand#2}
-  {You probably use a LaTeX package that re-defines the \noexpand#1 control sequence. It is apparently not compatbile with CoCoTeX. Sorry}}
+  {You probably use a LaTeX package that re-defines the \noexpand#2 control sequence. It is apparently not compatbile with CoCoTeX. Sorry}}
 \def\ccPackageWarning#1#2#3{%
    \GenericWarning{%
       (#1)\@spaces\@spaces\@spaces\@spaces

@@ -29,7 +29,11 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2025/02/14 v0.5.0 CoCoTeX accessibility module]
+    [2025/03/14 v0.5.0 CoCoTeX accessibility module]
+\@ifpackageloaded{etoolbox}   {}{\RequirePackage{etoolbox}}
+\@ifpackageloaded{graphicx}   {}{\RequirePackage{graphicx}}
+\@ifpackageloaded{iftex}      {}{\RequirePackage{iftex}}
+\@ifpackageloaded{coco-kernel}{}{\newif\if@cc@is@final\@cc@is@finaltrue}
 \newif\if@cc@do@ally \@cc@do@allyfalse
 \ExplSyntaxOn
 \keys_define:nn { cocotex/a11y }
@@ -43,6 +47,10 @@
 {
   no-spaces .code:n = {\let\cca@do@dospaces\@undefined}
 }
+\keys_define:nn { cocotex/a11y }
+{
+  debug .code:n = {\let\cca@debug\relax}
+}
 \let\cca@do@doparas\relax
 \keys_define:nn { cocotex/a11y }
 {
@@ -50,19 +58,30 @@
 }
 \ProcessKeyOptions[cocotex/a11y]
 \ExplSyntaxOff
-\def\cca@patch@error{\cc@patch@error{a11y}}
+\ifdefined\cc@patch@error
+  \def\cca@patch@error{\cc@patch@error{a11y}}
+\else
+  \def\cca@patch@error#1{\PackageError{coco-accessibility}
+    {Could not patch \noexpand#1}
+    {You probably use a LaTeX package that re-defines the \noexpand#1 control sequence. It is apparently not compatbile with CoCoTeX. Sorry}}
+\fi
 \def\cc@if@ally{\if@cc@do@ally\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
 \let\ccIfAlly\cc@if@ally
 \def\ccWhenAlly{\if@cc@do@ally\expandafter\@firstofone\else\expandafter\@gobble\fi}
 \def\ccUnlessAlly{\if@cc@do@ally\expandafter\@gobble\else\expandafter\@firstofone\fi}
 \ccWhenAlly{%
   \ifluatex\else
-    \ccPackageError{a11y}{engine}
-      {accessibility features require lualatex!}
+    \ifdefined\ccPackageError
+      \def\@tempa{\PackageError{coco-accessibility}}
+    \else
+      \def\@tempa{\ccPackageError{a11y}{engine}}
+    \fi
+    \@tempa{accessibility features require lualatex!}
       {You tried to use the accessibility features of CoCoTeX with an other TeX engine than lualatex. This will not work; lualatex is a hard requirement. Sorry.}
   \fi
   \RequirePackage{luatexbase-attr}
   \RequirePackage{atveryend}
+  \AddToHook{env/document/before}{\@ifpackageloaded{hyperref}{}{\RequirePackage{hyperref}}}%
   \AtBeginDocument{%
     \hypersetup{%
       % pdfa=true% already set elsewhere
@@ -75,9 +94,13 @@
   }
   \directlua{ltpdfa = require('ltpdfa')}
   \directlua{ltpdfa.config.final = true}
-  \ifinlist{ltpdfa}\debug@domain@list
-    {\directlua{ltpdfa.config.debug = true}}
-    {\directlua{ltpdfa.config.debug = false}}
+  \ifdefined\debug@domain@list
+    \ifinlist{ltpdfa}\debug@domain@list
+      {\directlua{ltpdfa.config.debug = true}}
+      {\directlua{ltpdfa.config.debug = false}}
+  \else
+    \directlua{ltpdfa.config.debug = \ifx\cca@debug\relax true\else false\fi}%
+  \fi
   \directlua{ltpdfa.config.nodetree = \ifx\cca@do@nodetree\relax true\else false\fi}
   \directlua{ltpdfa.config.showspaces = \ifx\cca@do@showspaces\relax true\else false\fi}
   \directlua{ltpdfa.config.dospaces = \ifx\cca@do@dospaces\relax true\else false\fi}
@@ -85,8 +108,9 @@
   \directlua{ltpdfa.tagger.doautoclose = false}
   \directlua{ltpdfa.config.driver = "\luaescapestring{pdftex}"}
   \AtBeginDocument{%
-    \edef\cca@lang@id{\localeinfo*{tag.bcp47}}% tag.bcp47
-    \directlua{ltpdfa.config.lang = '\luaescapestring{\cca@lang@id}'}%
+    \@ifpackageloaded{babel}{\edef\cca@lang@id{\localeinfo*{tag.bcp47}}% tag.bcp47
+      \directlua{ltpdfa.config.lang = '\luaescapestring{\cca@lang@id}'}%
+    }{\directlua{ltpdfa.config.lang = '\luaescapestring{en}'}}%
     \directlua{ltpdfa.init()}%
   }%
   \edef\@ltpdfa@pattr{\directlua{ltpdfa.getAttribute('\luaescapestring{parentattr}')}}
@@ -155,7 +179,7 @@
     }%
   \AtBeginDocument{\ActivateGenericHook{babel/*/foreign}}%
 }% /ccWhenAlly
-\ccWhenAlly{\directlua{ally = require('coco-accessibility')}}
+\ccWhenAlly{\IfFileExists{coco-accessibility.lua}{\directlua{ally = require('coco-accessibility')}}{}}
 \DeclareAccessibilityCommand{\ccaAddAltText}[1]{\if@cc@is@final\directlua{ltpdfa.tagger.addAltText(ltpdfa.metadata.utf8toPDFenc('\luaescapestring{#1}'))}\fi}
 \define@key{Gin}{alt}{\gdef\cca@Gin@alt{#1}}
 \DeclareAccessibilityCommand{\ccaAddLastLink}{\if@cc@is@final\directlua{ltpdfa.tagger.addLastLink()}\fi}
@@ -318,16 +342,16 @@
     }%
   }%
   \AtEndDocument{%
-    \ccDebugMsg[a11y]{Final AutoClose. \meaning\ccPrevSecLevel, \meaning\ccCurSecLevel}%
-    \cchResetNesting
-    \ccDebugMsg[a11y]{End Document}%
-    \if@backmatter\ccaVstructEnd{Backmatter}\fi
+    \@ifpackageloaded{coco-headings}{\cchResetNesting}{}%
+    \@ifclassloaded{cocotex}{\if@backmatter\ccaVstructEnd{Backmatter}\fi}{}%
     \ccaVstructEnd{Document}
-    \ifarticle\else
-      \ccaAddRolemap{Frontmatter}{Part}%
-      \ccaAddRolemap{Mainmatter}{Part}%
-      \ccaAddRolemap{Backmatter}{Part}%
-    \fi
+    \@ifclassloaded{cocotex}{%
+      \ifarticle\else
+        \ccaAddRolemap{Frontmatter}{Part}%
+        \ccaAddRolemap{Mainmatter}{Part}%
+        \ccaAddRolemap{Backmatter}{Part}%
+      \fi
+      }{}%
     \directlua{ltpdfa.endDocument()}%
   }%
 }
