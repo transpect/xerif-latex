@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2025/03/14 v0.5.0 cocotex]
+    [2025/03/19 v0.5.0 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
@@ -111,6 +111,7 @@
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
 \ProcessOptions
 \ProcessKeyOptions[cocotex/cls]
+\cs_if_exist:NT \ccClassOptions{\exp_args:Nnx\keys_set:nn {cocotex/cls}{\ccClassOptions}}
 \sys_ensure_backend:
 \prg_generate_conditional_variant:Nnn \regex_match_case:nn {nV} {T,F,TF}
 \regex_match_case:nVF
