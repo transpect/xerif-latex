@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2025/03/19 v0.5.0 cocotex]
+    [2025/03/24 v0.5.0 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
@@ -192,7 +192,7 @@
 \RequirePackage{coco-notes}
 \RequirePackage{index}
 \makeindex
-\ifx\cc@pdf@std X
+\if\cc@pdf@std X
   \let\href\relax
   \RequirePackage{nohyperref}
 \else

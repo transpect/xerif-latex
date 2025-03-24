@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-headings}
-    [2025/03/19 v0.5.0 CoCoTeX headings module]
+    [2025/03/24 v0.5.0 CoCoTeX headings module]
 \RequirePackage{coco-meta}
 \RequirePackage{bookmark}%
 \hypersetup{bookmarksdepth=-999}%
@@ -142,7 +142,6 @@
     \cch@use@hook{print/before}{#2}%
     \def\@svsec{%
       \ccUseProperty{before-heading-block}%
-      \ccCreateLabel{#2}% label facility
       \leftskip\ccUseProperty{margin-left}%
       \rightskip\ccUseProperty{margin-right}%
       \bgroup
@@ -228,6 +227,7 @@
   }}%
 \def\cchGenerateToC{%
   \ifx\cch@open@toc\relax
+    \ccCreateLabel{\ccCurSecName}% generate a new label for the bookmarks and toc
     \ccIfPropVal{no-toc}{true}{}{\cch@make@toc}% ToC entries
     \ccIfPropVal{no-BM}{true}{}{\cch@make@bookmarks}% Bookmarks
     \ccUseProperty{toc-hook}%
