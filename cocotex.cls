@@ -41,17 +41,26 @@
 {
   no-hyperindex .code:n = {\global\let\cc@no@hyperindex\relax}
 }
-\newif\ifcollection \collectionfalse
-\newif\ifarticle    \articlefalse
-\newif\ifmonograph  \monographfalse
-\newif\ifjournal    \journalfalse
+\newif\ifcollection
+\newif\ifarticle
+\newif\ifmonograph
+\newif\ifjournal
 \keys_define:nn { cocotex/cls }
 {
-  pubtype .choice:,
-  pubtype / collection .code:n = { \global\collectiontrue },
-  pubtype / article    .code:n = { \global\articletrue    },
-  pubtype / journal    .code:n = { \global\journaltrue    },
-  pubtype / mono       .code:n = { \global\monographtrue  },
+  pubtype .choices:nn = { collection, article, journal, mono }
+  {
+    \global\collectionfalse
+    \global\articlefalse
+    \global\monographfalse
+    \global\journalfalse
+    \str_case:Vn \l_keys_choice_tl
+    {
+      { collection } { \global\collectiontrue }
+      { article }    { \global\articletrue    }
+      { journal }    { \global\journaltrue    }
+      { mono }       { \global\monographtrue  }
+    }
+  },
   pubtype           .initial:n = mono,
 }
 \keys_define:nn { cocotex/cls }
