@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2025/03/26 v0.5.0 cocotex]
+    [2025/03/28 v0.5.0 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
@@ -201,10 +201,6 @@
 \RequirePackage{coco-notes}
 \RequirePackage{index}
 \makeindex
-\if\cc@pdf@std X
-  \let\href\relax
-  \RequirePackage{nohyperref}
-\else
 \RequirePackage{hyperref}
 \hypersetup{%
     breaklinks%
@@ -216,6 +212,13 @@
    ,bookmarksopen=false%
    ,hyperindex=\ifx\cc@no@hyperindex\relax false\else true\fi
 }
+\if\cc@pdf@std X
+  \hypersetup{draft}
+  \AddToHook{begindocument}{%
+    \@ifpackageloaded{coco-frame.sty}{}{%
+      \RequirePackage[pdfboxes]{coco-frame}%
+    }%
+  }%
 \fi
 \ccAfterClassHook
 \endinput

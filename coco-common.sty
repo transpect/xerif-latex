@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-common}
-    [2025/03/26 v0.5.0 CoCoTeX common module]
+    [2025/03/28 v0.5.0 CoCoTeX common module]
 \SetDefaultHookLabel{cc}
 \def\cc@str@cmyk{cmyk}
 \def\cc@str@rgb{rgb}
@@ -57,6 +57,17 @@
 \ifx\cc@color@enc\relax\else
   \tl_gset:Nn \l_color_fixed_model_tl {\cc@color@enc}%
   \PassOptionsToPackage{\cc@color@enc}{xcolor}%
+  \ifx\cc@color@enc\cc@str@cmyk
+    \def\cct@default@icc@comp{4}%
+    \def\cct@default@icc@iden{Coated FOGRA39}%
+  \else\ifx\cc@color@enc\cc@str@rgb
+      \def\cct@default@icc@comp{3}%
+      \def\cct@default@icc@iden{IEC 61966-2.1 Default RGB colour space - sRGB}%
+    \else
+      \def\cct@default@icc@comp{1}%
+      \def\cct@default@icc@iden{ISO Coated v2 - GREY 1c - (basICColor)}%
+    \fi
+  \fi
 \fi%
 \ExplSyntaxOff
 \def\cc@if@preamble{\ifx\@nodocument\relax\expandafter\@secondoftwo\else\expandafter\@firstoftwo\fi}

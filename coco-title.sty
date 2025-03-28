@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-title}
-    [2025/03/26 v0.5.0 CoCoTeX title module]
+    [2025/03/28 v0.5.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \ccDeclareContainer{titlepage}{%
   \ccInherit {Components,Properties}{CommonMeta}%
@@ -98,7 +98,7 @@
          \ccDebugMsg[pdfmeta]{Writing \string\setDocinfo[utf-8]{##2}{\expandafter\strip@prefix\meaning\cct@cur@data}}%
          \edef\x{\noexpand\ccaSetDocinfo[utf-8]{##2}}\expandafter\x\expandafter{\cct@cur@data}%
        \fi}
-     {\cct@write@hr@infodict{##1}{##3}}}%
+     {\cct@write@hr@infodict{##1}{##2}{##3}}}%
   \def\cct@write@pdf@meta@list##1##2##3##4##5{%
     \let\cct@cur@data\@empty
     \ccIfAlly
@@ -111,7 +111,7 @@
        \else
          \cct@split@pdf@meta{##4}{\and}%
        \fi}
-     {\cct@write@hr@infodict{##1}{##3}}}%
+     {\cct@write@hr@infodict{##1}{##2}{##3}}}%
   \def\cct@split@pdf@meta##1##2{%
     \def\@cct@split@pdf@meta####1##2####2\@nil####3{%
       \if\relax\detokenize{####1}\relax\else
@@ -127,20 +127,44 @@
     }%
     \expandafter\@cct@split@pdf@meta\cct@cur@data##2\@nil{##1}%
   }%
-  \def\cct@write@hr@infodict##1##2{%
-    \protected@edef\x{\noexpand\hypersetup{##1={\expandonce{##2}}}}\x
+  \def\cct@write@hr@infodict##1##2##3{%
+    \if\cc@pdf@std X%
+      \pdfstringdef\cct@cur@data{##3}%
+      \pdfextension info{/##2 (\cct@cur@data)}%
+    \else
+      \protected@edef\x{\noexpand\hypersetup{##1={\expandonce{##3}}}}\x
+    \fi
   }%
   \cct@title@insert@xmp
+  \ifx\cc@color@enc\relax\else
+    \cct@title@process@oi
+  \fi
   \cct@title@process@bkc
   \cct@title@process@bkt
   \cct@title@process@bkk
   \cct@title@process@bka
   \cct@title@process@bkl
 }
+\def\cct@title@process@oi{%
+  \ccIfAlly
+  {\edef\x{\noexpand\ccaAddToConfig{intent}{\ccUseProperty{output-intent}}}\x}
+  {\if\cc@pdf@std X%
+    \immediate\pdfobj stream attr{/N \ccIfComp{IccComponents}{\ccUseComp{IccComponents}}{\cct@default@icc@comp}} file{\ccIfComp{IccProfileFile}{\ccUseComp{IccProfileFile}}{suppl/\cc@color@enc.icc}}
+    \pdfcatalog{%
+      /OutputIntents [ <<
+      /Type /OutputIntent
+      /S /GTS_PDFX
+      /DestOutputProfile \the\pdflastobj\space 0 R
+      /OutputConditionIdentifier(\ccIfComp{IccIdentifier}{\ccUseComp{IccIdentifier}}{\cct@default@icc@iden})
+      /RegistryName(http://www.color.org)
+      >> ]
+    }
+  \fi
+}}
 \def\cct@title@process@bkl{%
   \ccUnlessAlly{%
     \edef\cct@lang@id{\localeinfo*{name.english}}%tag.bcp47
-    \cct@write@hr@infodict{pdflang}{\cct@lang@id}%}%
+    \cct@write@hr@infodict{pdflang}{}{\cct@lang@id}%}%
   }%
 }
 \def\cct@title@process@bkt{%
@@ -195,7 +219,13 @@
     \begingroup
       \immediate\pdfobj stream attr {/Type /Metadata /Subtype /XML}
       file{##1}
-      \pdfcatalog{/Metadata \the\pdflastobj\space 0 R}
+      \pdfcatalog{/Metadata \the\pdflastobj\space 0 R }
+      \if\cc@pdf@std X%
+        \ccWhenComp{PDFConformity}{%
+          \pdfextension info{/GTS_PDFXConformance(\ccUseComp{PDFConformity}) }%
+          \pdfextension info{/GTS_PDFXVersion(\ccUseComp{PDFConformity}) }%
+        }
+      \fi
     \endgroup}%
   \include@xmp
 }
@@ -350,6 +380,10 @@ from the Components given in the Meta Container.}}}
   \ccDeclareGlobalComponent{AddNoteII}%
   \ccDeclareGlobalComponent{AddNoteIII}%
   \ccDeclareGlobalComponent{AddNoteIV}%
+  \ccDeclareGlobalComponent{IccProfileFile}
+  \ccDeclareGlobalComponent{IccComponents}
+  \ccDeclareGlobalComponent{IccIdentifier}%
+  \ccDeclareGlobalComponent{PDFConformity}
 }
 \ccAddToProperties{titlepage}{%
   \ccSetProperty{article-title}{%
@@ -703,41 +737,22 @@ from the Components given in the Meta Container.}}}
         {\ccUseComp{ShortTitle}}
         {\ccUseComp{Title}}}%
   }%
+  \ccSetProperty{output-intent}{%
+    profile=\ccIfComp{IccProfileFile}{\ccUseComp{IccProfileFile}}{suppl/\cc@color@enc.icc};%
+    components=\ccIfComp{IccComponents}{\ccUseComp{IccComponents}}{\cct@default@icc@comp};%
+    identifier=\ccIfComp{IccIdentifier}{\ccUseComp{IccIdentifier}}{\cct@default@icc@iden}%
+  }
 }
-\ifx\cc@color@enc\relax\else
 \ccWhenAlly{%
-  \ccAddToType{Components}{titlepage}{%
-    \ccDeclareGlobalComponent{IccProfileFile}
-    \ccDeclareGlobalComponent{IccComponents}
-    \ccDeclareGlobalComponent{IccIdentifier}}
-  \ifx\cc@color@enc\cc@str@cmyk
-    \def\cca@default@icc@comp{4}%
-    \def\cca@default@icc@iden{Coated FOGRA39}%
-  \else\ifx\cc@color@enc\cc@str@rgb
-      \def\cca@default@icc@comp{3}%
-      \def\cca@default@icc@iden{IEC 61966-2.1 Default RGB colour space - sRGB}%
-    \else
-      \def\cca@default@icc@comp{1}%
-      \def\cca@default@icc@iden{ISO Coated v2 - GREY 1c - (basICColor)}%
-    \fi
-  \fi
-  \ccAddToType{Properties}{titlepage}{%
-    \ccSetProperty{output-intent}{%
-      profile=\ccIfComp{IccProfileFile}{\ccUseComp{IccProfileFile}}{suppl/\cc@color@enc.icc};%
-      components=\ccIfComp{IccComponents}{\ccUseComp{IccComponents}}{\cca@default@icc@comp};%
-      identifier=\ccIfComp{IccIdentifier}{\ccUseComp{IccIdentifier}}{\cca@default@icc@iden}%
-  }}
-  \AddToHook{cct/document/meta}{\edef\x{\noexpand\ccaAddToConfig{intent}{\ccUseProperty{output-intent}}}\x}
   \AddToHook{cct/document/meta}{%
     \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
         pdfaid=2;%
-        level=A%
-        ;pdfuaid=\if@cc@pdf@two2\else1\fi}}%
+        level=A;%
+        pdfuaid=\if@cc@pdf@two2\else1\fi}}%
     \x}%
   \if@cc@pdf@two\else\ccaAddRolemap{Title}{P}\fi
   \ccaAddRolemap{Titlepage}{Div}
-}%ccWhenAlly
-\fi
+}%ccIfAlly
 \endinput
 %%
 %% End of file `coco-title.sty'.
