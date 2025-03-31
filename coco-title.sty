@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-title}
-    [2025/03/28 v0.5.0 CoCoTeX title module]
+    [2025/03/31 v0.5.0 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \ccDeclareContainer{titlepage}{%
   \ccInherit {Components,Properties}{CommonMeta}%
@@ -211,26 +211,28 @@
 \def\cct@title@process@bkk{%
   \cct@write@pdf@meta@list{pdfkeywords}{Keywords}{\ccWhenComp{Keywords}{\ccUseComp{Keywords}}}{\ccaAddKeyword}{\ccUseProperty{keywords-sep}}%
 }
-\def\cct@title@insert@xmp{\ccIfAlly{\cct@title@insert@xmp@ltpdfa}{\cct@title@insert@xmp@direct}}
+\def\cct@title@insert@xmp{%
+  \edef\cca@xmp@file@name{\ccUseComponentFrom{titlepage}{XmpFile}.xmp}%
+  \ccIfAlly
+    {\cct@title@insert@xmp@ltpdfa}
+    {\cct@title@insert@xmp@direct}%
+}
 \def\cct@title@insert@xmp@direct{%
-  \edef\include@xmp{\noexpand\@include@xmp{\ccUseComp{XmpFile}.xmp}}%
-  \def\@include@xmp##1{\IfFileExists{##1}{\@@include@xmp{##1}}{}}%
-  \def\@@include@xmp##1{%
+  \IfFileExists{\cca@xmp@file@name}{%
     \begingroup
       \immediate\pdfobj stream attr {/Type /Metadata /Subtype /XML}
-      file{##1}
+      file{\cca@xmp@file@name}
       \pdfcatalog{/Metadata \the\pdflastobj\space 0 R }
       \if\cc@pdf@std X%
-        \ccWhenComp{PDFConformity}{%
-          \pdfextension info{/GTS_PDFXConformance(\ccUseComp{PDFConformity}) }%
-          \pdfextension info{/GTS_PDFXVersion(\ccUseComp{PDFConformity}) }%
+        \ccWhenComp{PDFPart}{%
+          \pdfextension info{/GTS_PDFXConformance(\ccUseComp{PDFPart}\ccIfCompEmpty{PDFLevel}{}{\ccUseComp{PDFLevel}}\ccIfCompEmpty{PDFIssue}{}{:\ccUseComp{PDFIssue}}) }%
+          \pdfextension info{/GTS_PDFXVersion(\ccUseComp{PDFPart}\ccIfCompEmpty{PDFLevel}{}{\ccUseComp{PDFLevel}}\ccIfCompEmpty{PDFIssue}{}{:\ccUseComp{PDFIssue}}) }%
         }
       \fi
-    \endgroup}%
-  \include@xmp
+    \endgroup%
+  }{}%
 }
 \def\cct@title@insert@xmp@ltpdfa{%
-  \edef\cca@xmp@file@name{\ccUseComponentFrom{titlepage}{XmpFile}.xmp}%
   \IfFileExists{\cca@xmp@file@name}
     {\ccaAddToConfig{metadata}{xmpfile=\cca@xmp@file@name}%
      \directlua{ally.meta:extract()}}
@@ -383,7 +385,10 @@ from the Components given in the Meta Container.}}}
   \ccDeclareGlobalComponent{IccProfileFile}
   \ccDeclareGlobalComponent{IccComponents}
   \ccDeclareGlobalComponent{IccIdentifier}%
-  \ccDeclareGlobalComponent{PDFConformity}
+  \ccDeclareGlobalComponent[\cc@pdf@std]{PDFStandard}
+  \ccDeclareGlobalComponent[\cc@pdf@part]{PDFPart}
+  \ccDeclareGlobalComponent[\cc@pdf@level]{PDFLevel}
+  \ccDeclareGlobalComponent[\cc@pdf@issue]{PDFIssue}
 }
 \ccAddToProperties{titlepage}{%
   \ccSetProperty{article-title}{%
@@ -746,8 +751,6 @@ from the Components given in the Meta Container.}}}
 \ccWhenAlly{%
   \AddToHook{cct/document/meta}{%
     \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
-        pdfaid=2;%
-        level=A;%
         pdfuaid=\if@cc@pdf@two2\else1\fi}}%
     \x}%
   \if@cc@pdf@two\else\ccaAddRolemap{Title}{P}\fi
