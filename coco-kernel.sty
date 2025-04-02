@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-kernel}
-    [2025/03/31 v0.5.0 cocotex kernel]
+    [2025/04/02 v0.5.0 cocotex kernel]
 \ifx\IfFormatAtLeastTF\@undefined
   \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}%
 \fi
@@ -248,8 +248,8 @@
 \long\def\ccIfCompFrom#1#2#3#4{\expandafter\ifx\csname cc@#1@#2\endcsname\relax#4\else#3\fi}
 \long\def\ccIfCompFromVal#1#2#3#4#5{\protected@edef\@argiii{#3}\expandafter\ifx\csname cc@#1@#2\endcsname\@argiii#4\else#5\fi}
 \long\def\cc@long@empty{}
-\long\def\ccIfCompEmpty#1#2#3{\expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\cc@long@empty#2\else#3\fi}
-\long\def\ccIfCompFromEmpty#1#2#3#4{\expandafter\ifx\csname cc@#1@#2\endcsname\cc@long@empty#3\else#4\fi}
+\long\def\ccIfCompEmpty#1#2#3{\expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\cc@long@empty#2\else\expandafter\ifx\csname cc@\cc@cur@cont @#1\endcsname\@empty#2\else#3\fi\fi}
+\long\def\ccIfCompFromEmpty#1#2#3#4{\expandafter\ifx\csname cc@#1@#2\endcsname\cc@long@empty#3\else\expandafter\ifx\csname cc@#1@#2\endcsname\@empty#3\else#4\fi\fi}
 \def\cc@check@empty{\cc@opt@empty\@cc@check@empty}%]
 \def\@cc@check@empty[#1]#2#3#4{%
    \ccIfComp{#4#3}
