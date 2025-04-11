@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-floats}
-    [2025/04/02 v0.5.0 CoCoTeX floats module]
+    [2025/04/11 v0.5.0 CoCoTeX floats module]
 \ExplSyntaxOn
 \keys_define:nn { cocotex/floats }
 {
@@ -163,9 +163,13 @@
     \ccSetProperty{margin-right}{\z@}%
     \ccSetProperty{before-float}{\parindent\z@}%
     \ccSetProperty{fix-dimen}{false}%
+    \ccSetProperty{inline-content-h-sep}{\hfill}%
+    \ccSetProperty{inline-content-v-sep}{\par\hskip\ccf@margin@l}%
+    \ccSetProperty{float-content}{\ccUseComp{Content}}%
     \ccSetProperty{subfloat-content}{\ccUseComp{Content}}%
     \ccSetProperty{float-render}{\ccUseComp{Content}}%
     \ccSetProperty{subfloat-render}{\ccUseComp{Content}}%
+    \ccSetProperty{measure-content}{}
     \ccSetProperty{caption-face}{}%
     \ccSetProperty{caption-face-top}{}%
     \ccSetProperty{caption-face-bottom}{}%
@@ -292,6 +296,9 @@
         {\ccf@create@counter
          \ccf@compose@listof}%
       \ccSubFloatCnt=\ccf@int@sub@flt@cnt\relax
+      \ifnum\ccSubFloatCnt=\z@\relax
+        \ccUseProperty{measure-content}%
+      \fi
       \ccf@test@caption{0}{}{top}%
       \ccf@test@caption{0}{}{bottom}%
       \bgroup
@@ -320,6 +327,22 @@
         {\the\ccf@total@depth}%
       }}%
   }
+\def\ccfAdjustMargins#1{%
+  \global\@tempdima=\dimexpr\textwidth-#1\relax
+  \ifdim\@tempdima>\z@\relax\ifdim\wd\ccf@sub@box>\z@\relax
+      \ccIfStrEqual{\ccUseProperty{margin-left}}{auto}
+       {\global\ccf@total@width=\textwidth\relax
+        \ccIfStrEqual{\ccUseProperty{margin-right}}{auto}
+          {\global\ccf@margin@l=.5\@tempdima\relax
+           \global\ccf@margin@r=.5\@tempdima\relax}
+          {\global\ccf@margin@l=\@tempdima\relax}%
+           \global\advance\ccf@total@width-\ccf@margin@r\relax}
+       {\ccIfStrEqual{\ccUseProperty{margin-right}}{auto}
+         {\global\ccf@total@width=\textwidth\relax
+          \global\ccf@margin@r=\@tempdima\relax
+          \global\advance\ccf@total@width-\ccf@margin@r\relax}
+         {}}%
+     \fi\fi}
 \def\ccSubFloat{%
   \ifx\ccf@is@subfloat\relax
     \PackageError{coco-floats.sty}{Nested ccSubFloats detected!}{You cannot (yet) nest a `ccSubFloat' environment into another `ccSubFloat' environment!}%
@@ -331,9 +354,10 @@
   \ignorespaces}
 \def\endccSubFloat{%
   \ifhmode\unskip\fi
-  \setbox\ccf@sub@box\hbox{\ccGobble
+  \setbox\ccf@sub@box\hbox{%
+    \ccGobble
     \@cc@is@finalfalse
-    \let\includegraphics\ccf@measuresubgraphics
+    \let\includegraphics\ccf@measuregraphics
     \ccUseProperty{subfloat-content}%
   }%
   \expandafter\xdef\csname ccf@\cc@cur@cont @width-\the\ccSubFloatCnt\endcsname{\the\wd\ccf@sub@box}%
@@ -475,8 +499,7 @@
          {\ccf@addcontentsline}%
      \else
        \ccIfAttr{\ccfCapType}{subfloat}{}{\ccf@addcontentsline}%
-     \fi}%
-}
+     \fi}}
 \def\ccf@create@counter{%
   \ccIfAttrIsSet{\ccfCapType}{nonumber}{}
     {\ccUnlessComp{Number}
@@ -521,13 +544,18 @@
 \def\ccf@set@hsize{%
   \expandafter\ccf@sub@sep\ccUseProperty{sub-float-sep}\relax%
   \global\ccf@total@width=\hsize\relax
-  \expandafter\ccf@margin@l\ccUseProperty{margin-left}\relax
-  \expandafter\ccf@margin@r\ccUseProperty{margin-right}\relax
-  \expandafter\ccf@margin@i\ccUseProperty{margin-inner}\relax
-  \expandafter\ccf@margin@o\ccUseProperty{margin-outer}\relax
+  \ccf@set@margin{l}{left}%
+  \ccf@set@margin{r}{right}%
+  \ccf@set@margin{i}{inner}%
+  \ccf@set@margin{o}{outer}%
   \ccf@set@margins
   \global\advance\ccf@total@width-\ccf@margin@r\relax
   }
+\def\ccf@set@margin#1#2{%
+  \ccIfStrEqual{\ccUseProperty{margin-#2}}{auto}
+    {\csname ccf@margin@#1\endcsname=\z@\relax}
+    {\csname ccf@margin@#1\expandafter\endcsname\ccUseProperty{margin-#2}\relax}%
+}
 \def\ccf@set@margins{%
   \ccTestPage
   \if@cc@odd
@@ -767,15 +795,31 @@
   \ccInherit{Properties,Components}{Graphic}%
   \ccDeclareType{Properties}{%
     \ccSetProperty{subfloat-same-height}{true}%
-    \ccSetProperty{subfloat-content}{%
+    \ccSetProperty{float-content}{%
       \ifx\ccf@no@figs\relax
         \rule{0pt}{1pt}\rule{1pt}{0pt}%
       \else
         \ccUseComp{Fig}%
       \fi}%
+    \ccPropertyLet{subfloat-content}{float-content}
     \ccSetProperty{float-render}{\ccfFigureRender}%
     \ccSetProperty{subfloat-render}{\ccfSubFigureRender}%
-  }%
+    \ccSetProperty{measure-content}{\ccfMeasureFigContent}%
+  }}
+\def\ccImageBreak{\ccUseProperty{inline-content-v-sep}}
+\def\ccImageSep{\ccUseProperty{inline-content-h-sep}}
+\def\ccfMeasureFigContent{%
+  \ccaDisable\@cc@is@finalfalse
+  \bgroup
+    \def\ccImageBreak{\egroup\global\setbox\ccf@sub@box\hbox\bgroup\ccGobble\let\includegraphics\ccf@measuregraphics}%
+    \global\setbox\ccf@sub@box\hbox{\ccGobble
+      \let\includegraphics\ccf@measuregraphics
+      \ccUseProperty{float-content}%
+    }%
+    \ccfAdjustMargins{\wd\ccf@sub@box}%
+  \egroup
+  \global\setbox\ccf@sub@box\box\voidb@x
+  \ccaEnable\@cc@is@finaltrue
 }
 \def\ccfFigureRender{%
   \bgroup
@@ -819,8 +863,8 @@
     \ccaStructEnd{Figure}%
   \fi
 }
-\def\ccf@measuresubgraphics{\cc@opt@empty\@ccf@measuresubgraphics}
-\def\@ccf@measuresubgraphics[#1]#2{%
+\def\ccf@measuregraphics{\cc@opt@empty\@ccf@measuregraphics}
+\def\@ccf@measuregraphics[#1]#2{%
   \begingroup
     \setkeys{Gin}{#1}%
     \ifx\Gin@ewidth\Gin@exclamation
@@ -899,6 +943,7 @@
       }%
     \ccSetProperty{float-render}{\ccfTableRender}%
     \ccSetProperty{subfloat-render}{\ccfSubTableRender}%
+    \ccSetProperty{measure-content}{\ccfMeasureTabContent}
   }%
 }
 \AtBeginDocument{%
@@ -952,6 +997,12 @@
     \@cc@is@finaltrue
     \ccfRenderSubFloats{\the\@tempcnta}{Content}%
   }}
+\def\ccfMeasureTabContent{%
+  \ccfGetTableContent
+  \ifvoid\ccf@floatbox\else
+    \ccfAdjustMargins{\wd\ccf@floatbox}%
+  \fi
+}
 \def\ccFloatBarrier{\AtBeginShipoutNext{\clearpage}}
 \endinput
 %%
