@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-floats}
-    [2025/04/11 v0.5.0 CoCoTeX floats module]
+    [2025/04/14 v0.5.0 CoCoTeX floats module]
 \ExplSyntaxOn
 \keys_define:nn { cocotex/floats }
 {
@@ -164,6 +164,7 @@
     \ccSetProperty{before-float}{\parindent\z@}%
     \ccSetProperty{fix-dimen}{false}%
     \ccSetProperty{inline-content-h-sep}{\hfill}%
+    \ccSetProperty{inline-content-h-sep-auto}{0.5em}%
     \ccSetProperty{inline-content-v-sep}{\par\hskip\ccf@margin@l}%
     \ccSetProperty{float-content}{\ccUseComp{Content}}%
     \ccSetProperty{subfloat-content}{\ccUseComp{Content}}%
@@ -812,6 +813,7 @@
   \ccaDisable\@cc@is@finalfalse
   \bgroup
     \def\ccImageBreak{\egroup\global\setbox\ccf@sub@box\hbox\bgroup\ccGobble\let\includegraphics\ccf@measuregraphics}%
+    \def\ccImageSep{\hskip\ccUseProperty{inline-content-h-sep-auto}}%
     \global\setbox\ccf@sub@box\hbox{\ccGobble
       \let\includegraphics\ccf@measuregraphics
       \ccUseProperty{float-content}%
