@@ -411,19 +411,19 @@
   \edef\Url@String{\expandafter\strip@prefix\meaning\Url@String}%
   \edef\x{%
     \noexpand\def\noexpand\cc@break@link\unexpanded{##1}\ccBurlTokenSep\unexpanded{##2}\ccBurlTokenSep\noexpand\@nil{%
-      \noexpand\cc@url@sep\noexpand\hbox\noexpand\bgroup\unexpanded{##1}\noexpand\egroup%
+      \noexpand\ifx\noexpand\cc@url@sep\noexpand\@empty\noexpand\else
+        \noexpand\cc@url@sep\noexpand\hbox\noexpand\bgroup
+      \noexpand\fi
+      \unexpanded{##1}%
+      \noexpand\ifx\noexpand\cc@url@sep\noexpand\@empty\noexpand\else
+        \noexpand\egroup%
+      \noexpand\fi
       \noexpand\if\relax\unexpanded{##2}\relax\noexpand\else
         \noexpand\cc@break@link\unexpanded{##2}\ccBurlTokenSep\noexpand\@nil
         \noexpand\fi
     }}\x
   \begingroup
-    \edef\x{%
-      \noexpand\def\noexpand\cc@break@link\unexpanded{##1}\ccBurlTokenSep\unexpanded{##2}\ccBurlTokenSep\noexpand\@nil{%
-        \unexpanded{##1}%
-        \noexpand\if\relax\unexpanded{##2}\relax\noexpand\else
-          \noexpand\cc@break@link\unexpanded{##2}\ccBurlTokenSep\noexpand\@nil
-          \noexpand\fi
-      }}\x
+    \let\cc@url@sep\@empty
     \edef\x{\noexpand\cc@break@link\unexpanded{#1}\ccBurlTokenSep\ccBurlTokenSep\noexpand\@nil}%
     \xdef\Url@String{\x}%
   \endgroup
@@ -443,7 +443,8 @@
   \Url@HyperHook
   \edef\z{\noexpand\expandafter\noexpand\cc@break@link\noexpand\Url@String\ccBurlTokenSep\ccBurlTokenSep\noexpand\@nil}\z
   \endgroup}
-\def\ccUrlSep#1{\def\cc@url@sep{#1}}\ccUrlSep{\hskip0sp\@plus1sp}
+\def\ccUrlSep#1#2{\def\cc@url@sep{\ifx\ccBurlTokenSep\@empty#1\else#2\fi}}
+\ccUrlSep{\hskip\z@\@plus1sp}{\hskip\z@}
 \endinput
 %%
 %% End of file `coco-common.sty'.
