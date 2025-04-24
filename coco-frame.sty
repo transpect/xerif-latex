@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-frame}
-    [2025/04/17 v0.5.0 coco-frame]\relax
+    [2025/04/24 v0.5.0 coco-frame]\relax
 \let\cc@frame@mode n
 \ExplSyntaxOn
 \bool_new:N       \g_cocotex_frame_none_bool  \bool_set_true:N  \g_cocotex_frame_none_bool
@@ -50,6 +50,18 @@
       \bool_gset_false:N \g_cocotex_frame_none_bool
     }
   }
+\dim_new:N   \g_coco_frame_offset_dim
+\dim_gset:Nn \g_coco_frame_offset_dim {4em}
+\keys_define:nn { cocotex/frame }
+{
+  offset .dim_gset:N = \g_coco_frame_offset_dim
+}
+\dim_new:N   \g_coco_frame_bleed_dim
+\dim_gset:Nn \g_coco_frame_bleed_dim {4mm}
+\keys_define:nn { cocotex/frame }
+{
+  bleed .dim_gset:N = \g_coco_frame_bleed_dim
+}
 \keys_define:nn { cocotex/frame }
 {
   frame .choice:,
@@ -67,11 +79,11 @@
 {
   \ifx\cc@frame@@offset\@undefined
     \newdimen\cc@frame@@offset
-    \cc@frame@@offset4em\relax
+    \cc@frame@@offset\g_coco_frame_offset_dim\relax
   \fi
   \ifx\bleed\@undefined
     \newdimen\bleed
-    \bleed4mm\relax
+    \bleed\g_coco_frame_bleed_dim\relax
   \fi
   \bool_if:NTF \g_cocotex_frame_crops_bool
   {%
@@ -114,54 +126,7 @@
     \CROP@llc\null\hfill\CROP@loedge\hfill\null\CROP@lrc\hskip-1in\null
     \vskip-1in}%
 }
-\bool_if:NT \g_cocotex_frame_crops_bool {%
-  \def\camcross{%
-    \smash{\rlap{%
-        \kern-0.15\p@
-        \vrule\@width0.3\p@\@height1.7mm\@depth1.7mm\relax
-        \kern-0.15\p@
-        \kern-1.7mm\relax
-        \vrule\@width0.3\p@\@height1.7mm\@depth1.7mm\relax
-        \kern-0.3\p@
-        \raise1.7mm\rlap{\vrule\@width3.4mm\@height\z@\@depth0.3\p@}%
-        \lower1.7mm\rlap{\vrule\@width3.4mm\@height0.3\p@\@depth\z@}%
-        \hbox{\vrule\@width3.4mm\@height0.15\p@\@depth0.15\p@}%
-        \kern-0.3\p@
-        \vrule\@width0.3\p@\@height1.7mm\@depth1.7mm\relax}}}
-  \def\cammcrossleft{%
-    \llap{\camcross\vrule\@width\dimexpr\bleed+2mm\relax\@height0.15\p@\@depth0.15\p@\kern\bleed}}
-  \def\cammcrossright{%
-    \rlap{\kern\bleed\vrule\@width\dimexpr\bleed+2mm\relax\@height0.15\p@\@depth0.15\p@\camcross}}
-  \def\cammcrossup{%
-    \rlap{\smash{\raise\dimexpr\cc@frame@@offset-2mm\relax\hbox{\camcross}%
-        \kern-0.15\p@\vrule\@width0.3\p@\@height\dimexpr\cc@frame@@offset-2mm\relax\@depth-\bleed}}}
-  \def\cammcrossdown{%
-    \rlap{\smash{\lower\dimexpr\cc@frame@@offset-2mm\relax\hbox{\camcross}%
-        \kern-0.15\p@\vrule\@width0.3\p@\@height-\bleed\@depth\dimexpr\cc@frame@@offset-2mm\relax}}}
-  \def\CROP@@ulc{\cammcrossup\cammcrossleft}
-  \def\CROP@@urc{\cammcrossup\cammcrossright}
-  \def\CROP@@llc{\cammcrossdown\cammcrossleft}
-  \def\CROP@@lrc{\cammcrossdown\cammcrossright}
-  \renewcommand*\CROP@@info{{%
-      \global\advance\CROP@index\@ne
-      \def\x{\discretionary{}{}{\hbox{\kern.5em---\kern.5em}}}%
-      \ifx\CROP@pagecolor\@empty
-      \else
-        \advance\dimen@\CROP@overlap
-      \fi
-      \hb@xt@\z@{%
-        \hss
-        \lower1em\vbox to\z@{\vss
-          \centering
-          \hsize\dimexpr\paperwidth-20\p@\relax
-          \normalfont
-          \large
-          \vskip5mm\relax
-          \addvspace{\bleed}}%
-        \hss}}%
-  }%
-  \crop[cam]
-}
+\bool_if:NT \g_cocotex_frame_crops_bool {\crop[cam]}
 \bool_if:NT \g_cocotex_frame_guide_bool {%
   \@tempdima\dimexpr\textheight\relax
   \divide\@tempdima by\baselineskip
