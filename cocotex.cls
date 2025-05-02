@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2025/04/24 v0.5.0 cocotex]
+    [2025/05/02 v0.5.0 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
@@ -125,14 +125,17 @@
 \prg_generate_conditional_variant:Nnn \regex_match_case:nn {nV} {T,F,TF}
 \regex_match_case:nVF
   {
-    { ^UA\-1 }   { \pdf_version_gset:n { 1.7 } \PassOptionsToPackage{init}{coco-accessibility} }
-    { ^UA\-2 }   { \pdf_version_gset:n { 2.0 } \PassOptionsToPackage{init}{coco-accessibility} \global\@cc@pdf@twotrue }
-    { ^A\-1 }    { \pdf_version_gset:n { 1.4 } }
-    { ^A\-[23] } { \pdf_version_gset:n { 1.7 } }
-    { ^A\-4 }    { \pdf_version_gset:n { 2.0 } \global\@cc@pdf@twotrue }
-    { ^X\-[123] }{ \pdf_version_gset:n { 1.4 } }
-    { ^X\-[45] } { \pdf_version_gset:n { 1.6 } }
-    { ^X\-6 }    { \pdf_version_gset:n { 2.0 } \global\@cc@pdf@twotrue }
+    { ^UA\-1 }      { \pdf_version_gset:n { 1.7 } \PassOptionsToPackage{init}{coco-accessibility} }
+    { ^UA\-2 }      { \pdf_version_gset:n { 2.0 } \PassOptionsToPackage{init}{coco-accessibility} \global\@cc@pdf@twotrue }
+    { ^A\-1A }      { \pdf_version_gset:n { 1.4 } \PassOptionsToPackage{init}{coco-accessibility}}
+    { ^A\-1B }      { \pdf_version_gset:n { 1.4 } }
+    { ^A\-[23][AU] }{ \pdf_version_gset:n { 1.7 } \PassOptionsToPackage{init}{coco-accessibility}}
+    { ^A\-[23]B }   { \pdf_version_gset:n { 1.7 } }
+    { ^A\-4A }      { \pdf_version_gset:n { 2.0 } \PassOptionsToPackage{init}{coco-accessibility}\global\@cc@pdf@twotrue }
+    { ^A\-4B }      { \pdf_version_gset:n { 2.0 } \global\@cc@pdf@twotrue }
+    { ^X\-[123] }   { \pdf_version_gset:n { 1.4 } }
+    { ^X\-[45] }    { \pdf_version_gset:n { 1.6 } }
+    { ^X\-6 }       { \pdf_version_gset:n { 2.0 } \global\@cc@pdf@twotrue }
   } \g_cc_pdf_standard_str
   { \pdf_version_gset:n { 1.7 } }
 \ExplSyntaxOff
