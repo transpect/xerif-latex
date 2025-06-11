@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2025/05/12 v0.5.0 cocotex]
+    [2025/06/11 v0.6.1 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
@@ -166,26 +166,30 @@
 \newif\if@backmatter   \@backmatterfalse
 \ifarticle\else
   \renewcommand\frontmatter{%
-    \cleardoublepage
     \cchResetNesting
+    \cleardoublepage
     \global\@mainmatterfalse
     \global\@backmatterfalse
     \global\@frontmattertrue
     \ccaVstructStart{Frontmatter}%
     \pagenumbering{arabic}}
   \renewcommand\mainmatter{%
-    \if@frontmatter\ccaVstructEnd{Frontmatter}\fi
-    \cleardoublepage
     \cchResetNesting
+    \if@frontmatter
+      \ccaVstructEnd{Frontmatter}%
+    \fi
+    \cleardoublepage
     \global\@frontmatterfalse
     \global\@backmatterfalse
     \global\@mainmattertrue
     \ccaVstructStart{Mainmatter}%
   }
   \renewcommand\backmatter{%
-    \if@mainmatter\ccaStructEnd{Mainmatter}\fi%
-    \cleardoublepage
     \cchResetNesting
+    \if@mainmatter
+      \ccaVstructEnd{Mainmatter}
+    \fi%
+    \cleardoublepage
     \global\@mainmatterfalse
     \global\@frontmatterfalse
     \global\@backmattertrue
