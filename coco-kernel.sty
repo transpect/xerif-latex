@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-kernel}
-    [2025/06/11 v0.6.1 cocotex kernel]
+    [2025/06/12 v0.6.1 cocotex kernel]
 \ifx\IfFormatAtLeastTF\@undefined
   \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}%
 \fi
@@ -129,6 +129,7 @@
 \ignorespaces}
 \def\ccSetContainer#1{\def\cc@cur@cont{#1}\ignorespaces}
 \def\ccAddToType#1#2{\csgappto{cc@type@#1@#2}}
+\def\ccAddToTypeLocal#1#2{\csappto{cc@type@#1@#2}}
 \def\ccEvalType{\cc@opt@curcont\cc@eval@type}
 \def\cc@eval@type[#1]#2{%
   \expandafter\ifx\csname cc@type@#2@#1\endcsname\relax
