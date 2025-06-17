@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-title}
-    [2025/06/12 v0.6.1 CoCoTeX title module]
+    [2025/06/17 v0.6.1 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \ccDeclareContainer{titlepage}{%
   \ccInherit {Components,Properties}{CommonMeta}%
@@ -751,7 +751,14 @@ from the Components given in the Meta Container.}}}
 \ccWhenAlly{%
   \AddToHook{cct/document/meta}{%
     \edef\x{\noexpand\ccaSetDocinfo{conformance}{%
-        pdfuaid=\if@cc@pdf@two2\else1\fi}}%
+        \if\cc@pdf@std U
+          pdfuaid=\if@cc@pdf@two2\else1\fi
+        \fi
+        \if\cc@pdf@std A
+          ;pdfaid=\cc@pdf@part
+          ;level=\cc@pdf@level
+        \fi
+      }}%
     \x}%
   \if@cc@pdf@two\else\ccaAddRolemap{Title}{P}\fi
   \ccaAddRolemap{Titlepage}{Div}
