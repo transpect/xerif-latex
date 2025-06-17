@@ -282,10 +282,12 @@ from the Components given in the Meta Container.}}}
   }%
 }
 \def\cct@fundings@comp{%
+  \ccDeclareGlobalComponent[2]{FundingColumns}%
   \ccDeclareComponent{FundingBlock}{\expandafter\global}{}%
   \ccDeclareComponentGroup{Funding}{%
     \ccDeclareCountedComponent{FundName}%
     \ccDeclareCountedComponent{FundLogo}%
+    \ccDeclareCountedComponent{FundAltText}%
     \ccDeclareCountedComponent{FundID}%
   }{}%
 }
@@ -452,14 +454,13 @@ from the Components given in the Meta Container.}}}
     \par%
   }%
   %% Funding
-  \ccSetProperty{funding-columns}{2}
   \ccSetProperty{funding-format}{}%
-  \ccSetProperty{fund-width}{.5\textwidth}
+  \ccSetProperty{fund-width}{\dimexpr((\textwidth - (\ccUseProperty{funding-sep}*(\ccUseComp{FundingColumns}-1)))/\ccUseComp{FundingColumns})\relax}
   \ccSetProperty{fund-vertical-sep}{\baselineskip}%
   \ccSetProperty{fund-sep}{%
-    \expandafter\@tempcnta\CalcModulo{\ccCurCount}{\ccUseProperty{funding-columns}}%
-    \ifnum\@tempcnta=\z@
-      \par
+    \expandafter\@tempcnta\CalcModulo{\ccCurCount}{\ccUseComp{FundingColumns}}%
+    \strut
+      \ifnum\@tempcnta=\z@
       \ifnum\ccCurCount<\ccTotalCount\relax
         \vskip\ccUseProperty{fund-vertical-sep}%
       \fi
@@ -472,10 +473,10 @@ from the Components given in the Meta Container.}}}
       \ccWhenComp{FundName}{\ccaStructStart{P}\ccUseComp{FundName}\ccaStructEnd{P}\\[1ex]}%
       \ccaStructStart{Figure}%
       \ccaAddPlacement{Block}%
-      \ccdefFromComp\cca@Gin@alt{FundName}%
+      \ccdefFromComp\cca@Gin@alt{FundAltText}%
       \ccSanitizeStr\@cca@Gin@alt{\cca@Gin@alt}%
       \ccaAddAltText{\@cca@Gin@alt}%
-      \includegraphics[width=\ccUseProperty{fund-width}]{\ccUseComp{FundLogo}}%
+      \includegraphics[max width=\hsize]{\ccUseComp{FundLogo}}%
       \ccaStructEnd{Figure}%
     }%
     \ccUseProperty{fund-sep}%
@@ -483,7 +484,6 @@ from the Components given in the Meta Container.}}}
   \ccSetProperty{funding-sep}{4mm}%
   \ccSetProperty{funding-block}{%
     \bgroup
-      \ccSetPropertyX{fund-width}{\dimexpr(\textwidth/\ccUseProperty{funding-columns})-(\ccUseProperty{funding-sep}/\ccUseProperty{funding-columns})\relax}
       \ccUseProperty{funding-format}%
       \ccGetComp{FundingPreText}%
       \ccGetComp*{FundingBlock}%
