@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2025/06/18 v0.6.1 cocotex]
+    [2025/07/02 v0.6.1 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }

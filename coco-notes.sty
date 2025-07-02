@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-notes}
-    [2025/06/18 v0.6.1 le-tex coco notes module]
+    [2025/07/02 v0.6.1 le-tex coco notes module]
 \newif\if@ccn@use@en \@ccn@use@enfalse
 \ExplSyntaxOn
 \keys_define:nn { cocotex/notes }
@@ -122,7 +122,7 @@
         \noexpand\ifnum\noexpand\csname ccn@enotes@in@\the\realchap\endcsname>\noexpand\csname ccn@enotes@in@\the\numexpr\the\realchap-\@ne\relax\endcsname\relax
           \noexpand\edef\noexpand\prev@leftkip{\noexpand\the\noexpand\leftskip}%
           \noexpand\leftskip\noexpand\z@
-          \noexpand\begin{\ccPrefix Heading}\noexpand[notag\ifx\ccn@en@no@toc\relax, notoc\fi\noexpand]{section}%
+          \noexpand\begin{\ccPrefix Heading}\noexpand[notag\ifx\ccn@en@no@toc\relax ,notoc\fi\noexpand]{section}%
             \noexpand\ccComponent{Number}{\ccn@par@number}%
             \noexpand\ccComponent{Title}{\ccn@par@title}%
             \noexpand\ccComponent{RunTitle}{\ccn@par@runtitle}%
