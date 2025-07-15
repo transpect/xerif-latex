@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2025/07/02 v0.6.1 cocotex]
+    [2025/07/15 v0.6.2 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
@@ -47,7 +47,7 @@
 \newif\ifjournal
 \keys_define:nn { cocotex/cls }
 {
-  pubtype .choices:nn = { collection, article, journal, mono }
+  pubtype .choices:nn = { collection, article, journal, mono, l3doc }
   {
     \global\collectionfalse
     \global\articlefalse
@@ -59,6 +59,7 @@
       { article }    { \global\articletrue    }
       { journal }    { \global\journaltrue    }
       { mono }       { \global\monographtrue  }
+      { l3doc }      { \global\monographtrue  }
     }
   },
   pubtype           .initial:n = mono,

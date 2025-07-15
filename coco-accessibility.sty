@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2025/07/02 v0.6.1 CoCoTeX accessibility module]
+    [2025/07/15 v0.6.2 CoCoTeX accessibility module]
 \@ifpackageloaded{etoolbox}   {}{\RequirePackage{etoolbox}}
 \@ifpackageloaded{graphicx}   {}{\RequirePackage{graphicx}}
 \@ifpackageloaded{iftex}      {}{\RequirePackage{iftex}}
@@ -314,6 +314,7 @@
 \ifx\pdfextension\@undefined\else
 \protected\def\pdfglyphtounicode{\pdfextension glyphtounicode}
 \input glyphtounicode
+\input glyphtounicode-cmr
 \edef\pdfgentounicode{\pdfvariable gentounicode}
 \pdfgentounicode = 1
 \fi
