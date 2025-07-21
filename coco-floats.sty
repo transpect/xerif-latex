@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-floats}
-    [2025/07/18 v0.6.2 CoCoTeX floats module]
+    [2025/07/21 v0.6.2 CoCoTeX floats module]
 \ExplSyntaxOn
 \keys_define:nn { cocotex/floats }
 {
@@ -860,8 +860,8 @@
       \ccSanitizeStr\@cca@Gin@alt{\cca@Gin@alt}%
     \fi
     \ifx\@cca@Gin@alt\relax\else
-      \Hy@pdfstringdef\@@cca@Gin@alt{\@cca@Gin@alt}%
-      \ccaAddAltText{\@@cca@Gin@alt}%
+      %\Hy@pdfstringdef\@@cca@Gin@alt{\@cca@Gin@alt}%
+      \ccaAddAltText{\@cca@Gin@alt}%
     \fi
     \ccaStructEnd{Figure}%
   \fi

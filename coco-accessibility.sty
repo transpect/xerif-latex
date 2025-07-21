@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2025/07/18 v0.6.2 CoCoTeX accessibility module]
+    [2025/07/21 v0.6.2 CoCoTeX accessibility module]
 \@ifpackageloaded{etoolbox}   {}{\RequirePackage{etoolbox}}
 \@ifpackageloaded{graphicx}   {}{\RequirePackage{graphicx}}
 \@ifpackageloaded{iftex}      {}{\RequirePackage{iftex}}
@@ -180,9 +180,8 @@
   \AtBeginDocument{\ActivateGenericHook{babel/*/foreign}}%
 }% /ccWhenAlly
 \ccWhenAlly{\IfFileExists{coco-accessibility.lua}{\directlua{ally = require('coco-accessibility')}}{}}
-\DeclareAccessibilityCommand{\ccaAddAltText}[1]{\if@cc@is@final
-    \Hy@pdfstringdef\@cca@alt{#1}%
-    \directlua{ltpdfa.tagger.addAltText(ltpdfa.metadata.utf8toPDFenc('\luaescapestring{\@cca@alt}'))}%
+\DeclareAccessibilityCommand{\ccaAddAltText}[2][hyperref]{\if@cc@is@final
+    \directlua{ltpdfa.tagger.addAltText('\luaescapestring{#2}', '\luaescapestring{#1}')}%
   \fi}
 \define@key{Gin}{alt}{\gdef\cca@Gin@alt{#1}}
 \DeclareAccessibilityCommand{\ccaAddLastLink}{\if@cc@is@final\directlua{ltpdfa.tagger.addLastLink()}\fi}
