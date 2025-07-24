@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2025/07/21 v0.6.2 CoCoTeX accessibility module]
+    [2025/07/24 v0.6.2 CoCoTeX accessibility module]
 \@ifpackageloaded{etoolbox}   {}{\RequirePackage{etoolbox}}
 \@ifpackageloaded{graphicx}   {}{\RequirePackage{graphicx}}
 \@ifpackageloaded{iftex}      {}{\RequirePackage{iftex}}
@@ -366,6 +366,8 @@
   \@ifpackageloaded{amsmath}{%
     \pretocmd{\start@align}{\ccaVstructStart{P}\ccaStructStart{Formula}}{}{\cca@patch@error\start@align}%
     \apptocmd{\endalign}{\ccaStructEnd{Formula}\ccaVstructEnd{P}}{}{\cca@patch@error\endalign}%
+    \pretocmd{\mathdisplay}{\ccaVstructStart{P}\ccaStructStart{Formula}}{}{\cca@patch@error\mathdisplay}%
+    \apptocmd{\endmathdisplay}{\ccaStructEnd{Formula}\ccaVstructEnd{P}}{}{\cca@patch@error\endmathdisplay}%
   }{}%
 }
  % none so far.
