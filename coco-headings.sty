@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-headings}
-    [2025/07/31 v0.6.2 CoCoTeX headings module]
+    [2026/02/11 v0.6.2 CoCoTeX headings module]
 \RequirePackage{coco-meta}
 \RequirePackage{bookmark}%
 \hypersetup{bookmarksdepth=-999}%
@@ -706,6 +706,10 @@
 }
 \cslet{\ccPrefix NewPar}\ccNewPar
 \letcs\TitleBreak{\ccPrefix Break}
+\begingroup
+  \catcode `\#=\active\gdef#{\string#}
+  \gdef\texthashchar{\string#}%
+\endgroup
 \endinput
 %%
 %% End of file `coco-headings.sty'.
