@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2026/02/11 v0.6.2 CoCoTeX accessibility module]
+    [2026/02/13 v0.6.3 CoCoTeX accessibility module]
 \@ifpackageloaded{etoolbox}   {}{\RequirePackage{etoolbox}}
 \@ifpackageloaded{graphicx}   {}{\RequirePackage{graphicx}}
 \@ifpackageloaded{iftex}      {}{\RequirePackage{iftex}}
@@ -346,7 +346,7 @@
   }%
   \AtEndDocument{%
     \@ifpackageloaded{coco-headings}{\cchResetNesting}{}%
-    \@ifclassloaded{cocotex}{\if@backmatter\ccaVstructEnd{Backmatter}\fi}{}%
+    \@ifclassloaded{cocotex}{\if@backmatter\ccaVstructEnd{Backmatter}\else\if@mainmatter\ccaVstructEnd{Mainmatter}\else\if@frontmatter\ccaVstructEnd{Frontmatter}\fi\fi\fi}{}%
     \ccaVstructEnd{Document}
     \@ifclassloaded{cocotex}{%
       \ifarticle\else
