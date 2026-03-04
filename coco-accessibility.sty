@@ -51,6 +51,11 @@
 {
   debug .code:n = {\let\cca@debug\relax}
 }
+\newif\if@cca@eqn@para \@cca@eqn@paratrue
+\keys_define:nn { cocotex/a11y }
+{
+  no-eqn-para .code:n = {\@cca@eqn@parafalse}
+}
 \let\cca@do@doparas\relax
 \keys_define:nn { cocotex/a11y }
 {
@@ -361,13 +366,17 @@
 \AtBeginDocument{%
   \apptocmd{\(}{\ccaStructStart{Formula}\ccaAddPlacement{Inline}}{}{\cca@patch@error\(}
   \pretocmd{\)}{\ccaStructEnd{Formula}}{}{\cca@patch@error\)}
-  \apptocmd{\[}{\ccaVstructStart{P}\ccaStructStart{Formula}}{}{\cca@patch@error\[}
-  \pretocmd{\]}{\ccaStructEnd{Formula}\ccaVstructEnd{P}}{}{\cca@patch@error\]}
+  \apptocmd{\[}{\if@cca@eqn@para\ccaVstructStart{P}\fi\ccaStructStart{Formula}\ccaAddPlacement{Block}}{}{\cca@patch@error\[}
+  \pretocmd{\]}{\ccaStructEnd{Formula}\if@cca@eqn@para\ccaVstructEnd{P}\fi}{}{\cca@patch@error\]}
   \@ifpackageloaded{amsmath}{%
-    \pretocmd{\start@align}{\ccaVstructStart{P}\ccaStructStart{Formula}}{}{\cca@patch@error\start@align}%
-    \apptocmd{\endalign}{\ccaStructEnd{Formula}\ccaVstructEnd{P}}{}{\cca@patch@error\endalign}%
-    \pretocmd{\mathdisplay}{\ccaVstructStart{P}\ccaStructStart{Formula}}{}{\cca@patch@error\mathdisplay}%
-    \apptocmd{\endmathdisplay}{\ccaStructEnd{Formula}\ccaVstructEnd{P}}{}{\cca@patch@error\endmathdisplay}%
+    \pretocmd{\start@align}{\if@cca@eqn@para\ccaVstructStart{P}\fi
+      \ccaStructStart{Formula}\ccaAddPlacement{Block}}{}{\cca@patch@error\start@align}%
+    \apptocmd{\endalign}{\ccaStructEnd{Formula}%
+      \if@cca@eqn@para\ccaVstructEnd{P}\fi}{}{\cca@patch@error\endalign}%
+    \pretocmd{\mathdisplay}{\if@cca@eqn@para\ccaVstructStart{P}\fi
+      \ccaStructStart{Formula}\ccaAddPlacement{Block}}{}{\cca@patch@error\mathdisplay}%
+    \apptocmd{\endmathdisplay}{\ccaStructEnd{Formula}%
+      \if@cca@eqn@para\ccaVstructEnd{P}\fi}{}{\cca@patch@error\endmathdisplay}%
   }{}%
 }
  % none so far.
