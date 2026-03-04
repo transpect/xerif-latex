@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesClass{cocotex}
-    [2026/02/16 v0.6.3 cocotex]
+    [2026/03/04 v0.6.4 cocotex]
 \SetDefaultHookLabel{cc}
 \ExplSyntaxOn
 \keys_define:nn { cocotex/cls }
@@ -80,6 +80,7 @@
     {
       \exp_args:Nnx
       \keys_set:nn {cocotex/cls} {_pdfstandard=\str_uppercase:n{#1}}
+      \PassOptionsToPackage{a11y}{htmltabs}
     },
   _pdfstandard .str_set:N = \g_cc_pdf_standard_str,
   _pdfstandard .initial:n = A-2A,
