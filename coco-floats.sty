@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-floats}
-    [2026/03/05 v0.6.4 CoCoTeX floats module]
+    [2026/03/11 v0.6.4 CoCoTeX floats module]
 \ExplSyntaxOn
 \keys_define:nn { cocotex/floats }
 {
@@ -460,7 +460,7 @@
 \def\ccf@addcontentsline{%
   \ccWhenComp{ListofEntry}{%
     \protected@write\@auxout
-      {\ccGobble\ccaProtect}%
+      {\ccGobble\ccaProtect\@cc@is@finalfalse}%
       {\string\@writefile{\ccf@cap@list@type}
         {\protect\ccContentsline
           {\ifnum\ccSubFloatCnt>\z@\ccIfAttr{\ccfCapType}{subfloat}{sub}{}\fi\ccfCapType}
