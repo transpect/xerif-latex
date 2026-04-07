@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-common}
-    [2026/03/11 v0.6.4 CoCoTeX common module]
+    [2026/04/07 v0.6.4 CoCoTeX common module]
 \SetDefaultHookLabel{cc}
 \def\cc@str@cmyk{cmyk}
 \def\cc@str@rgb{rgb}
@@ -459,6 +459,12 @@
   \endgroup}
 \def\ccUrlSep#1#2{\def\cc@url@sep{\ifx\ccBurlTokenSep\@empty#1\else#2\fi}}
 \ccUrlSep{\hskip\z@\@plus1sp}{\hskip\z@}
+\@ifpackageloaded{iftex}{}{\RequirePackage{iftex}}
+\ifluatex
+  \IfFileExists{coco-common.lua}{
+    \directlua{require ( "coco-common.lua" )}
+  }{}
+\fi
 \endinput
 %%
 %% End of file `coco-common.sty'.
