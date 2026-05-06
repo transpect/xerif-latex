@@ -6,3 +6,4 @@ This repository contains the
 Kernel](https://github.com/transpect/CoCoTeX) and helper files.
 
 
+This is the legacy version before any accessibility adjustments.
