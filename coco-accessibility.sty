@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2026/04/23 v0.6.4 CoCoTeX accessibility module]
+    [2026/05/13 v0.6.4 CoCoTeX accessibility module]
 \@ifpackageloaded{etoolbox}   {}{\RequirePackage{etoolbox}}
 \@ifpackageloaded{graphicx}   {}{\RequirePackage{graphicx}}
 \@ifpackageloaded{iftex}      {}{\RequirePackage{iftex}}
@@ -241,6 +241,30 @@
           /Contents(\@argii)
         \fi
       }{}{\cca@patch@error\hyper@linkurl}
+    \patchcmd\hyper@linkfile
+      {\pdfstartlink}
+      {\Hy@pstringdef\@argii{#2}%
+        \ccaStructStart{Link}%
+        \ifx\ccAltOverride\@undefined
+          \ccaAddAltText{#2}%
+        \else
+          \ccaAddAltText{\ccAltOverride}%
+          \global\let\ccAltOverride\@undefined
+        \fi
+        \edef\@ltpdfmy@parent{\ccaGetStructParent}%
+       \pdfstartlink}
+      {}{\cca@patch@error\hyper@linkfile}
+    \patchcmd\hyper@linkfile
+      {/C[\@filebordercolor]%
+        \fi
+      }
+      {/C[\@urlbordercolor]%
+        \fi
+        \ifx\ccaGetStructParent\cc@no@ccaGetStructParent\else
+          /StructParent \@ltpdfmy@parent%
+          /Contents(\@argii)
+        \fi
+      }{}{\cca@patch@error\hyper@linkfileX}
     \patchcmd\close@pdflink
       {\pdfendlink}
       {\pdfendlink
