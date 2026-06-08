@@ -29,7 +29,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-accessibility}
-    [2026/05/13 v0.6.4 CoCoTeX accessibility module]
+    [2026/06/08 v0.6.4 CoCoTeX accessibility module]
 \@ifpackageloaded{etoolbox}   {}{\RequirePackage{etoolbox}}
 \@ifpackageloaded{graphicx}   {}{\RequirePackage{graphicx}}
 \@ifpackageloaded{iftex}      {}{\RequirePackage{iftex}}
@@ -341,19 +341,21 @@
   \let\ltx@Ginclude@graphics\Ginclude@graphics
   \def\Ginclude@graphics#1{\if@cc@is@final\ccaFigureStart{}\fi\ltx@Ginclude@graphics{#1}\if@cc@is@final\ccaFigureEnd{}\fi}%
 }
-\apptocmd\Ginclude@@pdftex{\if@cc@is@final%
+\def\cca@Ginclude@patch{\if@cc@is@final%
   \def\@tempa{!}%
   \ccaAddFigure{\Gin@llx}{\Gin@lly}{\Gin@urx}{\Gin@ury}
     {\ifx\Gin@scalex\@tempa\else \Gin@scalex\fi}
     {\ifx\Gin@scaley\@tempa\else \Gin@scaley\fi}
-    {\ifGin@clip true\else false\fi}\fi}%rwi/rhi
-    {}{}
+    {\ifGin@clip true\else false\fi}\fi}
 \AtBeginDocument{%
   \@ifpackageloaded{htmltabs}{%
     \let\ltx@ht@valign@box\ht@valign@box
-    \def\ht@valign@box{\if@ht@final@render\@cc@is@finaltrue\fi\ltx@ht@valign@box}
+    \def\ht@valign@box{\if@ht@final@render\@cc@is@finaltrue\fi\ltx@ht@valign@box}%
     \let\ltx@ht@RenderCell\ht@RenderCell
-    \def\ltx@ht@RenderCell{\@cc@is@finalfalse\ltx@ht@RenderCell}}{}}
+    \def\ltx@ht@RenderCell{\@cc@is@finalfalse\ltx@ht@RenderCell}%
+    \apptocmd\Ginclude@@pdftex{\if@ht@final@render\cca@Ginclude@patch\fi}{}{}}
+  {\apptocmd\Ginclude@@pdftex{\cca@Ginclude@patch}{}{}}%
+}
 \DeclareAccessibilityCommand{\ccaAddScope}[1]{\relax\directlua{ltpdfa.tagger.addScope('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaAddColSpan}[1]{\relax\directlua{ltpdfa.tagger.addColSpan('\luaescapestring{#1}')}}
 \DeclareAccessibilityCommand{\ccaAddRowSpan}[1]{\relax\directlua{ltpdfa.tagger.addRowSpan('\luaescapestring{#1}')}}
