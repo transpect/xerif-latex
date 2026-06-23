@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-common}
-    [2026/06/08 v0.6.4 CoCoTeX common module]
+    [2026/06/23 v0.6.4 CoCoTeX common module]
 \SetDefaultHookLabel{cc}
 \def\cc@str@cmyk{cmyk}
 \def\cc@str@rgb{rgb}
@@ -106,6 +106,13 @@
   {
     \edef #1 { \text_purify:n { #2 } }
   }
+\DeclareDocumentCommand{\ccCalcBaselineOffset}{ m m }{%
+  \fp_set:Nn \l_tmpa_fp { 1 - ( ( ( #2 ) / \baselineskip ) - floor( ( #2 ) / \baselineskip ) ) }%
+  \dim_gset:Nn #1 {\fp_compare:nTF
+    {\l_tmpa_fp = 1.0}
+    { \z@ }
+    { \fp_to_dim:n { \l_tmpa_fp * \baselineskip  }}}%
+}
 \ExplSyntaxOff
 \let\hack\@firstofone
 \let\hackfor\@gobble

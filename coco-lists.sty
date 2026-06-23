@@ -4,7 +4,7 @@
 %%
 %% The original source files were:
 %%
-%% cocotex.dtx  (with options: `lists')
+%% cocotex.dtx  (with options: `list')
 %% 
 %% IMPORTANT NOTICE:
 %% 
@@ -27,8 +27,8 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-lists}
-    [2026/06/08 v0.6.4 CoCoTeX lists module]
-\RequirePackage{coco-common}
+    [2026/06/23 v0.6.4 CoCoTeX lists module]
+\RequirePackage{coco-block}
 \newif\if@ccl@replace \@ccl@replacefalse
 \ExplSyntaxOn
 \keys_define:nn { cocotex/lists }
@@ -58,26 +58,22 @@
 \ProcessKeyOptions[cocotex/lists]
 \ExplSyntaxOff
 \ccDeclareContainer{List}{%
+  \ccInherit{Properties}{Block}%
   \ccDeclareType{Properties}{%
     \ccSetProperty{before-list}{% at the very beginning of each (nested) list
-      \if@noskipsec \leavevmode \fi
-      \ifvmode\else
-        \unskip \par
-      \fi
+      \ccUseProperty{before-block}%
       \ccaStructStart{L}%
     }%
     \ccSetProperty{after-list}{%
       \ccUseProperty{after-item}%
       \ccaStructEnd{L}% end tag for the (nested) list
     }%
-    %% list margins
     \ccSetProperty{margin-top}{\z@}%
-    \ccSetProperty{margin-bottom}{\z@}% vertical space before the list.
+    \ccSetProperty{margin-bottom}{\z@}%
     \ccSetProperty{margin-left}{\csname leftmargin\@roman\cclCurDepth\endcsname-\ccUseProperty{label-sep}+\ccUseProperty{prev-margin-left}}%
-    \ccSetProperty{max-label-width}{.33\textwidth}%
     \ccSetProperty{margin-right}{\z@}% horizontal space to the right of each list item
+    \ccSetProperty{max-label-width}{.33\textwidth}%
     \ccSetProperty{item-sep}{\z@}%
-    \ccSetProperty{after-indent}{false}%
     \ccSetProperty{at-begin-item-body}{\ccaVstructStart{LBody}}%
     \ccSetProperty{at-end-item-body}{\ccaVstructEnd{LBody}}%
     \ccSetProperty{after-item}{%
@@ -108,9 +104,6 @@
         \cclItemIndent-\ccUseProperty{indent}%
       \fi
     }%
-    \ccSetProperty{par-indent}{\parindent}%
-    \ccSetProperty{par-fill-skip}{\@flushglue}%
-    \ccSetProperty{par-skip}{\z@}%
     \ccSetProperty{label}{\ccUseComp{Label}}%
     \ccSetProperty{indent}{-\dimexpr\csname leftmargin\@roman\cclCurDepth\endcsname-\ccUseProperty{label-sep}\relax}%
     \ccSetProperty{label-sep}{.5em}%
@@ -138,7 +131,7 @@
   \ccDeclareType{Components}{%
     \ccDeclareComponent{Label}{}{}%
   }%
-  \ccDeclareEnv{cc@list}{endcc@list}%
+  \ccDeclareEnv{\cc@list}{\endcc@list}%
 }
 \long\def\ccDeclareListType#1#2#3{%
   \def\DeclareAttributeHandler##1{\csdef{ccl@eval@attrs@#1}{##1}}%
@@ -235,8 +228,8 @@
   \edef\ccl@list@type{\ccUseProperty{list-type}}%
   \cclUseAttributeHandler{#1}%
   \cclCalculateMarginLeft%
-  \cclCalculateVMargin{top}%
-  \cclCalculateVMargin{bottom}%
+  \ccbCalculateVMargin{top}%
+  \ccbCalculateVMargin{bottom}%
   \csdef{\ccPrefix Item}{\cc@opt@empty\ccl@item}%
   \def\ccl@item[##1]{%
     \protected@edef\ccl@item@label{##1}%
@@ -271,16 +264,7 @@
   \ccl@advance@depth\m@ne%
   \ccUseProperty{int-margin-bottom}%
   \ifnum\cclCurDepth=\z@\relax
-    \ccIfPropVal{after-indent}{false}{%
-      \global\@afterindentfalse
-      \aftergroup\cc@afterbox}{}%
-  \fi
-}
-\def\cclCalculateVMargin#1{%
-  \ifdim\ccUseProperty{margin-#1}=\z@\relax
-    \ccSetProperty{int-margin-#1}{\relax}%
-  \else
-    \ccSetProperty{int-margin-#1}{\addvspace{\ccUseProperty{margin-#1}}}%
+    \ccUseProperty{after-block}%
   \fi
 }
 \def\cclCalculateMarginLeft{%

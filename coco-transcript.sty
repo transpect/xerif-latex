@@ -1,0 +1,97 @@
+%%
+%% This is file `coco-transcript.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `transcript')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-transcript.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Common document class for \textit{xerif} projects.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+\NeedsTeXFormat{LaTeX2e}[2023/11/01]
+\ProvidesPackage{coco-transcript}
+    [2026/06/23 v0.6.4 CoCoTeX transcript module]
+\RequirePackage{coco-block}
+\ExplSyntaxOn
+\keys_define:nn { cocotex/transcript }
+{
+}
+\ProcessKeyOptions[cocotex/transcript]
+\ExplSyntaxOff
+\ccDeclareContainer{Transcript}{%
+  \ccInherit{Properties}{Block}%
+  \ccDeclareType{Properties}{%
+    \ccSetProperty{before-speaker}{}%
+    \ccSetProperty{speaker-face}{}%
+    \ccSetProperty{after-speaker}{}%
+    \ccSetProperty{speaker-format}{%
+      \ccUseProperty{before-speaker}%
+      \bgroup
+        \ccUseProperty{speaker-face}%
+        \ccUseComp{Speaker}%
+        \ccUseProperty{after-speaker}%
+      \egroup
+    }%
+    \ccSetProperty{before-line}{}%
+    \ccSetProperty{line-face}{}%
+    \ccSetProperty{after-line}{}%
+    \ccSetProperty{line-format}{%
+      \ccUseProperty{before-line}%
+      \bgroup
+        \ccUseProperty{line-face}\ccUseComp{Line}%
+        \ccUseProperty{after-line}%
+      \egroup
+    }%
+    \ccSetProperty{before-transcript-line}{\ifvmode\else\par\fi}%
+    \ccSetProperty{after-transcript-line}{\par}%
+    \ccSetProperty{speaker-sep}{\enskip}%
+    \ccSetProperty{transcript-format}{%
+      \ccUseProperty{before-transcript-line}%
+      \ccIfCompEmpty{Speaker}{}{%
+        \ccUseProperty{speaker-format}%
+        \ccUseProperty{speaker-sep}}%
+      \ccUseProperty{line-format}%
+      \ccUseProperty{after-transcript-line}%
+    }%
+    \ccSetProperty{margin-right}{1em\@plus 1fil}
+  }%
+  \ccDeclareType{Components}{%
+    \ccDeclareComponent{Speaker}%
+    \ccDeclareComponent{Line}%
+  }%
+  \ccDeclareEnv{\cc@transcript}{\endcc@transcript}%
+}
+\long\def\cc@transcript{\cc@opt@empty\@cc@transcript}
+\long\def\@cc@transcript[#1]{%
+  \expandafter\long\expandafter\def\csname\ccPrefix TranscriptLine\endcsname{\cc@opt@empty\cc@transcript@line}%
+  \long\def\cc@transcript@line[##1]##2{%
+    \ccComponent{Speaker}{##1}%
+    \ccComponent{Line}{##2}%
+    \ccUseProperty{transcript-format}%
+  }%
+  \ccEvalType[\cc@cur@cont]{Properties}%
+  \@cc@block[#1]%
+}
+\long\def\endcc@transcript{%
+  \endcc@block
+}
+\endinput
+%%
+%% End of file `coco-transcript.sty'.

@@ -1,0 +1,83 @@
+%%
+%% This is file `coco-block.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cocotex.dtx  (with options: `block')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from coco-block.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file cocotex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Base style for \textit{xerif} block elements.
+%%
+%% Maintainer: p.schulz@le-tex.de
+%%
+\NeedsTeXFormat{LaTeX2e}[2023/11/01]
+\ProvidesPackage{coco-block}
+    [2026/06/23 v0.6.4 CoCoTeX block module]
+\RequirePackage{coco-block}
+\ccDeclareContainer{Block}{%
+  \ccDeclareType{Properties}{%
+    \ccSetProperty{margin-top}{\z@}%
+    \ccSetProperty{margin-bottom}{\z@}% vertical space before the list.
+    \ccSetProperty{margin-left}{1em}%
+    \ccSetProperty{margin-right}{1em}% horizontal space to the right of each list item
+    \ccSetProperty{par-indent}{\parindent}%
+    \ccSetProperty{par-fill-skip}{\@flushglue}%
+    \ccSetProperty{par-skip}{\z@}%
+    \ccSetProperty{block-format}{%
+      \ccUseProperty{int-margin-top}%
+    }%
+    \ccSetProperty{before-block}{%
+      \if@noskipsec \leavevmode \fi
+      \ifvmode\else
+        \unskip \par
+      \fi
+    }
+    \ccSetProperty{after-block}{%
+      \ccIfPropVal{after-indent}{false}{%
+        \global\@afterindentfalse
+        \aftergroup\cc@afterbox}{}%
+    }
+    \ccSetProperty{after-indent}{false}%
+  }% /ccDeclareType{Properties}
+  \ccDeclareEnv{cc@block}{endcc@block}%
+}% /ccDeclareContainer{Block}
+\long\def\cc@block{\cc@opt@empty\@cc@block}
+\long\def\@cc@block[#1]{%
+  \ccbCalculateVMargin{top}%
+  \ccbCalculateVMargin{bottom}%
+  \ccUseProperty{before-block}%
+  \ccUseProperty{int-margin-top}%
+  \leftskip\dimexpr\ccUseProperty{margin-left}\relax%
+  \rightskip\dimexpr\ccUseProperty{margin-right}\relax%
+  \ccUseProperty{block-format}%
+}
+\long\def\endcc@block{%
+  \ccUseProperty{int-margin-bottom}%
+  \ccUseProperty{after-block}
+}
+\def\ccbCalculateVMargin#1{%
+\message{^^J===> #1, \csmeaning{cc@\cc@cur@cont @margin-#1}}
+  \ifdim\ccUseProperty{margin-#1}=\z@\relax
+    \ccSetProperty{int-margin-#1}{\relax}%
+  \else
+    \ccSetProperty{int-margin-#1}{\addvspace{\ccUseProperty{margin-#1}}}%
+  \fi
+}
+\endinput
+%%
+%% End of file `coco-block.sty'.
