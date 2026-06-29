@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-kernel}
-    [2026/06/23 v0.6.4 cocotex kernel]
+    [2026/06/29 v0.6.4 cocotex kernel]
 \ifx\IfFormatAtLeastTF\@undefined
   \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}%
 \fi
@@ -182,6 +182,7 @@
     \ccDebugMsg[inheritance]{value cc@type@#1@#3:^^J \csmeaning{cc@type@#1@#3}}%
   \fi
   \ignorespaces}
+\def\ccInheritTo#1#2#3{\cc@inherit{#1}{#2}{#3}}
 \def\ccDeclareComponent{\cc@opt@second\cc@declare@comp}
 \def\cc@declare@comp[#1]#2#3#4{%
   \ltx@LocalExpandAfter\global\expandafter\let\csname cc@\cc@cur@cont @#1\endcsname\relax
@@ -263,11 +264,7 @@
 \def\ccDeclareComponentGroup{\cc@opt@empty\cc@declare@component@group}%
 \def\cc@declare@component@group[#1]#2#3{%
   \csnumgdef{cc#2Cnt}{\z@}%
-  \def\@argi{#1}\ifx\@argi\@empty
-    \csgdef{cc@type@Attributes@\cc@cur@cont @cc#2}{}%
-  \else
-    \csgappto{cc@type@Attributes@\cc@cur@cont @cc#2}{#1}%
-  \fi
+  \csgdef{cc@type@Attributes@\cc@cur@cont @cc#2}{#1}%
   \long\csdef{\ccPrefix#2}{\cc@opt@empty{\csname cc@group@#2\endcsname}}%
   \long\csdef{cc@group@#2}[##1]{%
     \def\cc@cnt@grp{cc#2}%
@@ -558,7 +555,12 @@
 \endgroup
 \def\ccEvalAttributes{\cc@opt@curcont\cc@eval@attributes}%
 \def\cc@eval@attributes[#1]#2{%
-  \expandafter\ifx\csname cc@type@#1@Attributes\endcsname\relax
+  \expandafter\ifx\csname cc@type@Attributes@#1\endcsname\relax
+    \if!#2!\else
+      \ccPackageWarning{Kernel}{Attribute}
+        {Container instance on line \inputlineno\space has Attributes,^^Jbut Container `#1' provides no Attribute handlers!}
+    \fi
+  \else
     \ccParseAttributes{#1}{#2}%
     \def\ccDeclareAttributeHandler{%
       \let\cc@is@starred\@undefined
@@ -577,11 +579,6 @@
       \fi\ignorespaces
     }%
     \ccEvalType[#1]{Attributes}%
-  \else
-    \if!#2!\else
-      \ccPackageWarning{Kernel}{Attribute}
-        {Container instance on line \inputlineno\space has Attributes,^^Jbut Container `#1' provides no Attribute handlers!}
-    \fi
   \fi
   \ignorespaces}
 \def\ccGetAttribute#1#2{\csuse{cc@#1@attr@#2}}

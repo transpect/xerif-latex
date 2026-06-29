@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-meta}
-    [2026/06/23 v0.6.4 CoCoTeX meta module]
+    [2026/06/29 v0.6.4 CoCoTeX meta module]
 \RequirePackage{coco-common}
 \ccDeclareContainer{CommonMeta}{%
   \ccDeclareType{Components}{%
@@ -71,7 +71,8 @@
 \def\ccDeclareRole{\cc@opt@second\cc@declare@role}%
 \def\cc@declare@role[#1]#2{%
   \ccDeclareComponentGroup[%
-    {\ccDeclareAttributeHandler*{corresp}{\ccSetProperty{is-corresp}{true}}}%
+    \ccDeclareAttributeHandler*{corresp}{\ccSetProperty{is-corresp}{true}}%
+    \ccDeclareAttributeHandler*{deceased}{\ccSetProperty{is-deceased}{true}}%
   ]{#2}{%
     \ccDeclareCountedComponent{FullName}%
     \ccDeclareCountedComponent{CiteName}%
@@ -200,20 +201,12 @@
   \ccSetProperty{initials-sep}{~}
   \ccSetProperty{initials-period}{.}
   \ccSetProperty{role-full-name-format}{%
-    \if\ccUseComp{Honorific}\relax
-    \else
-      \ccUseComp{Honorific}\space
-    \fi
+    \ccWhenComp{Honorific}{\ccUseComp{Honorific}\space}%
     \ccUseComp{FirstName}\space
-    \if\ccUseComp{MidName}\relax
-    \else
-      \ccUseComp{MidName}\space
-    \fi
+    \ccWhenComp{MidName}{\ccUseComp{MidName}\space}%
     \ccUseComp{LastName}%
-    \if\ccUseComp{Lineage}\relax
-    \else
-      \space\ccUseComp{Lineage}%
-    \fi%
+    \ccWhenComp{Lineage}{\space\ccUseComp{Lineage}}%
+    \ccWhenProp{is-deceased}{\ccUseProperty{deceased-mark}}\relax%
   }%
   \ccSetProperty{role-cite-name-format}{\ccIfComp{LastName}{\ccUseComp{LastName},~\ccUseComp{Initial}}{\ccUseComp{FullName}}}% How CiteName for each name is built
   \ccSetProperty{role-short-cite-name-format}{\ccUseComp{LastName}}%
@@ -239,6 +232,7 @@
   \ccSetProperty{keywords-sep}{,\space}%
   \ccSetProperty{corresp-mark}{*}%
   \ccSetProperty{corresp-sep}{,\space}%
+  \ccSetProperty{deceased-mark}{\textsuperscript{\dagger}}%
   \ccPropertyLet{author-cite-name-format}            {role-cite-name-format}%
   \ccPropertyLet{author-short-cite-name-format}      {role-short-cite-name-format}%
   \ccPropertyLet{author-full-name-format}            {role-full-name-format}%
