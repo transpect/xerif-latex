@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-block}
-    [2026/06/29 v0.6.4 CoCoTeX block module]
+    [2026/06/30 v0.6.4 CoCoTeX block module]
 \RequirePackage{coco-block}
 \ccDeclareContainer{Block}{%
   \ccDeclareType{Properties}{%
@@ -71,7 +71,6 @@
   \ccUseProperty{after-block}
 }
 \def\ccbCalculateVMargin#1{%
-\message{^^J===> #1, \csmeaning{cc@\cc@cur@cont @margin-#1}}
   \ifdim\ccUseProperty{margin-#1}=\z@\relax
     \ccSetProperty{int-margin-#1}{\relax}%
   \else
