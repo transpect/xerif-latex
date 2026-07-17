@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-meta}
-    [2026/07/16 v0.6.5 CoCoTeX meta module]
+    [2026/07/17 v0.6.6 CoCoTeX meta module]
 \RequirePackage{coco-common}
 \ccDeclareContainer{CommonMeta}{%
   \ccDeclareType{Components}{%
@@ -180,6 +180,7 @@
     \ccDeclareCountedComponent{Country}%
     \ccDeclareCountedComponent{Department}%
     \ccDeclareCountedComponent{AffilID}%
+    \ccDeclareCountedComponent{ROR}
   }%
   \ccDeclareGroupHandler{Affil}{%
     \ccUnlessComp{AffilID}{\ccComponentEA{AffilID}{\ccAffilCnt}}%
@@ -247,6 +248,7 @@
     \ccWhenComp{Institute}{\ccUseComp{Institute}}%
     \ccWhenComp{Department}{, \ccUseComp{Department}}%
     \ccWhenComp{Address}{, \ccUseComp{Address}}%
+    % \ccWhenComp{ROR}{\space\ccUseProperty{ror-format}}% for backward compatibility not in default!
   }%
   \ccSetProperty{affil-sep}{\par}
   \ccSetProperty{affil-block-item-face}{}%
@@ -267,6 +269,15 @@
        \egroup
        \par
      }}
+  \ccSetProperty{ror-format}{%
+    \ccWhenComp{ROR}{%
+      \if\cc@pdf@std X%
+        \ccCompLink{ROR}{\includegraphics[height=1em]{logos/ROR_CMYK.pdf}}%
+      \else
+        \ccCompLink{ROR}{\includegraphics[height=1em]{logos/ROR_RGB.pdf}}%
+      \fi
+    }%
+  }
   \ccSetProperty{labeled-meta-format}{%
     \ccIfProp{labeled-meta-before-\ccCurInfix}
       {\ccUseProperty{labeled-meta-before-\ccCurInfix}}
