@@ -402,7 +402,7 @@
     \expandafter\addto\expandafter\captionsUSenglish\expandafter{\ccc@tempa}%
   }\relax%
 }
-\def\ccCompLink#1#2{%
+\DeclareRobustCommand{\ccCompLink}[2]{%
   \protected@edef\@argi{\expandonce{\ccUseComp{#1}}}%
   \expandafter\href\expandafter{\@argi}{#2}%
 }

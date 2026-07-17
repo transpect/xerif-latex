@@ -248,7 +248,6 @@
     \ccWhenComp{Institute}{\ccUseComp{Institute}}%
     \ccWhenComp{Department}{, \ccUseComp{Department}}%
     \ccWhenComp{Address}{, \ccUseComp{Address}}%
-    % \ccWhenComp{ROR}{\space\ccUseProperty{ror-format}}% for backward compatibility not in default!
   }%
   \ccSetProperty{affil-sep}{\par}
   \ccSetProperty{affil-block-item-face}{}%
@@ -256,8 +255,9 @@
     \textsuperscript{\ccUseComp{AffilID}}%
     \bgroup
       \ccUseProperty{affil-block-item-face}%
-      \ccUseComp{Affiliation}
+      \ccUseComp{Affiliation}%
     \egroup%
+    \ccWhenComp{ROR}{\ccUseProperty{ror-sep}\ccUseProperty{ror-format}}%
     \ifnum\ccCurCount<\ccTotalCount\relax\ccUseProperty{affil-sep}\fi%
   }
   \ccSetProperty{affil-block-face}{\small\normalfont}%
@@ -269,13 +269,13 @@
        \egroup
        \par
      }}
+  \ccSetProperty{ror-sep}{\space}
+  \ccSetProperty{ror-height}{1.07em}
+  \ccSetProperty{ror-voffset}{-0.26em}
   \ccSetProperty{ror-format}{%
     \ccWhenComp{ROR}{%
-      \if\cc@pdf@std X%
-        \ccCompLink{ROR}{\includegraphics[height=1em]{logos/ROR_CMYK.pdf}}%
-      \else
-        \ccCompLink{ROR}{\includegraphics[height=1em]{logos/ROR_RGB.pdf}}%
-      \fi
+      \raise\ccUseProperty{ror-voffset}\hbox{%
+        \expandafter\href\expandafter{\ccUseComp{ROR}}{\includegraphics[height=\ccUseProperty{ror-height}]{logos/ROR_\ifx\cc@color@enc\cc@str@cmyk cmyk\else rgb\fi.pdf}}}%
     }%
   }
   \ccSetProperty{labeled-meta-format}{%
