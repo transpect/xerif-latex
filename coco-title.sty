@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-title}
-    [2026/07/17 v0.6.6 CoCoTeX title module]
+    [2026/08/07 v0.6.7 CoCoTeX title module]
 \RequirePackage{coco-meta}
 \ccDeclareContainer{titlepage}{%
   \ccInherit {Components,Properties}{CommonMeta}%
@@ -230,14 +230,19 @@
 \def\cct@title@insert@xmp@direct{%
   \IfFileExists{\cca@xmp@file@name}{%
     \begingroup
+      \edef\@tempa{\ifx\cc@titlepage@PDFLevel\relax\else\cc@titlepage@PDFLevel\fi\ifx\cc@titlepage@PDFIssue\relax\else:\cc@titlepage@PDFIssue\fi}
       \immediate\pdfobj stream attr {/Type /Metadata /Subtype /XML}
       file{\cca@xmp@file@name}
       \pdfcatalog{/Metadata \the\pdflastobj\space 0 R }
+      % According to Acrobat Preflight, PDF/X-4 does not allow PDFXVersion in DocumentInfo:
       \if\cc@pdf@std X%
-        \ccWhenComp{PDFPart}{%
-          \pdfextension info{/GTS_PDFXConformance(PDF/\ccUseComp{PDFStandard}-\ccUseComp{PDFPart}\ccIfCompEmpty{PDFLevel}{}{\ccUseComp{PDFLevel}}\ccIfCompEmpty{PDFIssue}{}{:\ccUseComp{PDFIssue}}) }%
-          \pdfextension info{/GTS_PDFXVersion(PDF/\ccUseComp{PDFStandard}-\ccUseComp{PDFPart}\ccIfCompEmpty{PDFLevel}{}{\ccUseComp{PDFLevel}}\ccIfCompEmpty{PDFIssue}{}{:\ccUseComp{PDFIssue}}) }%
-        }
+        \expandafter\ifnum\ccUseComp{PDFPart}=4\relax
+        \else
+          \ccWhenComp{PDFPart}{%
+            \pdfextension info{/GTS_PDFXConformance(PDF/\ccUseComp{PDFStandard}-\ccUseComp{PDFPart}\@tempa) }%
+            \pdfextension info{/GTS_PDFXVersion(PDF/\ccUseComp{PDFStandard}-\ccUseComp{PDFPart}\@tempa) }%
+          }
+        \fi
       \fi
     \endgroup%
   }{}%
@@ -347,7 +352,7 @@ from the Components given in the Meta Container.}}}
   \ccDeclareGlobalComponent{PubROR}%
   \ccDeclareGlobalComponent[\jobname]{XmpFile}%
   \ccDeclareGlobalComponent{PDFCreator}%
-  \ccDeclareGlobalComponent[le-tex xerif with CoCoTeX v.v0.6.6]{PDFProducer}%
+  \ccDeclareGlobalComponent[le-tex xerif with CoCoTeX v.v0.6.7]{PDFProducer}%
   \ccDeclareGlobalComponent{Year}%
   \ccDeclareGlobalComponent[\today]{Date}%
   \ccDeclareGlobalComponent{Edition}%
