@@ -27,7 +27,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}[2023/11/01]
 \ProvidesPackage{coco-kernel}
-    [2026/08/07 v0.6.7 cocotex kernel]
+    [2026/11/10 v0.6.8 cocotex kernel]
 \ifx\IfFormatAtLeastTF\@undefined
   \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}%
 \fi
@@ -288,7 +288,8 @@
     {\ccPackageError{Kernel}{Type}{Component Group `#1' unknown!}{You tried to declare a Group Handler for a Component Group that has not been declared, yet! Use \string\ccDeclareComponentGroup{#1}{} to declare the Component Group first.}}%
 \ignorespaces}
 \let\cc@cnt@grp\@empty
-\def\ccUseCompByIndex#1#2#3{\csname cc@\cc@cur@cont @#1-#3-#2\endcsname}
+\def\ccUseCompByIndex#1#2#3{\csname cc@\cc@cur@cont @cc#1-#3-#2\endcsname}
+\def\ccIfAtIndex#1#2#3#4#5{\expandafter\ifx\csname cc@\cc@cur@cont @cc#1-#3-#2\endcsname\relax#5\else#4\fi}
 \def\ccUsePropFrom#1#2#3{%
   \begingroup
     \@tempcnta\numexpr#2\relax
